@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SpinZone | Article</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --header-height: 70px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        html, body { overflow-x: hidden; width: 100%; }
+        body { background-color: var(--dark-bg); color: var(--text-main); line-height: 1.8; }
+
+        header {
+            background: rgba(2, 6, 23, 0.95); padding: 0 2rem; height: var(--header-height);
+            border-bottom: 1px solid #334155; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
+        .logo span { color: #fff; }
+        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s; }
+        .back-btn:hover { color: white; }
+
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Article Header */
+        .article-header { margin-bottom: 2.5rem; }
+        .article-badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; }
+        .badge-slots { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-poker { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-strat { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-live { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); }
+        .badge-betting { background: rgba(244, 114, 182, 0.15); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.3); }
+        .badge-general { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        .article-title { font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .article-meta { color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .article-meta .author { color: var(--primary); font-weight: 600; }
+
+        /* Article Body */
+        .article-body { font-size: 1.1rem; line-height: 1.9; color: #cbd5e1; }
+        .article-body p { margin-bottom: 1.5rem; }
+        .article-body h2 { font-size: 1.6rem; color: var(--text-main); margin: 2.5rem 0 1rem; font-weight: 700; }
+        .article-body h3 { font-size: 1.3rem; color: var(--text-main); margin: 2rem 0 0.75rem; font-weight: 600; }
+        .article-body ul, .article-body ol { margin: 1rem 0 1.5rem 1.5rem; }
+        .article-body li { margin-bottom: 0.5rem; }
+        .article-body strong { color: var(--text-main); }
+        .article-body a { color: var(--primary); text-decoration: underline; transition: color 0.2s; }
+        .article-body a:hover { color: var(--accent); }
+
+        /* Affiliate CTA Box */
+        .affiliate-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .affiliate-box h3 { color: var(--text-main); font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .affiliate-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+        .affiliate-box .cta-btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .affiliate-box .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5); }
+
+        /* Sidebar affiliate cards */
+        .affiliate-sidebar {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+        }
+        .affiliate-sidebar h3 { font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .affiliate-card {
+            background: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.2s;
+        }
+        .affiliate-card:hover { border-color: var(--primary); }
+        .affiliate-card-info h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+        .affiliate-card-info p { font-size: 0.85rem; color: var(--text-muted); }
+        .affiliate-card-info .bonus { color: var(--accent); font-weight: 700; font-size: 0.95rem; }
+        .affiliate-card .visit-btn {
+            padding: 0.5rem 1.2rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .affiliate-card .visit-btn:hover { background: var(--primary-hover); }
+
+        .affiliate-disclosure {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+
+        /* Loading / Error */
+        .loading { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 1.1rem; }
+        .error-state { text-align: center; padding: 4rem 2rem; }
+        .error-state h2 { margin-bottom: 1rem; }
+        .error-state a { color: var(--primary); }
+
+        footer { text-align: center; padding: 2rem 1rem; color: var(--text-muted); border-top: 1px solid #334155; margin-top: 4rem; background: #020617; font-size: 0.85rem; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header { padding: 0 1rem; height: 56px; }
+            .logo { font-size: 1.2rem; }
+            .article-container { padding: 1rem; }
+            .article-title { font-size: 1.6rem; }
+            .article-body { font-size: 1rem; line-height: 1.7; }
+            .article-body h2 { font-size: 1.3rem; }
+            .affiliate-box { padding: 1.25rem; }
+            .affiliate-card { flex-direction: column; align-items: flex-start; }
+            .affiliate-card .visit-btn { width: 100%; text-align: center; }
+        }
+        @media (max-width: 375px) {
+            .article-title { font-size: 1.4rem; }
+            .article-body { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo">Spin<span>Zone</span></a>
+        <a href="/" class="back-btn">&larr; Back to Feed</a>
+    </header>
+
+    <div class="article-container" id="articleContainer">
+        <div class="loading" id="loadingState">Loading article...</div>
+    </div>
+
+    <footer>
+        <p>SpinZone &copy; 2025 | 18+ Only. Please Gamble Responsibly.</p>
+        <p style="margin-top: 0.5rem;">SpinZone does not offer real money gambling. All content is for informational purposes only.</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://rcsntlpytbwosykkhzzg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const badgeClasses = { slots: 'badge-slots', poker: 'badge-poker', strat: 'badge-strat', live: 'badge-live', betting: 'badge-betting', general: 'badge-general' };
+        const typeLabels = { slots: 'Slots', poker: 'Poker', strat: 'Strategy', live: 'Live Casino', betting: 'Betting', general: 'General' };
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        // Convert simple markdown-like content to HTML
+        function formatContent(text) {
+            return text
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(.+)$/gm, (match) => {
+                    if (match.startsWith('<h') || match.startsWith('<p') || match.startsWith('</p')) return match;
+                    return match;
+                });
+        }
+
+        async function loadArticle() {
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('slug');
+            const container = document.getElementById('articleContainer');
+
+            if (!slug) {
+                container.innerHTML = '<div class="error-state"><h2>Article not found</h2><p><a href="/">Back to home</a></p></div>';
+                return;
+            }
+
+            // Fetch article
+            const { data: article, error } = await sb
+                .from('articles')
+                .select('*, profiles ( username )')
+                .eq('slug', slug)
+                .eq('is_published', true)
+                .single();
+
+            if (error || !article) {
+                container.innerHTML = '<div class="error-state"><h2>Article not found</h2><p>This article may have been removed or unpublished.</p><p><a href="/">Back to home</a></p></div>';
+                return;
+            }
+
+            // Update page title
+            document.title = `${article.title} | SpinZone`;
+
+            // Increment view count
+            sb.from('articles').update({ views: (article.views || 0) + 1 }).eq('id', article.id);
+
+            // Parse affiliate links
+            let affiliateLinks = [];
+            try {
+                affiliateLinks = typeof article.affiliate_links === 'string' ? JSON.parse(article.affiliate_links) : (article.affiliate_links || []);
+            } catch(e) { affiliateLinks = []; }
+
+            const badge = badgeClasses[article.type] || 'badge-general';
+            const label = typeLabels[article.type] || 'General';
+            const author = article.profiles?.username || 'SpinZone';
+            const date = new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const readTime = Math.max(1, Math.ceil(article.content.split(' ').length / 200));
+
+            // Build affiliate cards HTML
+            let affiliateCardsHtml = '';
+            if (affiliateLinks.length > 0) {
+                affiliateCardsHtml = `
+                    <div class="affiliate-sidebar">
+                        <h3>Recommended Casinos</h3>
+                        ${affiliateLinks.map(link => `
+                            <div class="affiliate-card">
+                                <div class="affiliate-card-info">
+                                    <h4>${escapeHtml(link.name || 'Casino')}</h4>
+                                    <p class="bonus">${escapeHtml(link.bonus || '')}</p>
+                                    <p>${escapeHtml(link.description || '')}</p>
+                                </div>
+                                <a href="${escapeHtml(link.url || '#')}" target="_blank" rel="noopener noreferrer nofollow" class="visit-btn">Visit Site &rarr;</a>
+                            </div>
+                        `).join('')}
+                        <div class="affiliate-disclosure">
+                            <strong>Disclosure:</strong> This article contains affiliate links. If you sign up through these links, SpinZone may earn a commission at no extra cost to you. We only recommend platforms we trust. 18+ | T&Cs apply | Gamble responsibly.
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Build inline CTA (inserted in middle of content if affiliate links exist)
+            let ctaHtml = '';
+            if (affiliateLinks.length > 0) {
+                const topLink = affiliateLinks[0];
+                ctaHtml = `
+                    <div class="affiliate-box">
+                        <h3>${escapeHtml(topLink.name || 'Our Top Pick')}</h3>
+                        <p>${escapeHtml(topLink.bonus || 'Sign up today and claim your bonus!')}</p>
+                        <a href="${escapeHtml(topLink.url || '#')}" target="_blank" rel="noopener noreferrer nofollow" class="cta-btn">Claim Bonus &rarr;</a>
+                    </div>
+                `;
+            }
+
+            // Format content and insert CTA in the middle
+            let formattedContent = '<p>' + formatContent(article.content) + '</p>';
+            const paragraphs = formattedContent.split('</p>');
+            const midPoint = Math.floor(paragraphs.length / 2);
+            if (ctaHtml && paragraphs.length > 3) {
+                paragraphs.splice(midPoint, 0, ctaHtml);
+                formattedContent = paragraphs.join('</p>');
+            }
+
+            container.innerHTML = `
+                <div class="article-header">
+                    <span class="article-badge ${badge}">${label}</span>
+                    <h1 class="article-title">${escapeHtml(article.title)}</h1>
+                    <div class="article-meta">
+                        <span>By <span class="author">${escapeHtml(author)}</span></span>
+                        <span>${date}</span>
+                        <span>${readTime} min read</span>
+                        <span>${article.views || 0} views</span>
+                    </div>
+                </div>
+                <div class="article-body">
+                    ${formattedContent}
+                </div>
+                ${affiliateCardsHtml}
+            `;
+        }
+
+        loadArticle();
+    </script>
+</body>
+</html>
