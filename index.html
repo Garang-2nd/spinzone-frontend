@@ -606,23 +606,51 @@
 
             // ========== POSTS ==========
             async function loadPosts() {
-                el.postGrid.innerHTML = '<div class="loading">Loading posts...</div>';
+                el.postGrid.innerHTML = '<div class="loading">Loading...</div>';
+
+                // Fetch posts
                 let q = sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at', { ascending: false });
                 if (state.currentFilter !== 'all') q = q.eq('type', state.currentFilter);
-                const { data: posts, error } = await q;
-                if (error) { el.postGrid.innerHTML = '<div class="empty-state"><p>Failed to load posts.</p></div>'; return; }
-                state.posts = (posts || []).map(p => ({ ...p, username: p.profiles?.username || 'Anonymous', like_count: p.likes ? p.likes.length : 0 }));
+                const { data: posts } = await q;
+
+                // Fetch articles
+                let aq = sb.from('articles').select('*, profiles ( username )').eq('is_published', true).order('created_at', { ascending: false });
+                if (state.currentFilter !== 'all') aq = aq.eq('type', state.currentFilter);
+                const { data: articles } = await aq;
+
+                // Format posts
+                const formattedPosts = (posts || []).map(p => ({
+                    ...p, item_type: 'post',
+                    username: p.profiles?.username || 'Anonymous',
+                    like_count: p.likes ? p.likes.length : 0
+                }));
+
+                // Format articles
+                const formattedArticles = (articles || []).map(a => ({
+                    ...a, item_type: 'article',
+                    username: a.profiles?.username || 'SpinZone',
+                    like_count: a.views || 0,
+                    read_time: Math.max(1, Math.ceil((a.content || '').split(' ').length / 200))
+                }));
+
+                // Merge and sort
+                state.posts = [...formattedArticles, ...formattedPosts];
                 if (state.currentSort === 'popular') state.posts.sort((a, b) => b.like_count - a.like_count);
+                else state.posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
                 updateCounts(); renderPosts(); renderTrending();
             }
             function updateCounts() {
-                sb.from('posts').select('type').then(({ data }) => {
-                    if (!data) return;
-                    const c = { all: data.length, slots: 0, poker: 0, strat: 0, live: 0, betting: 0, general: 0 };
-                    data.forEach(p => { if (c[p.type] !== undefined) c[p.type]++; });
-                    ['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k => {
-                        const el = document.getElementById('count' + k);
-                        if (el) el.textContent = c[k.toLowerCase()];
+                // Count posts
+                sb.from('posts').select('type').then(({ data: postData }) => {
+                    sb.from('articles').select('type').eq('is_published', true).then(({ data: articleData }) => {
+                        const all = [...(postData || []), ...(articleData || [])];
+                        const c = { all: all.length, slots: 0, poker: 0, strat: 0, live: 0, betting: 0, general: 0 };
+                        all.forEach(p => { if (c[p.type] !== undefined) c[p.type]++; });
+                        ['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k => {
+                            const el = document.getElementById('count' + k);
+                            if (el) el.textContent = c[k.toLowerCase()];
+                        });
                     });
                 });
             }
@@ -630,6 +658,13 @@
                 if (!state.posts.length) { el.postGrid.innerHTML = '<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>'; return; }
                 el.postGrid.innerHTML = state.posts.map(p => {
                     const em = typeEmojis[p.type] || '💬', bc = typeBadge[p.type] || 'badge-general', lb = typeLabel[p.type] || 'General';
+
+                    if (p.item_type === 'article') {
+                        // Article card — links to article.html
+                        return '<a href="/article.html?slug=' + encodeURIComponent(p.slug) + '" class="post-card" style="text-decoration:none;cursor:pointer;"><div class="card-img" style="background:linear-gradient(135deg,#4c1d95,#1e1b4b);">' + em + '</div><div class="card-content"><span class="badge ' + bc + '">📝 ' + lb + '</span><h2>' + escapeHtml(p.title) + '</h2><p>' + escapeHtml(p.summary || p.content.substring(0, 150) + '...') + '</p><div class="card-footer"><span>By ' + escapeHtml(p.username) + ' &bull; ' + p.read_time + ' min read</span><div class="card-actions"><span>' + (p.views || 0) + ' views</span></div></div></div></a>';
+                    }
+
+                    // Regular post card
                     const liked = state.userLikes.includes(p.id);
                     return '<article class="post-card"><div class="card-img">' + em + '</div><div class="card-content"><span class="badge ' + bc + '">' + lb + '</span><h2>' + escapeHtml(p.title) + '</h2><p>' + escapeHtml(p.content) + '</p><div class="card-footer"><span>By ' + escapeHtml(p.username) + ' &bull; ' + getTimeAgo(p.created_at) + '</span><div class="card-actions"><button class="btn-icon ' + (liked ? 'liked' : '') + '" onclick="handleLike(' + p.id + ', this)">' + (liked ? '❤️' : '♥') + '</button><span class="like-count-' + p.id + '">' + p.like_count + '</span></div></div></div></article>';
                 }).join('');
