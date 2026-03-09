@@ -7,735 +7,144 @@
     <title>SpinZone | Real Players. Real Talk.</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #8b5cf6;
-            --primary-hover: #7c3aed;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --dark-bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --modal-overlay: rgba(0, 0, 0, 0.85);
-            --focus-ring: 2px solid var(--accent);
-            --header-height: 70px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--dark-bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; width: 100%; }
-        html { overflow-x: hidden; }
-        :focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
-        a { text-decoration: none; color: inherit; transition: color 0.2s; }
-        a:hover { color: var(--primary); }
-
-        header {
-            background: rgba(2, 6, 23, 0.95); padding: 0 2rem; height: var(--header-height);
-            border-bottom: 1px solid #334155; display: flex; justify-content: space-between;
-            align-items: center; position: sticky; top: 0; z-index: 100;
-            backdrop-filter: blur(10px); width: 100%; overflow: hidden;
-        }
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
-        .logo span { color: #fff; }
-        .user-actions { display: flex; gap: 1rem; align-items: center; }
-
-        .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-outline { border: 1px solid #334155; background: transparent; color: var(--text-muted); }
-        .btn-outline:hover { border-color: var(--text-main); color: var(--text-main); background: rgba(255,255,255,0.05); }
-        .btn-danger-outline { border: 1px solid #334155; background: transparent; color: var(--danger); }
-        .btn-danger-outline:hover { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-        .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 0.5rem; }
-        .btn-icon:hover { color: var(--danger); }
-        .btn-icon.liked { color: var(--danger); animation: pop 0.3s ease; }
-        @keyframes pop { 50% { transform: scale(1.3); } }
-
-        .user-profile { display: flex; align-items: center; gap: 12px; animation: fadeIn 0.3s ease; }
-        .avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; flex-shrink: 0; }
-        .username { font-weight: 600; color: white; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem; align-items: start; overflow: hidden; }
-
-        aside h3 { margin-bottom: 1rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
-        aside { min-width: 0; }
-        .category-nav { display: flex; flex-direction: column; gap: 0.5rem; }
-        .cat-btn { padding: 0.8rem; background: var(--card-bg); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid transparent; width: 100%; color: var(--text-main); font-size: 0.95rem; text-align: left; transition: background 0.2s; }
-        .cat-btn:hover, .cat-btn.active { background: #334155; border-color: var(--primary); }
-        .count { background: #0f172a; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; color: var(--text-muted); }
-        .community-hub { margin-top: 2.5rem; }
-        .hot-topic { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #334155; transition: transform 0.2s; }
-        .hot-topic:hover { transform: translateX(5px); }
-        .hot-topic h4 { font-size: 0.95rem; margin-bottom: 0.3rem; line-height: 1.4; }
-        .hot-topic span { font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 5px; }
-
-        .hero { background: linear-gradient(110deg, #4c1d95 0%, #1e1b4b 100%); padding: 3rem 2rem; border-radius: 16px; margin-bottom: 2rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
-        .hero h1 { font-size: 2.8rem; margin-bottom: 0.5rem; letter-spacing: -1px; line-height: 1.1; }
-        .hero p { color: #cbd5e1; font-size: 1.2rem; max-width: 600px; margin: 0 auto; }
-        main { min-width: 0; overflow: hidden; }
-
-        /* SLOT MACHINE */
-        .slot-machine-container { background: var(--card-bg); border: 2px solid var(--primary); border-radius: 16px; padding: 2rem; width: 100%; max-width: 500px; margin: 2rem auto; box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3); position: relative; }
-        .slot-title { text-align: center; font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
-        .slot-reels { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; padding: 1.5rem; background: #0f172a; border-radius: 12px; border: 2px solid #334155; }
-        .reel { width: 80px; height: 100px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border: 2px solid var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5); }
-        .reel-content { display: flex; flex-direction: column; align-items: center; position: absolute; transition: transform 0.1s ease-out; }
-        .reel-symbol { height: 100px; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .reel.spinning .reel-content { animation: spin-reel 0.1s linear infinite; }
-        @keyframes spin-reel { 0% { transform: translateY(0); } 100% { transform: translateY(-100px); } }
-        .reel.spinning { filter: blur(3px); }
-        .reel.stopped { animation: reel-bounce 0.5s ease-out; }
-        @keyframes reel-bounce { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .spin-button { width: 100%; padding: 1rem 2rem; font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); position: relative; overflow: hidden; }
-        .spin-button::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
-        .spin-button:hover::before { width: 300px; height: 300px; }
-        .spin-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6); }
-        .spin-button:active { transform: translateY(0); }
-        .spin-button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
-        .spin-button:disabled:hover { transform: none; }
-        .result-message { text-align: center; margin-top: 1.5rem; font-size: 1.1rem; font-weight: 600; min-height: 30px; color: var(--text-main); opacity: 0; transform: translateY(-10px); transition: all 0.3s ease; }
-        .result-message.show { opacity: 1; transform: translateY(0); }
-        .result-message.winner { color: var(--accent); font-size: 1.3rem; animation: pulse-win 0.5s ease-in-out 2; }
-        @keyframes pulse-win { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .slot-lights { display: flex; justify-content: space-around; margin-bottom: 1rem; }
-        .light { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); animation: blink 1s ease-in-out infinite; }
-        .light:nth-child(2) { animation-delay: 0.33s; }
-        .light:nth-child(3) { animation-delay: 0.66s; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-        .feed-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .filter-btn { padding: 0.4rem 1rem; background: var(--card-bg); border: 1px solid #334155; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: 0.2s; font-size: 0.9rem; }
-        .filter-btn:hover { border-color: var(--text-main); color: var(--text-main); }
-        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
-        .post-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #334155; display: flex; flex-direction: column; height: 100%; }
-        .post-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
-        .card-img { height: 160px; background: #334155; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 3rem; position: relative; }
-        .card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); }
-        .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
-        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.8rem; align-self: flex-start; text-transform: uppercase; }
-        .badge-slots { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge-poker { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .badge-strat { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-live { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); }
-        .badge-betting { background: rgba(244, 114, 182, 0.15); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.3); }
-        .badge-general { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
-        .post-card h2 { font-size: 1.25rem; margin-bottom: 0.75rem; line-height: 1.3; color: white; }
-        .post-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-top: auto; }
-        .card-actions { display: flex; gap: 1rem; align-items: center; }
-
-        .create-post-bar { background: var(--card-bg); border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; display: none; }
-        .create-post-bar.visible { display: block; }
-        .create-post-bar h3 { margin-bottom: 1rem; font-size: 1.1rem; color: var(--text-main); }
-        .create-post-bar .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
-        .create-post-bar input, .create-post-bar textarea, .create-post-bar select { width: 100%; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; font-size: 0.95rem; transition: 0.2s; font-family: inherit; }
-        .create-post-bar input:focus, .create-post-bar textarea:focus, .create-post-bar select:focus { border-color: var(--primary); }
-        .create-post-bar textarea { resize: vertical; min-height: 80px; }
-        .create-post-bar select { max-width: 200px; cursor: pointer; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(5px); padding: 1rem; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 16px; width: 100%; max-width: 420px; border: 1px solid #475569; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; max-height: 90vh; overflow-y: auto; }
-        .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .modal-header h2 { font-size: 1.8rem; color: white; line-height: 1.2; }
-        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 2rem; cursor: pointer; line-height: 1; transition: 0.2s; padding: 0.5rem; }
-        .close-modal:hover { color: white; transform: rotate(90deg); }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-        .form-input { width: 100%; padding: 0.9rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem; }
-        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
-        .btn-full { width: 100%; margin-top: 0.5rem; padding: 0.9rem; font-size: 1rem; }
-        .btn-google { width: 100%; padding: 0.9rem; font-size: 1rem; font-weight: 600; background: white; color: #333; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: all 0.2s; margin-bottom: 1.25rem; }
-        .btn-google:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translateY(-1px); }
-        .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
-        .auth-divider { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; color: var(--text-muted); font-size: 0.85rem; }
-        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #334155; }
-        .auth-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; padding: 0.6rem; background: rgba(239, 68, 68, 0.1); border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2); display: none; }
-        .auth-error.visible { display: block; }
-        .age-actions { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; }
-
-        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border-left: 4px solid var(--accent); padding: 1rem 1.5rem; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); transform: translateY(100px); transition: transform 0.3s ease; z-index: 3000; font-weight: 600; max-width: 90%; }
-        .toast.error { border-left-color: var(--danger); }
-        .toast.active { transform: translateY(0); }
-
-        .loading { text-align: center; padding: 2rem; color: var(--text-muted); }
-        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
-
-        footer { text-align: center; padding: 3rem 1rem; color: var(--text-muted); border-top: 1px solid #334155; margin-top: 4rem; background: #020617; overflow: hidden; }
-        .disclaimer { font-size: 0.85rem; max-width: 600px; margin: 1rem auto; opacity: 0.8; line-height: 1.5; padding: 1rem; border: 1px solid #334155; border-radius: 8px; background: rgba(15, 23, 42, 0.5); width: calc(100% - 2rem); }
-
-        @media (max-width: 992px) {
-            .container { grid-template-columns: 1fr; gap: 1.5rem; }
-            aside { position: sticky; top: var(--header-height); background: var(--dark-bg); z-index: 50; padding-bottom: 1rem; border-bottom: 1px solid #334155; }
-            .category-nav { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; gap: 0.75rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-            .category-nav::-webkit-scrollbar { display: none; }
-            .cat-btn { min-width: max-content; padding: 0.6rem 1rem; }
-            .community-hub { display: none; }
-        }
-
-        /* --- PHONES (below 600px) --- */
-        @media (max-width: 600px) {
-            /* iPhone safe areas for notch/Dynamic Island */
-            body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-
-            /* Header */
-            header { padding: 0 0.75rem; height: 56px; }
-            :root { --header-height: 56px; }
-            .logo { font-size: 1.2rem; letter-spacing: 0.5px; }
-            .user-actions { gap: 0.5rem; }
-            .btn { font-size: 0.8rem; padding: 0.45rem 0.7rem; min-height: 38px; }
-            .user-profile { gap: 8px; }
-            .avatar { width: 30px; height: 30px; font-size: 0.8rem; }
-            .username { font-size: 0.85rem; max-width: 80px; }
-
-            /* Layout */
-            .container { padding: 0.75rem; gap: 1rem; }
-
-            /* Hero */
-            .hero { padding: 1.5rem 1rem; margin-bottom: 1rem; border-radius: 12px; }
-            .hero h1 { font-size: 1.6rem; letter-spacing: -0.5px; }
-            .hero p { font-size: 0.9rem; }
-
-            /* Slot Machine */
-            .slot-machine-container { padding: 1.25rem; margin: 0.75rem auto; border-radius: 12px; max-width: 100%; }
-            .slot-title { font-size: 1rem; margin-bottom: 1rem; letter-spacing: 1px; }
-            .slot-reels { gap: 0.6rem; padding: 1rem; margin-bottom: 1.25rem; }
-            .reel { width: 65px; height: 80px; font-size: 2.2rem; border-radius: 6px; }
-            .reel-symbol { height: 80px; }
-            .slot-lights { margin-bottom: 0.75rem; }
-            .light { width: 8px; height: 8px; }
-            .spin-button { font-size: 0.95rem; padding: 0.75rem 1.25rem; border-radius: 10px; }
-            .result-message { font-size: 0.95rem; margin-top: 1rem; }
-            .result-message.winner { font-size: 1.1rem; }
-
-            /* Create Post */
-            .create-post-bar { padding: 1rem; border-radius: 10px; }
-            .create-post-bar .form-row { flex-direction: column; gap: 0.75rem; }
-            .create-post-bar select { max-width: 100%; }
-            .create-post-bar input, .create-post-bar textarea, .create-post-bar select { font-size: 16px; padding: 0.7rem; }
-
-            /* Feed */
-            .feed-header { flex-direction: column; align-items: flex-start; gap: 0.6rem; margin-bottom: 1rem; }
-            .feed-header h3 { font-size: 1.05rem; }
-            .feed-filters { width: 100%; overflow-x: auto; padding-bottom: 0.3rem; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-            .filter-btn { flex-shrink: 0; font-size: 0.8rem; padding: 0.35rem 0.8rem; }
-
-            /* Post Cards */
-            .card-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .card-img { height: 120px; font-size: 2.5rem; }
-            .card-content { padding: 1rem; }
-            .post-card h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-            .post-card p { font-size: 0.88rem; margin-bottom: 1rem; line-height: 1.5; }
-            .card-footer { font-size: 0.8rem; padding-top: 0.75rem; }
-
-            /* Category sidebar on mobile */
-            .category-nav { gap: 0.5rem; }
-            .cat-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; }
-            .count { font-size: 0.7rem; padding: 1px 6px; }
-
-            /* Modals */
-            .modal-overlay { padding: 0.5rem; align-items: flex-end; }
-            .modal-content { padding: 1.5rem; border-radius: 16px 16px 0 0; max-height: 85vh; max-width: 100%; margin-bottom: 0; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
-            .modal-header { margin-bottom: 1.25rem; }
-            .modal-header h2 { font-size: 1.4rem; }
-            .close-modal { font-size: 1.6rem; padding: 0.3rem; }
-            .form-group { margin-bottom: 1rem; }
-            .form-group label { font-size: 0.85rem; margin-bottom: 0.3rem; }
-            .form-input { font-size: 16px; padding: 0.8rem; border-radius: 8px; }
-            .btn-full { padding: 0.85rem; font-size: 0.95rem; }
-            .btn-google { padding: 0.8rem; font-size: 0.9rem; margin-bottom: 1rem; }
-            .auth-divider { margin-bottom: 1rem; font-size: 0.8rem; }
-            .age-actions { gap: 0.6rem; margin-top: 1.25rem; }
-
-            /* Toast */
-            .toast { left: 0.75rem; right: 0.75rem; bottom: calc(10px + env(safe-area-inset-bottom)); width: auto; text-align: center; font-size: 0.9rem; padding: 0.8rem 1rem; border-radius: 8px; }
-
-            /* Footer */
-            footer { padding: 2rem 1rem; margin-top: 2rem; padding-bottom: calc(2rem + env(safe-area-inset-bottom)); }
-            footer h3 { font-size: 1.1rem; }
-            .disclaimer { font-size: 0.8rem; padding: 0.75rem; }
-        }
-
-        /* --- VERY SMALL PHONES (iPhone SE, 320-375px) --- */
-        @media (max-width: 375px) {
-            header { padding: 0 0.5rem; }
-            .logo { font-size: 1.05rem; }
-            .btn { font-size: 0.75rem; padding: 0.4rem 0.6rem; }
-            .avatar { width: 26px; height: 26px; font-size: 0.7rem; }
-            .username { max-width: 60px; font-size: 0.8rem; }
-
-            .hero h1 { font-size: 1.4rem; }
-            .hero p { font-size: 0.85rem; }
-
-            .slot-reels { gap: 0.4rem; padding: 0.75rem; }
-            .reel { width: 55px; height: 70px; font-size: 1.8rem; }
-            .reel-symbol { height: 70px; }
-            .slot-title { font-size: 0.9rem; }
-            .spin-button { font-size: 0.85rem; padding: 0.65rem 1rem; }
-
-            .card-img { height: 100px; font-size: 2rem; }
-            .post-card h2 { font-size: 1rem; }
-            .post-card p { font-size: 0.82rem; }
-
-            .modal-content { padding: 1.25rem; padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); }
-            .modal-header h2 { font-size: 1.25rem; }
-            .btn-google { font-size: 0.85rem; padding: 0.7rem; }
-        }
+        :root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--danger:#ef4444;--dark-bg:#0f172a;--card-bg:#1e293b;--text-main:#f8fafc;--text-muted:#94a3b8;--modal-overlay:rgba(0,0,0,0.85);--focus-ring:2px solid var(--accent);--header-height:70px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+        body{background-color:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden;width:100%}
+        html{overflow-x:hidden}
+        :focus-visible{outline:var(--focus-ring);outline-offset:2px}
+        a{text-decoration:none;color:inherit;transition:color .2s}a:hover{color:var(--primary)}
+        header{background:rgba(2,6,23,.95);padding:0 2rem;height:var(--header-height);border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);width:100%;overflow:hidden}
+        .logo{font-size:1.5rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}.logo span{color:#fff}
+        .user-actions{display:flex;gap:1rem;align-items:center}
+        .btn{padding:.6rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-size:.95rem;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;white-space:nowrap}
+        .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}
+        .btn-outline{border:1px solid #334155;background:transparent;color:var(--text-muted)}.btn-outline:hover{border-color:var(--text-main);color:var(--text-main);background:rgba(255,255,255,.05)}
+        .btn-danger-outline{border:1px solid #334155;background:transparent;color:var(--danger)}.btn-danger-outline:hover{border-color:var(--danger);background:rgba(239,68,68,.1)}
+        .btn-icon{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;padding:.5rem}.btn-icon:hover{color:var(--danger)}.btn-icon.liked{color:var(--danger);animation:pop .3s ease}
+        @keyframes pop{50%{transform:scale(1.3)}}
+        .user-profile{display:flex;align-items:center;gap:12px;animation:fadeIn .3s ease}
+        .avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:bold;color:#fff;flex-shrink:0}
+        .username{font-weight:600;color:#fff;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+        .container{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:260px 1fr;gap:2.5rem;align-items:start;overflow:hidden}
+        aside h3{margin-bottom:1rem;color:var(--text-muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700}aside{min-width:0}
+        .category-nav{display:flex;flex-direction:column;gap:.5rem}
+        .cat-btn{padding:.8rem;background:var(--card-bg);border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid transparent;width:100%;color:var(--text-main);font-size:.95rem;text-align:left;transition:background .2s}.cat-btn:hover,.cat-btn.active{background:#334155;border-color:var(--primary)}
+        .count{background:#0f172a;padding:2px 8px;border-radius:12px;font-size:.75rem;color:var(--text-muted)}
+        .community-hub{margin-top:2.5rem}
+        .hot-topic{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #334155;transition:transform .2s}.hot-topic:hover{transform:translateX(5px)}.hot-topic h4{font-size:.95rem;margin-bottom:.3rem;line-height:1.4}.hot-topic span{font-size:.8rem;color:var(--accent);display:flex;align-items:center;gap:5px}
+        .hero{background:linear-gradient(110deg,#4c1d95 0%,#1e1b4b 100%);padding:3rem 2rem;border-radius:16px;margin-bottom:2rem;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}.hero h1{font-size:2.8rem;margin-bottom:.5rem;letter-spacing:-1px;line-height:1.1}.hero p{color:#cbd5e1;font-size:1.2rem;max-width:600px;margin:0 auto}
+        main{min-width:0;overflow:hidden}
+        /* FLOATING SLOT WIDGET */
+        .slot-toggle-btn{position:fixed;bottom:24px;right:24px;z-index:900;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.5);transition:all .3s ease;display:flex;align-items:center;justify-content:center}.slot-toggle-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(139,92,246,.7)}.slot-toggle-btn.active{background:#475569}
+        .slot-machine-container{position:fixed;bottom:92px;right:24px;z-index:899;background:var(--card-bg);border:2px solid var(--primary);border-radius:14px;padding:1.1rem;width:260px;box-shadow:0 10px 40px rgba(0,0,0,.5);transform:scale(0) translateY(20px);transform-origin:bottom right;opacity:0;visibility:hidden;transition:all .3s cubic-bezier(.175,.885,.32,1.275)}.slot-machine-container.open{transform:scale(1) translateY(0);opacity:1;visibility:visible}
+        .slot-title{text-align:center;font-size:.85rem;font-weight:800;color:var(--primary);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:1.5px}
+        .slot-reels{display:flex;gap:.5rem;justify-content:center;margin-bottom:.8rem;padding:.6rem;background:#0f172a;border-radius:8px;border:1px solid #334155}
+        .reel{width:52px;height:56px;background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+        .reel-content{display:flex;flex-direction:column;align-items:center;position:absolute;transition:transform .1s ease-out}
+        .reel-symbol{height:56px;display:flex;align-items:center;justify-content:center;user-select:none}
+        .reel.spinning .reel-content{animation:spin-reel .1s linear infinite}
+        @keyframes spin-reel{0%{transform:translateY(0)}100%{transform:translateY(-56px)}}
+        .reel.spinning{filter:blur(3px)}.reel.stopped{animation:reel-bounce .4s ease-out}
+        @keyframes reel-bounce{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+        .spin-button{width:100%;padding:.5rem 1rem;font-size:.85rem;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .3s ease;box-shadow:0 3px 10px rgba(139,92,246,.3);position:relative;overflow:hidden}.spin-button::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .6s,height .6s}.spin-button:hover::before{width:300px;height:300px}.spin-button:hover{transform:translateY(-1px)}.spin-button:disabled{background:#475569;cursor:not-allowed;box-shadow:none}.spin-button:disabled:hover{transform:none}
+        .result-message{text-align:center;margin-top:.5rem;font-size:.8rem;font-weight:600;min-height:20px;color:var(--text-main);opacity:0;transition:all .3s ease}.result-message.show{opacity:1}.result-message.winner{color:var(--accent);font-size:.9rem;animation:pulse-win .5s ease-in-out 2}
+        @keyframes pulse-win{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .slot-lights{display:flex;justify-content:space-around;margin-bottom:.4rem}.light{width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 6px var(--primary);animation:blink 1s ease-in-out infinite}.light:nth-child(2){animation-delay:.33s}.light:nth-child(3){animation-delay:.66s}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .feed-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+        .feed-filters{display:flex;gap:.5rem;flex-wrap:wrap}
+        .filter-btn{padding:.4rem 1rem;background:var(--card-bg);border:1px solid #334155;color:var(--text-muted);cursor:pointer;border-radius:20px;transition:.2s;font-size:.9rem}.filter-btn:hover{border-color:var(--text-main);color:var(--text-main)}.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+        .post-card{background:var(--card-bg);border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s;border:1px solid #334155;display:flex;flex-direction:column;height:100%}.post-card:hover{transform:translateY(-5px);border-color:var(--primary);box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+        .card-img{height:160px;background:#334155;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:3rem;position:relative}.card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)}
+        .card-content{padding:1.5rem;display:flex;flex-direction:column;flex-grow:1}
+        .badge{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.75rem;font-weight:700;margin-bottom:.8rem;align-self:flex-start;text-transform:uppercase}
+        .badge-slots{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}.badge-poker{background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.3)}.badge-strat{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3)}.badge-live{background:rgba(236,72,153,.15);color:#ec4899;border:1px solid rgba(236,72,153,.3)}.badge-betting{background:rgba(244,114,182,.15);color:#f472b6;border:1px solid rgba(244,114,182,.3)}.badge-general{background:rgba(148,163,184,.15);color:#94a3b8;border:1px solid rgba(148,163,184,.3)}
+        .post-card h2{font-size:1.25rem;margin-bottom:.75rem;line-height:1.3;color:#fff}.post-card p{font-size:.95rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.5rem;flex-grow:1}
+        .card-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #334155;padding-top:1rem;font-size:.85rem;color:var(--text-muted);margin-top:auto}.card-actions{display:flex;gap:1rem;align-items:center}
+        .create-post-bar{background:var(--card-bg);border:1px solid #334155;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;display:none}.create-post-bar.visible{display:block}.create-post-bar h3{margin-bottom:1rem;font-size:1.1rem;color:var(--text-main)}.create-post-bar .form-row{display:flex;gap:1rem;margin-bottom:1rem}
+        .create-post-bar input,.create-post-bar textarea,.create-post-bar select{width:100%;padding:.8rem;background:#0f172a;border:1px solid #334155;color:#fff;border-radius:8px;outline:none;font-size:.95rem;transition:.2s;font-family:inherit}.create-post-bar input:focus,.create-post-bar textarea:focus,.create-post-bar select:focus{border-color:var(--primary)}.create-post-bar textarea{resize:vertical;min-height:80px}.create-post-bar select{max-width:200px;cursor:pointer}
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);display:flex;justify-content:center;align-items:center;z-index:2000;opacity:0;visibility:hidden;transition:all .3s ease;backdrop-filter:blur(5px);padding:1rem}.modal-overlay.active{opacity:1;visibility:visible}
+        .modal-content{background:var(--card-bg);padding:2.5rem;border-radius:16px;width:100%;max-width:420px;border:1px solid #475569;box-shadow:0 25px 50px -12px rgba(0,0,0,.8);transform:translateY(20px);transition:transform .3s cubic-bezier(.175,.885,.32,1.275);position:relative;max-height:90vh;overflow-y:auto}.modal-overlay.active .modal-content{transform:translateY(0)}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}.modal-header h2{font-size:1.8rem;color:#fff;line-height:1.2}
+        .close-modal{background:none;border:none;color:var(--text-muted);font-size:2rem;cursor:pointer;line-height:1;transition:.2s;padding:.5rem}.close-modal:hover{color:#fff;transform:rotate(90deg)}
+        .form-group{margin-bottom:1.25rem}.form-group label{display:block;margin-bottom:.5rem;font-size:.9rem;color:var(--text-muted);font-weight:500}
+        .form-input{width:100%;padding:.9rem;background:#0f172a;border:1px solid #334155;color:#fff;border-radius:8px;outline:none;transition:.2s;font-size:1rem}.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+        .btn-full{width:100%;margin-top:.5rem;padding:.9rem;font-size:1rem}
+        .btn-google{width:100%;padding:.9rem;font-size:1rem;font-weight:600;background:#fff;color:#333;border:1px solid #dadce0;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .2s;margin-bottom:1.25rem}.btn-google:hover{background:#f8f9fa;box-shadow:0 2px 8px rgba(0,0,0,.15);transform:translateY(-1px)}.btn-google svg{width:20px;height:20px;flex-shrink:0}
+        .auth-divider{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;color:var(--text-muted);font-size:.85rem}.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#334155}
+        .auth-error{color:var(--danger);font-size:.85rem;margin-bottom:1rem;padding:.6rem;background:rgba(239,68,68,.1);border-radius:6px;border:1px solid rgba(239,68,68,.2);display:none}.auth-error.visible{display:block}
+        .age-actions{display:flex;flex-direction:column;gap:.8rem;margin-top:1.5rem}
+        .toast{position:fixed;bottom:20px;right:20px;background:var(--card-bg);border-left:4px solid var(--accent);padding:1rem 1.5rem;border-radius:6px;box-shadow:0 10px 15px -3px rgba(0,0,0,.5);transform:translateY(100px);transition:transform .3s ease;z-index:3000;font-weight:600;max-width:90%}.toast.error{border-left-color:var(--danger)}.toast.active{transform:translateY(0)}
+        .loading{text-align:center;padding:2rem;color:var(--text-muted)}.empty-state{text-align:center;padding:3rem;color:var(--text-muted)}
+        footer{text-align:center;padding:3rem 1rem;color:var(--text-muted);border-top:1px solid #334155;margin-top:4rem;background:#020617;overflow:hidden}.disclaimer{font-size:.85rem;max-width:600px;margin:1rem auto;opacity:.8;line-height:1.5;padding:1rem;border:1px solid #334155;border-radius:8px;background:rgba(15,23,42,.5);width:calc(100% - 2rem)}
+        @media(max-width:992px){.container{grid-template-columns:1fr;gap:1.5rem}aside{position:sticky;top:var(--header-height);background:var(--dark-bg);z-index:50;padding-bottom:1rem;border-bottom:1px solid #334155}.category-nav{flex-direction:row;overflow-x:auto;padding-bottom:.5rem;gap:.75rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}.category-nav::-webkit-scrollbar{display:none}.cat-btn{min-width:max-content;padding:.6rem 1rem}.community-hub{display:none}}
+        @media(max-width:600px){body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}header{padding:0 .75rem;height:56px}:root{--header-height:56px}.logo{font-size:1.2rem;letter-spacing:.5px}.user-actions{gap:.5rem}.btn{font-size:.8rem;padding:.45rem .7rem;min-height:38px}.user-profile{gap:8px}.avatar{width:30px;height:30px;font-size:.8rem}.username{font-size:.85rem;max-width:80px}.container{padding:.75rem;gap:1rem}.hero{padding:1.5rem 1rem;margin-bottom:1rem;border-radius:12px}.hero h1{font-size:1.6rem;letter-spacing:-.5px}.hero p{font-size:.9rem}.slot-toggle-btn{width:48px;height:48px;font-size:1.3rem;bottom:16px;right:16px}.slot-machine-container{bottom:76px;right:16px;width:230px;padding:.9rem}.reel{width:44px;height:48px;font-size:1.3rem}.reel-symbol{height:48px}.slot-title{font-size:.75rem}.spin-button{font-size:.75rem;padding:.4rem .8rem}.create-post-bar{padding:1rem;border-radius:10px}.create-post-bar .form-row{flex-direction:column;gap:.75rem}.create-post-bar select{max-width:100%}.create-post-bar input,.create-post-bar textarea,.create-post-bar select{font-size:16px;padding:.7rem}.feed-header{flex-direction:column;align-items:flex-start;gap:.6rem;margin-bottom:1rem}.feed-header h3{font-size:1.05rem}.feed-filters{width:100%;overflow-x:auto;padding-bottom:.3rem;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.filter-btn{flex-shrink:0;font-size:.8rem;padding:.35rem .8rem}.card-grid{grid-template-columns:1fr;gap:1rem}.card-img{height:120px;font-size:2.5rem}.card-content{padding:1rem}.post-card h2{font-size:1.1rem;margin-bottom:.5rem}.post-card p{font-size:.88rem;margin-bottom:1rem;line-height:1.5}.card-footer{font-size:.8rem;padding-top:.75rem}.category-nav{gap:.5rem}.cat-btn{padding:.5rem .8rem;font-size:.85rem;border-radius:6px}.count{font-size:.7rem;padding:1px 6px}.modal-overlay{padding:.5rem;align-items:flex-end}.modal-content{padding:1.5rem;border-radius:16px 16px 0 0;max-height:85vh;max-width:100%;margin-bottom:0;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}.modal-header{margin-bottom:1.25rem}.modal-header h2{font-size:1.4rem}.close-modal{font-size:1.6rem;padding:.3rem}.form-group{margin-bottom:1rem}.form-group label{font-size:.85rem;margin-bottom:.3rem}.form-input{font-size:16px;padding:.8rem;border-radius:8px}.btn-full{padding:.85rem;font-size:.95rem}.btn-google{padding:.8rem;font-size:.9rem;margin-bottom:1rem}.auth-divider{margin-bottom:1rem;font-size:.8rem}.age-actions{gap:.6rem;margin-top:1.25rem}.toast{left:.75rem;right:.75rem;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;text-align:center;font-size:.9rem;padding:.8rem 1rem;border-radius:8px}footer{padding:2rem 1rem;margin-top:2rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom))}footer h3{font-size:1.1rem}.disclaimer{font-size:.8rem;padding:.75rem}}
+        @media(max-width:375px){header{padding:0 .5rem}.logo{font-size:1.05rem}.btn{font-size:.75rem;padding:.4rem .6rem}.avatar{width:26px;height:26px;font-size:.7rem}.username{max-width:60px;font-size:.8rem}.hero h1{font-size:1.4rem}.hero p{font-size:.85rem}.slot-machine-container{width:210px}.reel{width:40px;height:44px;font-size:1.1rem}.reel-symbol{height:44px}.card-img{height:100px;font-size:2rem}.post-card h2{font-size:1rem}.post-card p{font-size:.82rem}.modal-content{padding:1.25rem;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}.modal-header h2{font-size:1.25rem}.btn-google{font-size:.85rem;padding:.7rem}}
     </style>
 </head>
 <body>
-    <header>
-        <a href="#" class="logo">Spin<span>Zone</span></a>
-        <div class="user-actions" id="authButtons" aria-live="polite"></div>
-    </header>
+    <header><a href="#" class="logo">Spin<span>Zone</span></a><div class="user-actions" id="authButtons" aria-live="polite"></div></header>
 
-    <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Welcome Back</h2>
-                <button class="close-modal" id="closeAuthModal" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="auth-error" id="authError"></div>
-            <button class="btn-google" id="googleSignIn">
-                <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                Continue with Google
-            </button>
-            <div class="auth-divider"><span>or</span></div>
-            <form id="authForm">
-                <div class="form-group" id="usernameGroup">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" class="form-input" placeholder="Choose a username" autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" class="form-input" placeholder="Min. 6 characters" autocomplete="current-password" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">Sign In</button>
-            </form>
-            <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); text-align: center;">
-                <span id="toggleAuthText">Don't have an account?</span>
-                <button id="toggleAuthMode" style="background:none; border:none; color: var(--primary); font-weight:bold; cursor: pointer; text-decoration: underline;">Sign up</button>
-            </p>
-        </div>
-    </div>
+    <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">Welcome Back</h2><button class="close-modal" id="closeAuthModal" aria-label="Close modal">&times;</button></div><div class="auth-error" id="authError"></div><button class="btn-google" id="googleSignIn"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button><div class="auth-divider"><span>or</span></div><form id="authForm"><div class="form-group" id="usernameGroup"><label for="username">Username</label><input type="text" id="username" class="form-input" placeholder="Choose a username" autocomplete="username"></div><div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email" required></div><div class="form-group"><label for="password">Password</label><input type="password" id="password" class="form-input" placeholder="Min. 6 characters" autocomplete="current-password" required minlength="6"></div><button type="submit" class="btn btn-primary btn-full" id="submitBtn">Sign In</button></form><p style="margin-top:1.5rem;font-size:.9rem;color:var(--text-muted);text-align:center"><span id="toggleAuthText">Don't have an account?</span> <button id="toggleAuthMode" style="background:none;border:none;color:var(--primary);font-weight:bold;cursor:pointer;text-decoration:underline">Sign up</button></p></div></div>
 
-    <div class="modal-overlay" id="ageModal" role="dialog" aria-modal="true" aria-labelledby="ageTitle" aria-describedby="ageDesc">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="ageTitle">Age Verification</h2>
-                <button class="close-modal" id="closeAgeModal" aria-label="Close verification">&times;</button>
-            </div>
-            <p id="ageDesc" style="color: var(--text-muted); line-height: 1.5;">SpinZone is an 18+ community. You must be of legal age to access these features.</p>
-            <div class="age-actions">
-                <button id="btnAgeConfirm" class="btn btn-primary btn-full">I am 18 or older</button>
-                <button id="btnAgeDeny" class="btn btn-danger-outline btn-full">I am under 18</button>
-            </div>
-        </div>
-    </div>
+    <div class="modal-overlay" id="ageModal" role="dialog" aria-modal="true" aria-labelledby="ageTitle" aria-describedby="ageDesc"><div class="modal-content"><div class="modal-header"><h2 id="ageTitle">Age Verification</h2><button class="close-modal" id="closeAgeModal" aria-label="Close verification">&times;</button></div><p id="ageDesc" style="color:var(--text-muted);line-height:1.5">SpinZone is an 18+ community. You must be of legal age to access these features.</p><div class="age-actions"><button id="btnAgeConfirm" class="btn btn-primary btn-full">I am 18 or older</button><button id="btnAgeDeny" class="btn btn-danger-outline btn-full">I am under 18</button></div></div></div>
 
     <div class="toast" id="toast"></div>
 
     <div class="container">
-        <aside>
-            <nav aria-label="Category Navigation">
-                <h3>Discover Content</h3>
-                <div class="category-nav" id="categoryNav">
-                    <button class="cat-btn active" data-filter="all"><span>All Posts</span><span class="count" id="countAll">0</span></button>
-                    <button class="cat-btn" data-filter="slots"><span>Slots Reviews</span><span class="count" id="countSlots">0</span></button>
-                    <button class="cat-btn" data-filter="poker"><span>Poker Strategy</span><span class="count" id="countPoker">0</span></button>
-                    <button class="cat-btn" data-filter="strat"><span>Strategy</span><span class="count" id="countStrat">0</span></button>
-                    <button class="cat-btn" data-filter="live"><span>Live Casino</span><span class="count" id="countLive">0</span></button>
-                    <button class="cat-btn" data-filter="betting"><span>Betting Guides</span><span class="count" id="countBetting">0</span></button>
-                    <button class="cat-btn" data-filter="general"><span>General</span><span class="count" id="countGeneral">0</span></button>
-                </div>
-            </nav>
-            <div class="community-hub">
-                <h3>Trending</h3>
-                <div id="trendingList"><p style="color: var(--text-muted); font-size: 0.85rem;">Loading...</p></div>
-            </div>
-        </aside>
-
+        <aside><nav aria-label="Category Navigation"><h3>Discover Content</h3><div class="category-nav" id="categoryNav"><button class="cat-btn active" data-filter="all"><span>All Posts</span><span class="count" id="countAll">0</span></button><button class="cat-btn" data-filter="slots"><span>Slots Reviews</span><span class="count" id="countSlots">0</span></button><button class="cat-btn" data-filter="poker"><span>Poker Strategy</span><span class="count" id="countPoker">0</span></button><button class="cat-btn" data-filter="strat"><span>Strategy</span><span class="count" id="countStrat">0</span></button><button class="cat-btn" data-filter="live"><span>Live Casino</span><span class="count" id="countLive">0</span></button><button class="cat-btn" data-filter="betting"><span>Betting Guides</span><span class="count" id="countBetting">0</span></button><button class="cat-btn" data-filter="general"><span>General</span><span class="count" id="countGeneral">0</span></button></div></nav><div class="community-hub"><h3>Trending</h3><div id="trendingList"><p style="color:var(--text-muted);font-size:.85rem">Loading...</p></div></div></aside>
         <main>
-            <div class="hero">
-                <h1>Real Players. Real Talk.</h1>
-                <p>The ultimate hub for strategy, news, and community discussion.</p>
-            </div>
-
-            <div class="slot-machine-container">
-                <div class="slot-lights"><div class="light"></div><div class="light"></div><div class="light"></div></div>
-                <h3 class="slot-title">Try Your Luck</h3>
-                <div class="slot-reels">
-                    <div class="reel" id="reel1"><div class="reel-content"><div class="reel-symbol">🍒</div></div></div>
-                    <div class="reel" id="reel2"><div class="reel-content"><div class="reel-symbol">🍋</div></div></div>
-                    <div class="reel" id="reel3"><div class="reel-content"><div class="reel-symbol">💎</div></div></div>
-                </div>
-                <button class="spin-button" id="spinButton"><span>SPIN NOW</span></button>
-                <div class="result-message" id="resultMessage"></div>
-            </div>
-
-            <div class="create-post-bar" id="createPostBar">
-                <h3>Create a Post</h3>
-                <div class="form-row">
-                    <input type="text" id="postTitle" placeholder="Post title...">
-                    <select id="postType">
-                        <option value="general">General</option>
-                        <option value="slots">Slots</option>
-                        <option value="poker">Poker</option>
-                        <option value="strat">Strategy</option>
-                        <option value="live">Live Casino</option>
-                        <option value="betting">Betting</option>
-                    </select>
-                </div>
-                <textarea id="postContent" placeholder="What's on your mind?"></textarea>
-                <button class="btn btn-primary" id="submitPostBtn" style="margin-top: 1rem;">Post</button>
-            </div>
-
-            <div class="feed-header">
-                <h3>Latest Posts</h3>
-                <div class="feed-filters" id="sortFilters">
-                    <button class="filter-btn active" data-sort="new">Newest</button>
-                    <button class="filter-btn" data-sort="popular">Most Liked</button>
-                </div>
-            </div>
-
+            <div class="hero"><h1>Real Players. Real Talk.</h1><p>The ultimate hub for strategy, news, and community discussion.</p></div>
+            <div class="create-post-bar" id="createPostBar"><h3>Create a Post</h3><div class="form-row"><input type="text" id="postTitle" placeholder="Post title..."><select id="postType"><option value="general">General</option><option value="slots">Slots</option><option value="poker">Poker</option><option value="strat">Strategy</option><option value="live">Live Casino</option><option value="betting">Betting</option></select></div><textarea id="postContent" placeholder="What's on your mind?"></textarea><button class="btn btn-primary" id="submitPostBtn" style="margin-top:1rem">Post</button></div>
+            <div class="feed-header"><h3>Latest Posts</h3><div class="feed-filters" id="sortFilters"><button class="filter-btn active" data-sort="new">Newest</button><button class="filter-btn" data-sort="popular">Most Liked</button></div></div>
             <div class="card-grid" id="postGrid"><div class="loading">Loading posts...</div></div>
         </main>
     </div>
 
-    <footer>
-        <h3>SpinZone</h3>
-        <p>Your daily dose of casino culture.</p>
-        <div class="disclaimer">
-            <p><strong>18+ Only. Please Gamble Responsibly.</strong></p>
-            <p>SpinZone does not offer real money gambling. All content is for informational purposes only.</p>
-        </div>
-    </footer>
+    <footer><h3>SpinZone</h3><p>Your daily dose of casino culture.</p><div class="disclaimer"><p><strong>18+ Only. Please Gamble Responsibly.</strong></p><p>SpinZone does not offer real money gambling. All content is for informational purposes only.</p></div></footer>
+
+    <!-- Floating Slot Widget -->
+    <button class="slot-toggle-btn" id="slotToggleBtn" aria-label="Open slot machine">🎰</button>
+    <div class="slot-machine-container" id="slotWidget"><div class="slot-lights"><div class="light"></div><div class="light"></div><div class="light"></div></div><h3 class="slot-title">Try Your Luck</h3><div class="slot-reels"><div class="reel" id="reel1"><div class="reel-content"><div class="reel-symbol">🍒</div></div></div><div class="reel" id="reel2"><div class="reel-content"><div class="reel-symbol">🍋</div></div></div><div class="reel" id="reel3"><div class="reel-content"><div class="reel-symbol">💎</div></div></div></div><button class="spin-button" id="spinButton"><span>SPIN</span></button><div class="result-message" id="resultMessage"></div></div>
 
     <script>
-        const SUPABASE_URL = 'https://rcsntlpytbwosykkhzzg.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // ========== SLOT MACHINE ==========
-            const symbols = ['🍒', '🍋', '💎', '⭐', '🔔', '💰', '7️⃣'];
-            const spinButton = document.getElementById('spinButton');
-            const resultMessage = document.getElementById('resultMessage');
-            const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-            let isSpinning = false;
-
-            async function spin() {
-                if (isSpinning) return;
-                isSpinning = true;
-                spinButton.disabled = true;
-                resultMessage.classList.remove('show', 'winner');
-                resultMessage.textContent = '';
-                reels.forEach(r => { r.classList.add('spinning'); r.classList.remove('stopped'); });
-                const durations = [1000, 1500, 2000];
-                const results = [];
-                for (let i = 0; i < reels.length; i++) {
-                    await new Promise(resolve => {
-                        setTimeout(() => {
-                            reels[i].classList.remove('spinning');
-                            reels[i].classList.add('stopped');
-                            const sym = symbols[Math.floor(Math.random() * symbols.length)];
-                            results.push(sym);
-                            reels[i].querySelector('.reel-content').innerHTML = '<div class="reel-symbol">' + sym + '</div>';
-                            resolve();
-                        }, durations[i]);
-                    });
-                }
-                setTimeout(() => {
-                    resultMessage.classList.add('show');
-                    if (results[0] === results[1] && results[1] === results[2]) {
-                        resultMessage.classList.add('winner');
-                        resultMessage.textContent = 'JACKPOT! ' + results.join('');
-                    } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-                        resultMessage.textContent = 'Nice! Two matching symbols!';
-                    } else {
-                        resultMessage.textContent = 'Try again! Better luck next spin.';
-                    }
-                    isSpinning = false;
-                    spinButton.disabled = false;
-                }, 500);
-            }
-            spinButton.addEventListener('click', spin);
-            document.addEventListener('keydown', (e) => {
-                if ((e.key === ' ' || e.key === 'Enter') && !isSpinning && document.activeElement !== spinButton) {
-                    if (!document.querySelector('.modal-overlay.active')) { e.preventDefault(); spin(); }
-                }
-            });
-
-            // ========== STATE & DOM ==========
-            const state = { user: null, session: null, profile: null, isAgeVerified: false, isLoginMode: true, pendingAuthMode: null, currentFilter: 'all', currentSort: 'new', posts: [], userLikes: [] };
-            const el = {
-                authContainer: document.getElementById('authButtons'),
-                authModal: document.getElementById('authModal'),
-                closeAuthModal: document.getElementById('closeAuthModal'),
-                authForm: document.getElementById('authForm'),
-                emailInput: document.getElementById('email'),
-                usernameInput: document.getElementById('username'),
-                usernameGroup: document.getElementById('usernameGroup'),
-                passwordInput: document.getElementById('password'),
-                modalTitle: document.getElementById('modalTitle'),
-                submitBtn: document.getElementById('submitBtn'),
-                toggleAuthMode: document.getElementById('toggleAuthMode'),
-                toggleAuthText: document.getElementById('toggleAuthText'),
-                authError: document.getElementById('authError'),
-                ageModal: document.getElementById('ageModal'),
-                closeAgeModal: document.getElementById('closeAgeModal'),
-                btnAgeConfirm: document.getElementById('btnAgeConfirm'),
-                btnAgeDeny: document.getElementById('btnAgeDeny'),
-                toast: document.getElementById('toast'),
-                catButtons: document.querySelectorAll('.cat-btn'),
-                filterButtons: document.querySelectorAll('.filter-btn'),
-                postGrid: document.getElementById('postGrid'),
-                createPostBar: document.getElementById('createPostBar'),
-                postTitle: document.getElementById('postTitle'),
-                postContent: document.getElementById('postContent'),
-                postType: document.getElementById('postType'),
-                submitPostBtn: document.getElementById('submitPostBtn'),
-                trendingList: document.getElementById('trendingList'),
-                googleSignIn: document.getElementById('googleSignIn')
-            };
-
-            // ========== HELPERS ==========
-            function showAuthError(m) { el.authError.textContent = m; el.authError.classList.add('visible'); }
-            function hideAuthError() { el.authError.textContent = ''; el.authError.classList.remove('visible'); }
-            function showToast(m, err) { el.toast.textContent = m; el.toast.className = err ? 'toast active error' : 'toast active'; setTimeout(() => el.toast.classList.remove('active'), 3000); }
-            function getUsername() { return state.profile?.username || state.user?.user_metadata?.username || (state.user?.email ? state.user.email.split('@')[0] : 'User'); }
-            function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-            function getTimeAgo(d) { const s = Math.floor((Date.now() - new Date(d)) / 1000); if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s/60) + 'm ago'; if (s < 86400) return Math.floor(s/3600) + 'h ago'; if (s < 604800) return Math.floor(s/86400) + 'd ago'; return new Date(d).toLocaleDateString(); }
-
-            const typeEmojis = { slots: '🎰', poker: '🃏', strat: '📊', live: '🔴', betting: '📈', general: '💬' };
-            const typeBadge = { slots: 'badge-slots', poker: 'badge-poker', strat: 'badge-strat', live: 'badge-live', betting: 'badge-betting', general: 'badge-general' };
-            const typeLabel = { slots: 'Slots', poker: 'Poker', strat: 'Strategy', live: 'Live', betting: 'Betting', general: 'General' };
-
-            // ========== HEADER ==========
-            function renderHeader() {
-                if (state.user) {
-                    const u = getUsername();
-                    el.authContainer.innerHTML = '<div class="user-profile"><div class="avatar">' + u.charAt(0).toUpperCase() + '</div><span class="username">Hi, ' + escapeHtml(u) + '</span><button class="btn btn-outline" id="logoutBtn">Sign Out</button></div>';
-                    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-                    el.createPostBar.classList.toggle('visible', state.isAgeVerified);
-                } else {
-                    el.authContainer.innerHTML = '<button class="btn btn-outline" id="loginBtn">Sign In</button><button class="btn btn-primary" id="joinBtn">Join Community</button>';
-                    document.getElementById('loginBtn').addEventListener('click', () => initiateAuthFlow(true));
-                    document.getElementById('joinBtn').addEventListener('click', () => initiateAuthFlow(false));
-                    el.createPostBar.classList.remove('visible');
-                }
-            }
-
-            // ========== AUTH FLOW ==========
-            function initiateAuthFlow(isLogin) {
-                if (state.isAgeVerified) { openAuthModal(isLogin); }
-                else { state.pendingAuthMode = isLogin; el.ageModal.classList.add('active'); el.btnAgeConfirm.focus(); }
-            }
-            async function handleAgeVerification(ok) {
-                el.ageModal.classList.remove('active');
-                if (ok) {
-                    state.isAgeVerified = true;
-                    if (state.user) await sb.from('profiles').update({ is_age_verified: true }).eq('id', state.user.id);
-                    if (state.pendingAuthMode !== null) { openAuthModal(state.pendingAuthMode); state.pendingAuthMode = null; }
-                } else { state.pendingAuthMode = null; showToast("Access Denied. You must be 18+ to join.", true); }
-            }
-            function openAuthModal(isLogin) { state.isLoginMode = isLogin; updateAuthModalUI(); hideAuthError(); el.authModal.classList.add('active'); el.emailInput.focus(); }
-            function closeAllModals() { el.authModal.classList.remove('active'); el.ageModal.classList.remove('active'); state.pendingAuthMode = null; }
-            function updateAuthModalUI() {
-                if (state.isLoginMode) {
-                    el.modalTitle.textContent = "Welcome Back"; el.submitBtn.textContent = "Sign In";
-                    el.toggleAuthText.textContent = "Don't have an account?"; el.toggleAuthMode.textContent = "Sign up";
-                    el.usernameGroup.style.display = 'none'; el.usernameInput.removeAttribute('required');
-                } else {
-                    el.modalTitle.textContent = "Join the Club"; el.submitBtn.textContent = "Create Account";
-                    el.toggleAuthText.textContent = "Already a member?"; el.toggleAuthMode.textContent = "Log in";
-                    el.usernameGroup.style.display = 'block'; el.usernameInput.setAttribute('required', '');
-                }
-                el.authForm.reset(); hideAuthError();
-            }
-
-            // ========== SUPABASE AUTH ==========
-            async function handleAuthSubmit(e) {
-                e.preventDefault(); hideAuthError();
-                const email = el.emailInput.value.trim(), password = el.passwordInput.value, username = el.usernameInput.value.trim();
-                if (!email || !password) return;
-                if (!state.isLoginMode && !username) return;
-                el.submitBtn.textContent = "Processing..."; el.submitBtn.disabled = true;
-                try {
-                    if (state.isLoginMode) {
-                        const { data, error } = await sb.auth.signInWithPassword({ email, password });
-                        if (error) throw error;
-                        state.session = data.session; state.user = data.user;
-                        await loadProfile(); closeAllModals(); renderHeader();
-                        showToast('Welcome back, ' + getUsername() + '!'); loadPosts();
-                    } else {
-                        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username } } });
-                        if (error) throw error;
-                        if (data.user && !data.session) { closeAllModals(); showToast("Account created! Check your email to confirm, then log in."); }
-                        else if (data.session) {
-                            state.session = data.session; state.user = data.user;
-                            if (state.isAgeVerified) await sb.from('profiles').update({ is_age_verified: true }).eq('id', data.user.id);
-                            await loadProfile(); closeAllModals(); renderHeader();
-                            showToast('Account created! Welcome, ' + username + '!'); loadPosts();
-                        }
-                    }
-                } catch (err) { console.error('Auth error:', err); showAuthError(err.message || 'Authentication failed.'); }
-                finally { el.submitBtn.textContent = state.isLoginMode ? "Sign In" : "Create Account"; el.submitBtn.disabled = false; }
-            }
-            async function handleLogout() {
-                await sb.auth.signOut();
-                state.user = null; state.session = null; state.profile = null; state.isAgeVerified = false; state.userLikes = [];
-                renderHeader(); renderPosts(); showToast("You have been signed out.");
-            }
-
-            // ========== PROFILE ==========
-            async function loadProfile() {
-                if (!state.user) return;
-                const { data: p } = await sb.from('profiles').select('*').eq('id', state.user.id).single();
-                if (p) { state.profile = p; state.isAgeVerified = p.is_age_verified || false; }
-                const { data: likes } = await sb.from('likes').select('post_id').eq('user_id', state.user.id);
-                state.userLikes = likes ? likes.map(l => l.post_id) : [];
-            }
-
-            // ========== POSTS ==========
-            async function loadPosts() {
-                el.postGrid.innerHTML = '<div class="loading">Loading...</div>';
-
-                // Fetch posts
-                let q = sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at', { ascending: false });
-                if (state.currentFilter !== 'all') q = q.eq('type', state.currentFilter);
-                const { data: posts } = await q;
-
-                // Fetch articles
-                let aq = sb.from('articles').select('*, profiles ( username )').eq('is_published', true).order('created_at', { ascending: false });
-                if (state.currentFilter !== 'all') aq = aq.eq('type', state.currentFilter);
-                const { data: articles } = await aq;
-
-                // Format posts
-                const formattedPosts = (posts || []).map(p => ({
-                    ...p, item_type: 'post',
-                    username: p.profiles?.username || 'Anonymous',
-                    like_count: p.likes ? p.likes.length : 0
-                }));
-
-                // Format articles
-                const formattedArticles = (articles || []).map(a => ({
-                    ...a, item_type: 'article',
-                    username: a.profiles?.username || 'SpinZone',
-                    like_count: a.views || 0,
-                    read_time: Math.max(1, Math.ceil((a.content || '').split(' ').length / 200))
-                }));
-
-                // Merge and sort
-                state.posts = [...formattedArticles, ...formattedPosts];
-                if (state.currentSort === 'popular') state.posts.sort((a, b) => b.like_count - a.like_count);
-                else state.posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                updateCounts(); renderPosts(); renderTrending();
-            }
-            function updateCounts() {
-                // Count posts
-                sb.from('posts').select('type').then(({ data: postData }) => {
-                    sb.from('articles').select('type').eq('is_published', true).then(({ data: articleData }) => {
-                        const all = [...(postData || []), ...(articleData || [])];
-                        const c = { all: all.length, slots: 0, poker: 0, strat: 0, live: 0, betting: 0, general: 0 };
-                        all.forEach(p => { if (c[p.type] !== undefined) c[p.type]++; });
-                        ['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k => {
-                            const el = document.getElementById('count' + k);
-                            if (el) el.textContent = c[k.toLowerCase()];
-                        });
-                    });
-                });
-            }
-            function renderPosts() {
-                if (!state.posts.length) { el.postGrid.innerHTML = '<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>'; return; }
-                el.postGrid.innerHTML = state.posts.map(p => {
-                    const em = typeEmojis[p.type] || '💬', bc = typeBadge[p.type] || 'badge-general', lb = typeLabel[p.type] || 'General';
-
-                    if (p.item_type === 'article') {
-                        // Article card — links to article.html
-                        return '<a href="/article.html?slug=' + encodeURIComponent(p.slug) + '" class="post-card" style="text-decoration:none;cursor:pointer;"><div class="card-img" style="background:linear-gradient(135deg,#4c1d95,#1e1b4b);">' + em + '</div><div class="card-content"><span class="badge ' + bc + '">📝 ' + lb + '</span><h2>' + escapeHtml(p.title) + '</h2><p>' + escapeHtml(p.summary || p.content.substring(0, 150) + '...') + '</p><div class="card-footer"><span>By ' + escapeHtml(p.username) + ' &bull; ' + p.read_time + ' min read</span><div class="card-actions"><span>' + (p.views || 0) + ' views</span></div></div></div></a>';
-                    }
-
-                    // Regular post card
-                    const liked = state.userLikes.includes(p.id);
-                    return '<article class="post-card"><div class="card-img">' + em + '</div><div class="card-content"><span class="badge ' + bc + '">' + lb + '</span><h2>' + escapeHtml(p.title) + '</h2><p>' + escapeHtml(p.content) + '</p><div class="card-footer"><span>By ' + escapeHtml(p.username) + ' &bull; ' + getTimeAgo(p.created_at) + '</span><div class="card-actions"><button class="btn-icon ' + (liked ? 'liked' : '') + '" onclick="handleLike(' + p.id + ', this)">' + (liked ? '❤️' : '♥') + '</button><span class="like-count-' + p.id + '">' + p.like_count + '</span></div></div></div></article>';
-                }).join('');
-            }
-            function renderTrending() {
-                const t = [...state.posts].sort((a, b) => b.like_count - a.like_count).slice(0, 3);
-                if (!t.length) { el.trendingList.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No trending posts yet.</p>'; return; }
-                el.trendingList.innerHTML = t.map(p => '<div class="hot-topic"><h4>' + escapeHtml(p.title) + '</h4><span>❤️ ' + p.like_count + ' likes &bull; ' + getTimeAgo(p.created_at) + '</span></div>').join('');
-            }
-
-            // ========== CREATE POST ==========
-            async function handleCreatePost() {
-                const title = el.postTitle.value.trim(), content = el.postContent.value.trim(), type = el.postType.value;
-                if (!title || !content) { showToast("Please fill in both title and content.", true); return; }
-                if (!state.user) { showToast("You must be logged in to post.", true); return; }
-                el.submitPostBtn.textContent = "Posting..."; el.submitPostBtn.disabled = true;
-                const { error } = await sb.from('posts').insert({ user_id: state.user.id, title, content, type });
-                el.submitPostBtn.textContent = "Post"; el.submitPostBtn.disabled = false;
-                if (error) { showToast("Failed to create post. " + (error.message || ''), true); return; }
-                el.postTitle.value = ''; el.postContent.value = '';
-                showToast("Post published!"); loadPosts();
-            }
-
-            // ========== LIKE (global) ==========
-            window.handleLike = async function(postId, btn) {
-                if (!state.user) { showToast("Log in to like posts.", true); return; }
-                const liked = state.userLikes.includes(postId);
-                if (liked) {
-                    await sb.from('likes').delete().eq('post_id', postId).eq('user_id', state.user.id);
-                    state.userLikes = state.userLikes.filter(id => id !== postId);
-                    btn.classList.remove('liked'); btn.textContent = '♥';
-                } else {
-                    await sb.from('likes').insert({ post_id: postId, user_id: state.user.id });
-                    state.userLikes.push(postId);
-                    btn.classList.add('liked'); btn.textContent = '❤️';
-                }
-                const post = state.posts.find(p => p.id === postId);
-                if (post) { post.like_count += liked ? -1 : 1; const c = document.querySelector('.like-count-' + postId); if (c) c.textContent = post.like_count; }
-            };
-
-            // ========== SESSION ==========
-            async function initSession() {
-                const { data: { session } } = await sb.auth.getSession();
-                if (session) { state.session = session; state.user = session.user; await loadProfile(); }
-                renderHeader(); loadPosts();
-            }
-            sb.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') { state.session = session; state.user = session?.user || null; }
-                else if (event === 'SIGNED_OUT') { state.session = null; state.user = null; state.profile = null; }
-            });
-
-            // ========== EVENTS ==========
-            el.btnAgeConfirm.addEventListener('click', () => handleAgeVerification(true));
-            el.btnAgeDeny.addEventListener('click', () => handleAgeVerification(false));
-            el.closeAgeModal.addEventListener('click', closeAllModals);
-            el.closeAuthModal.addEventListener('click', closeAllModals);
-            el.toggleAuthMode.addEventListener('click', (e) => { e.preventDefault(); state.isLoginMode = !state.isLoginMode; updateAuthModalUI(); });
-            el.authForm.addEventListener('submit', handleAuthSubmit);
-            el.submitPostBtn.addEventListener('click', handleCreatePost);
-            el.googleSignIn.addEventListener('click', async () => {
-                const { error } = await sb.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: window.location.origin }
-                });
-                if (error) showToast('Google sign-in failed: ' + error.message, true);
-            });
-            window.addEventListener('click', (e) => { if (e.target === el.authModal || e.target === el.ageModal) closeAllModals(); });
-            window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
-            el.catButtons.forEach(btn => btn.addEventListener('click', () => { el.catButtons.forEach(b => b.classList.remove('active')); btn.classList.add('active'); state.currentFilter = btn.dataset.filter; loadPosts(); }));
-            el.filterButtons.forEach(btn => btn.addEventListener('click', () => { el.filterButtons.forEach(b => b.classList.remove('active')); btn.classList.add('active'); state.currentSort = btn.dataset.sort; loadPosts(); }));
-
+        const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+        const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+        const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+        document.addEventListener('DOMContentLoaded',()=>{
+            const symbols=['🍒','🍋','💎','⭐','🔔','💰','7️⃣'];const spinButton=document.getElementById('spinButton');const resultMessage=document.getElementById('resultMessage');const reels=[document.getElementById('reel1'),document.getElementById('reel2'),document.getElementById('reel3')];let isSpinning=false;
+            async function spin(){if(isSpinning)return;isSpinning=true;spinButton.disabled=true;resultMessage.classList.remove('show','winner');resultMessage.textContent='';reels.forEach(r=>{r.classList.add('spinning');r.classList.remove('stopped')});const durations=[800,1200,1600];const results=[];for(let i=0;i<reels.length;i++){await new Promise(resolve=>{setTimeout(()=>{reels[i].classList.remove('spinning');reels[i].classList.add('stopped');const sym=symbols[Math.floor(Math.random()*symbols.length)];results.push(sym);reels[i].querySelector('.reel-content').innerHTML='<div class="reel-symbol">'+sym+'</div>';resolve()},durations[i])})}setTimeout(()=>{resultMessage.classList.add('show');if(results[0]===results[1]&&results[1]===results[2]){resultMessage.classList.add('winner');resultMessage.textContent='JACKPOT! '+results.join('')}else if(results[0]===results[1]||results[1]===results[2]||results[0]===results[2]){resultMessage.textContent='Two matching!'}else{resultMessage.textContent='Try again!'}isSpinning=false;spinButton.disabled=false},400)}
+            spinButton.addEventListener('click',spin);
+            const slotToggleBtn=document.getElementById('slotToggleBtn');const slotWidget=document.getElementById('slotWidget');
+            slotToggleBtn.addEventListener('click',()=>{slotWidget.classList.toggle('open');slotToggleBtn.classList.toggle('active');slotToggleBtn.textContent=slotWidget.classList.contains('open')?'✕':'🎰'});
+            document.addEventListener('click',(e)=>{if(slotWidget.classList.contains('open')&&!slotWidget.contains(e.target)&&e.target!==slotToggleBtn){slotWidget.classList.remove('open');slotToggleBtn.classList.remove('active');slotToggleBtn.textContent='🎰'}});
+            const state={user:null,session:null,profile:null,isAgeVerified:false,isLoginMode:true,pendingAuthMode:null,currentFilter:'all',currentSort:'new',posts:[],userLikes:[]};
+            const el={authContainer:document.getElementById('authButtons'),authModal:document.getElementById('authModal'),closeAuthModal:document.getElementById('closeAuthModal'),authForm:document.getElementById('authForm'),emailInput:document.getElementById('email'),usernameInput:document.getElementById('username'),usernameGroup:document.getElementById('usernameGroup'),passwordInput:document.getElementById('password'),modalTitle:document.getElementById('modalTitle'),submitBtn:document.getElementById('submitBtn'),toggleAuthMode:document.getElementById('toggleAuthMode'),toggleAuthText:document.getElementById('toggleAuthText'),authError:document.getElementById('authError'),ageModal:document.getElementById('ageModal'),closeAgeModal:document.getElementById('closeAgeModal'),btnAgeConfirm:document.getElementById('btnAgeConfirm'),btnAgeDeny:document.getElementById('btnAgeDeny'),toast:document.getElementById('toast'),catButtons:document.querySelectorAll('.cat-btn'),filterButtons:document.querySelectorAll('.filter-btn'),postGrid:document.getElementById('postGrid'),createPostBar:document.getElementById('createPostBar'),postTitle:document.getElementById('postTitle'),postContent:document.getElementById('postContent'),postType:document.getElementById('postType'),submitPostBtn:document.getElementById('submitPostBtn'),trendingList:document.getElementById('trendingList'),googleSignIn:document.getElementById('googleSignIn')};
+            function showAuthError(m){el.authError.textContent=m;el.authError.classList.add('visible')}function hideAuthError(){el.authError.textContent='';el.authError.classList.remove('visible')}function showToast(m,err){el.toast.textContent=m;el.toast.className=err?'toast active error':'toast active';setTimeout(()=>el.toast.classList.remove('active'),3000)}function getUsername(){return state.profile?.username||state.user?.user_metadata?.username||(state.user?.email?state.user.email.split('@')[0]:'User')}function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}function getTimeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(d).toLocaleDateString()}
+            const typeEmojis={slots:'🎰',poker:'🃏',strat:'📊',live:'🔴',betting:'📈',general:'💬'};const typeBadge={slots:'badge-slots',poker:'badge-poker',strat:'badge-strat',live:'badge-live',betting:'badge-betting',general:'badge-general'};const typeLabel={slots:'Slots',poker:'Poker',strat:'Strategy',live:'Live',betting:'Betting',general:'General'};
+            function renderHeader(){if(state.user){const u=getUsername();el.authContainer.innerHTML='<div class="user-profile"><div class="avatar">'+u.charAt(0).toUpperCase()+'</div><span class="username">Hi, '+escapeHtml(u)+'</span><button class="btn btn-outline" id="logoutBtn">Sign Out</button></div>';document.getElementById('logoutBtn').addEventListener('click',handleLogout);el.createPostBar.classList.toggle('visible',state.isAgeVerified)}else{el.authContainer.innerHTML='<button class="btn btn-outline" id="loginBtn">Sign In</button><button class="btn btn-primary" id="joinBtn">Join Community</button>';document.getElementById('loginBtn').addEventListener('click',()=>initiateAuthFlow(true));document.getElementById('joinBtn').addEventListener('click',()=>initiateAuthFlow(false));el.createPostBar.classList.remove('visible')}}
+            function initiateAuthFlow(isLogin){if(state.isAgeVerified){openAuthModal(isLogin)}else{state.pendingAuthMode=isLogin;el.ageModal.classList.add('active');el.btnAgeConfirm.focus()}}
+            async function handleAgeVerification(ok){el.ageModal.classList.remove('active');if(ok){state.isAgeVerified=true;if(state.user)await sb.from('profiles').update({is_age_verified:true}).eq('id',state.user.id);if(state.pendingAuthMode!==null){openAuthModal(state.pendingAuthMode);state.pendingAuthMode=null}}else{state.pendingAuthMode=null;showToast("Access Denied. You must be 18+ to join.",true)}}
+            function openAuthModal(isLogin){state.isLoginMode=isLogin;updateAuthModalUI();hideAuthError();el.authModal.classList.add('active');el.emailInput.focus()}function closeAllModals(){el.authModal.classList.remove('active');el.ageModal.classList.remove('active');state.pendingAuthMode=null}
+            function updateAuthModalUI(){if(state.isLoginMode){el.modalTitle.textContent="Welcome Back";el.submitBtn.textContent="Sign In";el.toggleAuthText.textContent="Don't have an account?";el.toggleAuthMode.textContent="Sign up";el.usernameGroup.style.display='none';el.usernameInput.removeAttribute('required')}else{el.modalTitle.textContent="Join the Club";el.submitBtn.textContent="Create Account";el.toggleAuthText.textContent="Already a member?";el.toggleAuthMode.textContent="Log in";el.usernameGroup.style.display='block';el.usernameInput.setAttribute('required','')}el.authForm.reset();hideAuthError()}
+            async function handleAuthSubmit(e){e.preventDefault();hideAuthError();const email=el.emailInput.value.trim(),password=el.passwordInput.value,username=el.usernameInput.value.trim();if(!email||!password)return;if(!state.isLoginMode&&!username)return;el.submitBtn.textContent="Processing...";el.submitBtn.disabled=true;try{if(state.isLoginMode){const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;state.session=data.session;state.user=data.user;await loadProfile();closeAllModals();renderHeader();showToast('Welcome back, '+getUsername()+'!');loadPosts()}else{const{data,error}=await sb.auth.signUp({email,password,options:{data:{username}}});if(error)throw error;if(data.user&&!data.session){closeAllModals();showToast("Account created! Check your email to confirm, then log in.")}else if(data.session){state.session=data.session;state.user=data.user;if(state.isAgeVerified)await sb.from('profiles').update({is_age_verified:true}).eq('id',data.user.id);await loadProfile();closeAllModals();renderHeader();showToast('Account created! Welcome, '+username+'!');loadPosts()}}}catch(err){console.error('Auth error:',err);showAuthError(err.message||'Authentication failed.')}finally{el.submitBtn.textContent=state.isLoginMode?"Sign In":"Create Account";el.submitBtn.disabled=false}}
+            async function handleLogout(){await sb.auth.signOut();state.user=null;state.session=null;state.profile=null;state.isAgeVerified=false;state.userLikes=[];renderHeader();renderPosts();showToast("You have been signed out.")}
+            async function loadProfile(){if(!state.user)return;const{data:p}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(p){state.profile=p;state.isAgeVerified=p.is_age_verified||false}const{data:likes}=await sb.from('likes').select('post_id').eq('user_id',state.user.id);state.userLikes=likes?likes.map(l=>l.post_id):[]}
+            async function loadPosts(){el.postGrid.innerHTML='<div class="loading">Loading...</div>';let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at',{ascending:false});if(state.currentFilter!=='all')q=q.eq('type',state.currentFilter);const{data:posts}=await q;let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true).order('created_at',{ascending:false});if(state.currentFilter!=='all')aq=aq.eq('type',state.currentFilter);const{data:articles}=await aq;const formattedPosts=(posts||[]).map(p=>({...p,item_type:'post',username:p.profiles?.username||'Anonymous',like_count:p.likes?p.likes.length:0}));const formattedArticles=(articles||[]).map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}));state.posts=[...formattedArticles,...formattedPosts];if(state.currentSort==='popular')state.posts.sort((a,b)=>b.like_count-a.like_count);else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));updateCounts();renderPosts();renderTrending()}
+            function updateCounts(){sb.from('posts').select('type').then(({data:postData})=>{sb.from('articles').select('type').eq('is_published',true).then(({data:articleData})=>{const all=[...(postData||[]),...(articleData||[])];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})})})}
+            function renderPosts(){if(!state.posts.length){el.postGrid.innerHTML='<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>';return}el.postGrid.innerHTML=state.posts.map(p=>{const em=typeEmojis[p.type]||'💬',bc=typeBadge[p.type]||'badge-general',lb=typeLabel[p.type]||'General';if(p.item_type==='article'){return'<a href="/article.html?slug='+encodeURIComponent(p.slug)+'" class="post-card" style="text-decoration:none;cursor:pointer"><div class="card-img" style="background:linear-gradient(135deg,#4c1d95,#1e1b4b)">'+em+'</div><div class="card-content"><span class="badge '+bc+'">📝 '+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.summary||p.content.substring(0,150)+'...')+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+p.read_time+' min read</span></div></div></a>'}const liked=state.userLikes.includes(p.id);return'<article class="post-card"><div class="card-img">'+em+'</div><div class="card-content"><span class="badge '+bc+'">'+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.content)+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+getTimeAgo(p.created_at)+'</span><div class="card-actions"><button class="btn-icon '+(liked?'liked':'')+'" onclick="handleLike('+p.id+', this)">'+(liked?'❤️':'♥')+'</button><span class="like-count-'+p.id+'">'+p.like_count+'</span></div></div></div></article>'}).join('')}
+            function renderTrending(){const t=[...state.posts].sort((a,b)=>b.like_count-a.like_count).slice(0,3);if(!t.length){el.trendingList.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No trending posts yet.</p>';return}el.trendingList.innerHTML=t.map(p=>'<div class="hot-topic"><h4>'+escapeHtml(p.title)+'</h4><span>❤️ '+p.like_count+' likes &bull; '+getTimeAgo(p.created_at)+'</span></div>').join('')}
+            async function handleCreatePost(){const title=el.postTitle.value.trim(),content=el.postContent.value.trim(),type=el.postType.value;if(!title||!content){showToast("Please fill in both title and content.",true);return}if(!state.user){showToast("You must be logged in to post.",true);return}el.submitPostBtn.textContent="Posting...";el.submitPostBtn.disabled=true;const{error}=await sb.from('posts').insert({user_id:state.user.id,title,content,type});el.submitPostBtn.textContent="Post";el.submitPostBtn.disabled=false;if(error){showToast("Failed to create post. "+(error.message||''),true);return}el.postTitle.value='';el.postContent.value='';showToast("Post published!");loadPosts()}
+            window.handleLike=async function(postId,btn){if(!state.user){showToast("Log in to like posts.",true);return}const liked=state.userLikes.includes(postId);if(liked){await sb.from('likes').delete().eq('post_id',postId).eq('user_id',state.user.id);state.userLikes=state.userLikes.filter(id=>id!==postId);btn.classList.remove('liked');btn.textContent='♥'}else{await sb.from('likes').insert({post_id:postId,user_id:state.user.id});state.userLikes.push(postId);btn.classList.add('liked');btn.textContent='❤️'}const post=state.posts.find(p=>p.id===postId);if(post){post.like_count+=liked?-1:1;const c=document.querySelector('.like-count-'+postId);if(c)c.textContent=post.like_count}};
+            async function initSession(){const{data:{session}}=await sb.auth.getSession();if(session){state.session=session;state.user=session.user;await loadProfile()}renderHeader();loadPosts()}
+            sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'){state.session=session;state.user=session?.user||null}else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null}});
+            el.btnAgeConfirm.addEventListener('click',()=>handleAgeVerification(true));el.btnAgeDeny.addEventListener('click',()=>handleAgeVerification(false));el.closeAgeModal.addEventListener('click',closeAllModals);el.closeAuthModal.addEventListener('click',closeAllModals);el.toggleAuthMode.addEventListener('click',(e)=>{e.preventDefault();state.isLoginMode=!state.isLoginMode;updateAuthModalUI()});el.authForm.addEventListener('submit',handleAuthSubmit);el.submitPostBtn.addEventListener('click',handleCreatePost);
+            el.googleSignIn.addEventListener('click',async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});if(error)showToast('Google sign-in failed: '+error.message,true)});
+            window.addEventListener('click',(e)=>{if(e.target===el.authModal||e.target===el.ageModal)closeAllModals()});window.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeAllModals()});
+            el.catButtons.forEach(btn=>btn.addEventListener('click',()=>{el.catButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.currentFilter=btn.dataset.filter;loadPosts()}));
+            el.filterButtons.forEach(btn=>btn.addEventListener('click',()=>{el.filterButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.currentSort=btn.dataset.sort;loadPosts()}));
             initSession();
         });
     </script>
