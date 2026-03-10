@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpinZone | Redirecting...</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+        body{background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}
+        .redirect-box{max-width:400px}
+        .redirect-box h2{font-size:1.5rem;margin-bottom:1rem;color:#8b5cf6}
+        .redirect-box p{color:#94a3b8;margin-bottom:1.5rem;line-height:1.6}
+        .spinner{width:40px;height:40px;border:4px solid #334155;border-top-color:#8b5cf6;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1.5rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .manual-link{color:#8b5cf6;text-decoration:underline;font-size:.9rem}
+        .disclaimer{font-size:.75rem;color:#64748b;margin-top:2rem;line-height:1.4}
+    </style>
+</head>
+<body>
+    <div class="redirect-box">
+        <div class="spinner"></div>
+        <h2>Taking you to <span id="casinoName">the casino</span>...</h2>
+        <p>You're being redirected. If nothing happens, <a href="#" id="manualLink" class="manual-link">click here</a>.</p>
+        <div class="disclaimer">SpinZone may earn a commission if you sign up. 18+ | Gamble Responsibly.</div>
+    </div>
+
+    <script>
+        const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+        const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+        const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+        // Casino redirect map — ADD YOUR REAL AFFILIATE LINKS HERE
+        const casinos={
+            'stake-casino':{name:'Stake Casino',url:'https://stake.com/?ref=spinzone'},
+            'bc-game':{name:'BC.Game',url:'https://bc.game/?ref=spinzone'},
+            'betway':{name:'Betway',url:'https://betway.com/?ref=spinzone'},
+            'pokerstars':{name:'PokerStars',url:'https://pokerstars.com/?ref=spinzone'},
+            'ggpoker':{name:'GGPoker',url:'https://ggpoker.com/?ref=spinzone'},
+            'bet365':{name:'Bet365',url:'https://bet365.com/?ref=spinzone'},
+            '888starz':{name:'888Starz',url:'https://888starz.com/?ref=spinzone'},
+            'alpha':{name:'Alpha Casino',url:'https://alpha-affiliates.com/?ref=spinzone'},
+            'pinup':{name:'Pin-Up Casino',url:'https://pinup.com/?ref=spinzone'},
+            '1xbet':{name:'1xBet',url:'https://1xbet.com/?ref=spinzone'}
+        };
+
+        (async()=>{
+            const params=new URLSearchParams(window.location.search);
+            const slug=params.get('slug');
+            const source=params.get('src')||'direct';
+            const articleId=params.get('article')||null;
+
+            const casino=casinos[slug];
+            
+            // If casino not in our map, check for a direct URL parameter
+            const directUrl=params.get('url');
+            const finalCasino=casino||{name:slug.replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase()),url:directUrl||'/'};
+
+            if(!finalCasino.url||finalCasino.url==='/'){
+                document.querySelector('.redirect-box').innerHTML='<h2>Casino not found</h2><p>Invalid link. <a href="/" style="color:#8b5cf6">Go back to SpinZone</a></p>';
+                return;
+            }
+
+            // Show casino name
+            document.getElementById('casinoName').textContent=finalCasino.name;
+            document.getElementById('manualLink').href=finalCasino.url;
+
+            // Get user session if logged in
+            let userId=null;
+            try{
+                const{data:{session}}=await sb.auth.getSession();
+                if(session)userId=session.user.id;
+            }catch(e){}
+
+            // Simple hash of user agent for anonymous tracking
+            const ipHash=btoa(navigator.userAgent.substring(0,50)).substring(0,20);
+
+            // Log the click
+            try{
+                await sb.from('click_tracking').insert({
+                    slug:slug,
+                    casino_name:finalCasino.name,
+                    source_page:source,
+                    source_article_id:articleId?parseInt(articleId):null,
+                    user_id:userId,
+                    ip_hash:ipHash,
+                    user_agent:navigator.userAgent.substring(0,200),
+                    referrer:document.referrer.substring(0,500)||null
+                });
+            }catch(e){
+                console.log('Click tracking failed:',e);
+            }
+
+            // Redirect after a short delay (lets tracking complete)
+            setTimeout(()=>{
+                window.location.href=finalCasino.url;
+            },1500);
+        })();
+    </script>
+</body>
+</html>
