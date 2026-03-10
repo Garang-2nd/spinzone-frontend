@@ -35,23 +35,22 @@
         .hot-topic{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #334155;transition:transform .2s}.hot-topic:hover{transform:translateX(5px)}.hot-topic h4{font-size:.95rem;margin-bottom:.3rem;line-height:1.4}.hot-topic span{font-size:.8rem;color:var(--accent);display:flex;align-items:center;gap:5px}
         .hero{background:linear-gradient(110deg,#4c1d95 0%,#1e1b4b 100%);padding:3rem 2rem;border-radius:16px;margin-bottom:2rem;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}.hero h1{font-size:2.8rem;margin-bottom:.5rem;letter-spacing:-1px;line-height:1.1}.hero p{color:#cbd5e1;font-size:1.2rem;max-width:600px;margin:0 auto}
         main{min-width:0;overflow:hidden}
-        /* FLOATING SLOT WIDGET */
-        .slot-toggle-btn{position:fixed;bottom:24px;right:24px;z-index:900;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(139,92,246,.5);transition:all .3s ease;display:flex;align-items:center;justify-content:center}.slot-toggle-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(139,92,246,.7)}.slot-toggle-btn.active{background:#475569}
-        .slot-machine-container{position:fixed;bottom:92px;right:24px;z-index:899;background:var(--card-bg);border:2px solid var(--primary);border-radius:14px;padding:1.1rem;width:260px;box-shadow:0 10px 40px rgba(0,0,0,.5);transform:scale(0) translateY(20px);transform-origin:bottom right;opacity:0;visibility:hidden;transition:all .3s cubic-bezier(.175,.885,.32,1.275)}.slot-machine-container.open{transform:scale(1) translateY(0);opacity:1;visibility:visible}
-        .slot-title{text-align:center;font-size:.85rem;font-weight:800;color:var(--primary);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:1.5px}
-        .slot-reels{display:flex;gap:.5rem;justify-content:center;margin-bottom:.8rem;padding:.6rem;background:#0f172a;border-radius:8px;border:1px solid #334155}
-        .reel{width:52px;height:56px;background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
-        .reel-content{display:flex;flex-direction:column;align-items:center;position:absolute;transition:transform .1s ease-out}
-        .reel-symbol{height:56px;display:flex;align-items:center;justify-content:center;user-select:none}
-        .reel.spinning .reel-content{animation:spin-reel .1s linear infinite}
-        @keyframes spin-reel{0%{transform:translateY(0)}100%{transform:translateY(-56px)}}
-        .reel.spinning{filter:blur(3px)}.reel.stopped{animation:reel-bounce .4s ease-out}
-        @keyframes reel-bounce{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
-        .spin-button{width:100%;padding:.5rem 1rem;font-size:.85rem;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .3s ease;box-shadow:0 3px 10px rgba(139,92,246,.3);position:relative;overflow:hidden}.spin-button::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .6s,height .6s}.spin-button:hover::before{width:300px;height:300px}.spin-button:hover{transform:translateY(-1px)}.spin-button:disabled{background:#475569;cursor:not-allowed;box-shadow:none}.spin-button:disabled:hover{transform:none}
-        .result-message{text-align:center;margin-top:.5rem;font-size:.8rem;font-weight:600;min-height:20px;color:var(--text-main);opacity:0;transition:all .3s ease}.result-message.show{opacity:1}.result-message.winner{color:var(--accent);font-size:.9rem;animation:pulse-win .5s ease-in-out 2}
+        /* FLOATING PRIZE WHEEL WIDGET */
+        .wheel-toggle-btn{position:fixed;bottom:24px;right:24px;z-index:900;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);border:3px solid #fbbf24;color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(245,158,11,.5);transition:all .3s ease;display:flex;align-items:center;justify-content:center;font-weight:800}.wheel-toggle-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(245,158,11,.7)}.wheel-toggle-btn.active{background:#475569;border-color:#475569}
+        .wheel-container{position:fixed;bottom:96px;right:16px;z-index:899;background:var(--card-bg);border:2px solid #f59e0b;border-radius:16px;padding:1rem;width:290px;box-shadow:0 10px 40px rgba(0,0,0,.6);transform:scale(0) translateY(20px);transform-origin:bottom right;opacity:0;visibility:hidden;transition:all .3s cubic-bezier(.175,.885,.32,1.275)}.wheel-container.open{transform:scale(1) translateY(0);opacity:1;visibility:visible}
+        .wheel-title{text-align:center;font-size:.85rem;font-weight:800;color:#fbbf24;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:1px}
+        .wheel-subtitle{text-align:center;font-size:.7rem;color:var(--text-muted);margin-bottom:.75rem}
+        .wheel-wrapper{position:relative;width:220px;height:220px;margin:0 auto .75rem}
+        .wheel-canvas{width:220px;height:220px;border-radius:50%;box-shadow:0 0 20px rgba(245,158,11,.3)}
+        .wheel-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:20px solid #fbbf24;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+        .wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);border:3px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;box-shadow:0 2px 10px rgba(0,0,0,.3);font-size:.7rem;font-weight:800;color:#1e293b;text-transform:uppercase;transition:all .2s}.wheel-center:hover{transform:translate(-50%,-50%) scale(1.1)}.wheel-center:disabled{opacity:.6;cursor:not-allowed}
+        .wheel-result{text-align:center;margin-top:.5rem;font-size:.85rem;font-weight:700;min-height:22px;color:var(--text-main);opacity:0;transition:all .3s}.wheel-result.show{opacity:1}.wheel-result.winner{color:#fbbf24;font-size:.95rem;animation:pulse-win .5s ease-in-out 2}
         @keyframes pulse-win{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .slot-lights{display:flex;justify-content:space-around;margin-bottom:.4rem}.light{width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 6px var(--primary);animation:blink 1s ease-in-out infinite}.light:nth-child(2){animation-delay:.33s}.light:nth-child(3){animation-delay:.66s}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .wheel-cta{display:none;margin-top:.6rem;padding:.6rem;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(16,185,129,.15));border:1px solid rgba(245,158,11,.3);border-radius:8px;text-align:center}
+        .wheel-cta.show{display:block;animation:fadeIn .3s ease}
+        .wheel-cta p{font-size:.75rem;font-weight:700;color:#f8fafc;margin-bottom:.4rem;line-height:1.3}
+        .wheel-cta span{color:#fbbf24}
+        .wheel-cta button{width:100%;padding:.45rem .8rem;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:none;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s}.wheel-cta button:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(245,158,11,.4)}
         .feed-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
         .feed-filters{display:flex;gap:.5rem;flex-wrap:wrap}
         .filter-btn{padding:.4rem 1rem;background:var(--card-bg);border:1px solid #334155;color:var(--text-muted);cursor:pointer;border-radius:20px;transition:.2s;font-size:.9rem}.filter-btn:hover{border-color:var(--text-main);color:var(--text-main)}.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -80,8 +79,8 @@
         .loading{text-align:center;padding:2rem;color:var(--text-muted)}.empty-state{text-align:center;padding:3rem;color:var(--text-muted)}
         footer{text-align:center;padding:3rem 1rem;color:var(--text-muted);border-top:1px solid #334155;margin-top:4rem;background:#020617;overflow:hidden}.disclaimer{font-size:.85rem;max-width:600px;margin:1rem auto;opacity:.8;line-height:1.5;padding:1rem;border:1px solid #334155;border-radius:8px;background:rgba(15,23,42,.5);width:calc(100% - 2rem)}
         @media(max-width:992px){.container{grid-template-columns:1fr;gap:1.5rem}aside{position:sticky;top:var(--header-height);background:var(--dark-bg);z-index:50;padding-bottom:1rem;border-bottom:1px solid #334155}.category-nav{flex-direction:row;overflow-x:auto;padding-bottom:.5rem;gap:.75rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}.category-nav::-webkit-scrollbar{display:none}.cat-btn{min-width:max-content;padding:.6rem 1rem}.community-hub{display:none}}
-        @media(max-width:600px){body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}header{padding:0 .75rem;height:56px}:root{--header-height:56px}.logo{font-size:1.2rem;letter-spacing:.5px}.user-actions{gap:.5rem}.btn{font-size:.8rem;padding:.45rem .7rem;min-height:38px}.user-profile{gap:8px}.avatar{width:30px;height:30px;font-size:.8rem}.username{font-size:.85rem;max-width:80px}.container{padding:.75rem;gap:1rem}.hero{padding:1.5rem 1rem;margin-bottom:1rem;border-radius:12px}.hero h1{font-size:1.6rem;letter-spacing:-.5px}.hero p{font-size:.9rem}.slot-toggle-btn{width:48px;height:48px;font-size:1.3rem;bottom:16px;right:16px}.slot-machine-container{bottom:76px;right:16px;width:230px;padding:.9rem}.reel{width:44px;height:48px;font-size:1.3rem}.reel-symbol{height:48px}.slot-title{font-size:.75rem}.spin-button{font-size:.75rem;padding:.4rem .8rem}.create-post-bar{padding:1rem;border-radius:10px}.create-post-bar .form-row{flex-direction:column;gap:.75rem}.create-post-bar select{max-width:100%}.create-post-bar input,.create-post-bar textarea,.create-post-bar select{font-size:16px;padding:.7rem}.feed-header{flex-direction:column;align-items:flex-start;gap:.6rem;margin-bottom:1rem}.feed-header h3{font-size:1.05rem}.feed-filters{width:100%;overflow-x:auto;padding-bottom:.3rem;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.filter-btn{flex-shrink:0;font-size:.8rem;padding:.35rem .8rem}.card-grid{grid-template-columns:1fr;gap:1rem}.card-img{height:120px;font-size:2.5rem}.card-content{padding:1rem}.post-card h2{font-size:1.1rem;margin-bottom:.5rem}.post-card p{font-size:.88rem;margin-bottom:1rem;line-height:1.5}.card-footer{font-size:.8rem;padding-top:.75rem}.category-nav{gap:.5rem}.cat-btn{padding:.5rem .8rem;font-size:.85rem;border-radius:6px}.count{font-size:.7rem;padding:1px 6px}.modal-overlay{padding:.5rem;align-items:flex-end}.modal-content{padding:1.5rem;border-radius:16px 16px 0 0;max-height:85vh;max-width:100%;margin-bottom:0;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}.modal-header{margin-bottom:1.25rem}.modal-header h2{font-size:1.4rem}.close-modal{font-size:1.6rem;padding:.3rem}.form-group{margin-bottom:1rem}.form-group label{font-size:.85rem;margin-bottom:.3rem}.form-input{font-size:16px;padding:.8rem;border-radius:8px}.btn-full{padding:.85rem;font-size:.95rem}.btn-google{padding:.8rem;font-size:.9rem;margin-bottom:1rem}.auth-divider{margin-bottom:1rem;font-size:.8rem}.age-actions{gap:.6rem;margin-top:1.25rem}.toast{left:.75rem;right:.75rem;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;text-align:center;font-size:.9rem;padding:.8rem 1rem;border-radius:8px}footer{padding:2rem 1rem;margin-top:2rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom))}footer h3{font-size:1.1rem}.disclaimer{font-size:.8rem;padding:.75rem}}
-        @media(max-width:375px){header{padding:0 .5rem}.logo{font-size:1.05rem}.btn{font-size:.75rem;padding:.4rem .6rem}.avatar{width:26px;height:26px;font-size:.7rem}.username{max-width:60px;font-size:.8rem}.hero h1{font-size:1.4rem}.hero p{font-size:.85rem}.slot-machine-container{width:210px}.reel{width:40px;height:44px;font-size:1.1rem}.reel-symbol{height:44px}.card-img{height:100px;font-size:2rem}.post-card h2{font-size:1rem}.post-card p{font-size:.82rem}.modal-content{padding:1.25rem;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}.modal-header h2{font-size:1.25rem}.btn-google{font-size:.85rem;padding:.7rem}}
+        @media(max-width:600px){body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}header{padding:0 .75rem;height:56px}:root{--header-height:56px}.logo{font-size:1.2rem;letter-spacing:.5px}.user-actions{gap:.5rem}.btn{font-size:.8rem;padding:.45rem .7rem;min-height:38px}.user-profile{gap:8px}.avatar{width:30px;height:30px;font-size:.8rem}.username{font-size:.85rem;max-width:80px}.container{padding:.75rem;gap:1rem}.hero{padding:1.5rem 1rem;margin-bottom:1rem;border-radius:12px}.hero h1{font-size:1.6rem;letter-spacing:-.5px}.hero p{font-size:.9rem}.wheel-toggle-btn{width:50px;height:50px;font-size:1.2rem;bottom:16px;right:16px}.wheel-container{bottom:78px;right:10px;width:250px;padding:.8rem}.wheel-wrapper{width:180px;height:180px}.wheel-canvas{width:180px;height:180px}.wheel-center{width:36px;height:36px;font-size:.6rem}.create-post-bar{padding:1rem;border-radius:10px}.create-post-bar .form-row{flex-direction:column;gap:.75rem}.create-post-bar select{max-width:100%}.create-post-bar input,.create-post-bar textarea,.create-post-bar select{font-size:16px;padding:.7rem}.feed-header{flex-direction:column;align-items:flex-start;gap:.6rem;margin-bottom:1rem}.feed-header h3{font-size:1.05rem}.feed-filters{width:100%;overflow-x:auto;padding-bottom:.3rem;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.filter-btn{flex-shrink:0;font-size:.8rem;padding:.35rem .8rem}.card-grid{grid-template-columns:1fr;gap:1rem}.card-img{height:120px;font-size:2.5rem}.card-content{padding:1rem}.post-card h2{font-size:1.1rem;margin-bottom:.5rem}.post-card p{font-size:.88rem;margin-bottom:1rem;line-height:1.5}.card-footer{font-size:.8rem;padding-top:.75rem}.category-nav{gap:.5rem}.cat-btn{padding:.5rem .8rem;font-size:.85rem;border-radius:6px}.count{font-size:.7rem;padding:1px 6px}.modal-overlay{padding:.5rem;align-items:flex-end}.modal-content{padding:1.5rem;border-radius:16px 16px 0 0;max-height:85vh;max-width:100%;margin-bottom:0;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}.modal-header{margin-bottom:1.25rem}.modal-header h2{font-size:1.4rem}.close-modal{font-size:1.6rem;padding:.3rem}.form-group{margin-bottom:1rem}.form-group label{font-size:.85rem;margin-bottom:.3rem}.form-input{font-size:16px;padding:.8rem;border-radius:8px}.btn-full{padding:.85rem;font-size:.95rem}.btn-google{padding:.8rem;font-size:.9rem;margin-bottom:1rem}.auth-divider{margin-bottom:1rem;font-size:.8rem}.age-actions{gap:.6rem;margin-top:1.25rem}.toast{left:.75rem;right:.75rem;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;text-align:center;font-size:.9rem;padding:.8rem 1rem;border-radius:8px}footer{padding:2rem 1rem;margin-top:2rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom))}footer h3{font-size:1.1rem}.disclaimer{font-size:.8rem;padding:.75rem}}
+        @media(max-width:375px){header{padding:0 .5rem}.logo{font-size:1.05rem}.btn{font-size:.75rem;padding:.4rem .6rem}.avatar{width:26px;height:26px;font-size:.7rem}.username{max-width:60px;font-size:.8rem}.hero h1{font-size:1.4rem}.hero p{font-size:.85rem}.wheel-container{width:230px}.wheel-wrapper{width:160px;height:160px}.wheel-canvas{width:160px;height:160px}.wheel-center{width:32px;height:32px;font-size:.55rem}.card-img{height:100px;font-size:2rem}.post-card h2{font-size:1rem}.post-card p{font-size:.82rem}.modal-content{padding:1.25rem;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}.modal-header h2{font-size:1.25rem}.btn-google{font-size:.85rem;padding:.7rem}}
     </style>
 </head>
 <body>
@@ -105,21 +104,125 @@
 
     <footer><h3>SpinZone</h3><p>Your daily dose of casino culture.</p><div class="disclaimer"><p><strong>18+ Only. Please Gamble Responsibly.</strong></p><p>SpinZone does not offer real money gambling. All content is for informational purposes only.</p></div></footer>
 
-    <!-- Floating Slot Widget -->
-    <button class="slot-toggle-btn" id="slotToggleBtn" aria-label="Open slot machine">🎰</button>
-    <div class="slot-machine-container" id="slotWidget"><div class="slot-lights"><div class="light"></div><div class="light"></div><div class="light"></div></div><h3 class="slot-title">Try Your Luck</h3><div class="slot-reels"><div class="reel" id="reel1"><div class="reel-content"><div class="reel-symbol">🍒</div></div></div><div class="reel" id="reel2"><div class="reel-content"><div class="reel-symbol">🍋</div></div></div><div class="reel" id="reel3"><div class="reel-content"><div class="reel-symbol">💎</div></div></div></div><button class="spin-button" id="spinButton"><span>SPIN</span></button><div class="result-message" id="resultMessage"></div></div>
+    <!-- Floating Prize Wheel — Lead Magnet -->
+    <button class="wheel-toggle-btn" id="wheelToggleBtn" aria-label="Spin the wheel">🎡</button>
+    <div class="wheel-container" id="wheelWidget">
+        <h3 class="wheel-title">Spin & Win Free Bonus!</h3>
+        <p class="wheel-subtitle">Win casino credits from our partners</p>
+        <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas class="wheel-canvas" id="wheelCanvas" width="440" height="440"></canvas>
+            <button class="wheel-center" id="wheelSpinBtn">SPIN</button>
+        </div>
+        <div class="wheel-result" id="wheelResult"></div>
+        <div class="wheel-cta" id="wheelCTA">
+            <p>🎁 You won <span id="wheelPrize">$0</span> bonus credit!<br>Sign up FREE to claim it!</p>
+            <button id="wheelSignupCTA">Claim My Bonus →</button>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
         const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
         const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
         document.addEventListener('DOMContentLoaded',()=>{
-            const symbols=['🍒','🍋','💎','⭐','🔔','💰','7️⃣'];const spinButton=document.getElementById('spinButton');const resultMessage=document.getElementById('resultMessage');const reels=[document.getElementById('reel1'),document.getElementById('reel2'),document.getElementById('reel3')];let isSpinning=false;
-            async function spin(){if(isSpinning)return;isSpinning=true;spinButton.disabled=true;resultMessage.classList.remove('show','winner');resultMessage.textContent='';reels.forEach(r=>{r.classList.add('spinning');r.classList.remove('stopped')});const durations=[800,1200,1600];const results=[];for(let i=0;i<reels.length;i++){await new Promise(resolve=>{setTimeout(()=>{reels[i].classList.remove('spinning');reels[i].classList.add('stopped');const sym=symbols[Math.floor(Math.random()*symbols.length)];results.push(sym);reels[i].querySelector('.reel-content').innerHTML='<div class="reel-symbol">'+sym+'</div>';resolve()},durations[i])})}setTimeout(()=>{resultMessage.classList.add('show');if(results[0]===results[1]&&results[1]===results[2]){resultMessage.classList.add('winner');resultMessage.textContent='JACKPOT! '+results.join('')}else if(results[0]===results[1]||results[1]===results[2]||results[0]===results[2]){resultMessage.textContent='Two matching!'}else{resultMessage.textContent='Try again!'}isSpinning=false;spinButton.disabled=false},400)}
-            spinButton.addEventListener('click',spin);
-            const slotToggleBtn=document.getElementById('slotToggleBtn');const slotWidget=document.getElementById('slotWidget');
-            slotToggleBtn.addEventListener('click',()=>{slotWidget.classList.toggle('open');slotToggleBtn.classList.toggle('active');slotToggleBtn.textContent=slotWidget.classList.contains('open')?'✕':'🎰'});
-            document.addEventListener('click',(e)=>{if(slotWidget.classList.contains('open')&&!slotWidget.contains(e.target)&&e.target!==slotToggleBtn){slotWidget.classList.remove('open');slotToggleBtn.classList.remove('active');slotToggleBtn.textContent='🎰'}});
+            // ========== PRIZE WHEEL ==========
+            const prizes=[
+                {label:'$10',value:10,color:'#8b5cf6'},
+                {label:'$15',value:15,color:'#3b82f6'},
+                {label:'$20',value:20,color:'#10b981'},
+                {label:'$25',value:25,color:'#f59e0b'},
+                {label:'$30',value:30,color:'#ef4444'},
+                {label:'$35',value:35,color:'#ec4899'},
+                {label:'$40',value:40,color:'#6366f1'},
+                {label:'$50',value:50,color:'#14b8a6'}
+            ];
+            const canvas=document.getElementById('wheelCanvas');
+            const ctx=canvas.getContext('2d');
+            const wheelSpinBtn=document.getElementById('wheelSpinBtn');
+            const wheelResult=document.getElementById('wheelResult');
+            const wheelCTA=document.getElementById('wheelCTA');
+            const wheelToggleBtn=document.getElementById('wheelToggleBtn');
+            const wheelWidget=document.getElementById('wheelWidget');
+            let currentAngle=0;let isWheelSpinning=false;
+
+            function drawWheel(angle){
+                const cx=canvas.width/2,cy=canvas.height/2,r=cx-10;
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
+                const sliceAngle=2*Math.PI/prizes.length;
+                prizes.forEach((p,i)=>{
+                    const start=i*sliceAngle;const end=start+sliceAngle;
+                    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,start,end);ctx.closePath();
+                    ctx.fillStyle=p.color;ctx.fill();
+                    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;ctx.stroke();
+                    ctx.save();ctx.rotate(start+sliceAngle/2);ctx.textAlign='center';ctx.textBaseline='middle';
+                    ctx.fillStyle='#fff';ctx.font='bold 28px system-ui';ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=4;
+                    ctx.fillText(p.label,r*0.65,0);ctx.restore();
+                });
+                ctx.restore();
+                // Outer ring
+                ctx.beginPath();ctx.arc(cx,cy,r+2,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=4;ctx.stroke();
+            }
+            drawWheel(0);
+
+            function spinWheel(){
+                if(isWheelSpinning)return;isWheelSpinning=true;
+                wheelSpinBtn.disabled=true;wheelResult.classList.remove('show','winner');wheelResult.textContent='';
+                wheelCTA.classList.remove('show');
+                // Pick random prize (weighted: $10-$25 more likely)
+                const weights=[25,20,18,15,8,6,5,3];
+                const totalW=weights.reduce((a,b)=>a+b,0);
+                let rand=Math.random()*totalW,winIdx=0;
+                for(let i=0;i<weights.length;i++){rand-=weights[i];if(rand<=0){winIdx=i;break}}
+                const sliceAngle=360/prizes.length;
+                const targetAngle=360-((winIdx*sliceAngle)+sliceAngle/2);
+                const totalSpin=360*5+targetAngle+Math.random()*10-5; // 5 full rotations + target
+                const startAngle=currentAngle;const duration=4000;const startTime=Date.now();
+
+                function animate(){
+                    const elapsed=Date.now()-startTime;const progress=Math.min(elapsed/duration,1);
+                    // Ease out cubic
+                    const eased=1-Math.pow(1-progress,3);
+                    const angle=startAngle+totalSpin*eased;
+                    drawWheel(angle*Math.PI/180);
+                    if(progress<1){requestAnimationFrame(animate)}
+                    else{
+                        currentAngle=(startAngle+totalSpin)%360;
+                        isWheelSpinning=false;wheelSpinBtn.disabled=false;
+                        const won=prizes[winIdx];
+                        wheelResult.textContent='🎉 You won '+won.label+' bonus!';
+                        wheelResult.classList.add('show','winner');
+                        document.getElementById('wheelPrize').textContent=won.label;
+                        if(!state.user){wheelCTA.classList.add('show')}
+                        else{
+                            wheelResult.textContent='🎉 '+won.label+' bonus! Check your affiliated casino.';
+                        }
+                    }
+                }
+                animate();
+            }
+            wheelSpinBtn.addEventListener('click',spinWheel);
+
+            // Toggle wheel widget
+            wheelToggleBtn.addEventListener('click',()=>{
+                wheelWidget.classList.toggle('open');wheelToggleBtn.classList.toggle('active');
+                wheelToggleBtn.textContent=wheelWidget.classList.contains('open')?'✕':'🎡';
+                if(wheelWidget.classList.contains('open')){
+                    // Redraw wheel at correct size
+                    setTimeout(()=>drawWheel(currentAngle*Math.PI/180),50);
+                }
+            });
+            document.addEventListener('click',(e)=>{
+                if(wheelWidget.classList.contains('open')&&!wheelWidget.contains(e.target)&&e.target!==wheelToggleBtn){
+                    wheelWidget.classList.remove('open');wheelToggleBtn.classList.remove('active');wheelToggleBtn.textContent='🎡';
+                }
+            });
+            // Signup CTA from wheel
+            document.getElementById('wheelSignupCTA').addEventListener('click',()=>{
+                wheelWidget.classList.remove('open');wheelToggleBtn.classList.remove('active');wheelToggleBtn.textContent='🎡';
+                initiateAuthFlow(false);
+            });
             const state={user:null,session:null,profile:null,isAgeVerified:false,isLoginMode:true,pendingAuthMode:null,currentFilter:'all',currentSort:'new',posts:[],userLikes:[]};
             const el={authContainer:document.getElementById('authButtons'),authModal:document.getElementById('authModal'),closeAuthModal:document.getElementById('closeAuthModal'),authForm:document.getElementById('authForm'),emailInput:document.getElementById('email'),usernameInput:document.getElementById('username'),usernameGroup:document.getElementById('usernameGroup'),passwordInput:document.getElementById('password'),modalTitle:document.getElementById('modalTitle'),submitBtn:document.getElementById('submitBtn'),toggleAuthMode:document.getElementById('toggleAuthMode'),toggleAuthText:document.getElementById('toggleAuthText'),authError:document.getElementById('authError'),ageModal:document.getElementById('ageModal'),closeAgeModal:document.getElementById('closeAgeModal'),btnAgeConfirm:document.getElementById('btnAgeConfirm'),btnAgeDeny:document.getElementById('btnAgeDeny'),toast:document.getElementById('toast'),catButtons:document.querySelectorAll('.cat-btn'),filterButtons:document.querySelectorAll('.filter-btn'),postGrid:document.getElementById('postGrid'),createPostBar:document.getElementById('createPostBar'),postTitle:document.getElementById('postTitle'),postContent:document.getElementById('postContent'),postType:document.getElementById('postType'),submitPostBtn:document.getElementById('submitPostBtn'),trendingList:document.getElementById('trendingList'),googleSignIn:document.getElementById('googleSignIn')};
             function showAuthError(m){el.authError.textContent=m;el.authError.classList.add('visible')}function hideAuthError(){el.authError.textContent='';el.authError.classList.remove('visible')}function showToast(m,err){el.toast.textContent=m;el.toast.className=err?'toast active error':'toast active';setTimeout(()=>el.toast.classList.remove('active'),3000)}function getUsername(){return state.profile?.username||state.user?.user_metadata?.username||(state.user?.email?state.user.email.split('@')[0]:'User')}function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}function getTimeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(d).toLocaleDateString()}
@@ -132,8 +235,8 @@
             async function handleAuthSubmit(e){e.preventDefault();hideAuthError();const email=el.emailInput.value.trim(),password=el.passwordInput.value,username=el.usernameInput.value.trim();if(!email||!password)return;if(!state.isLoginMode&&!username)return;el.submitBtn.textContent="Processing...";el.submitBtn.disabled=true;try{if(state.isLoginMode){const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;state.session=data.session;state.user=data.user;await loadProfile();closeAllModals();renderHeader();showToast('Welcome back, '+getUsername()+'!');loadPosts()}else{const{data,error}=await sb.auth.signUp({email,password,options:{data:{username}}});if(error)throw error;if(data.user&&!data.session){closeAllModals();showToast("Account created! Check your email to confirm, then log in.")}else if(data.user&&data.session){state.session=data.session;state.user=data.user;if(state.isAgeVerified)await sb.from('profiles').update({is_age_verified:true}).eq('id',data.user.id);await loadProfile();closeAllModals();renderHeader();showToast('Welcome, '+getUsername()+'!');loadPosts()}}}catch(err){console.error('Auth error:',err);showAuthError(err.message||'Authentication failed.')}finally{el.submitBtn.textContent=state.isLoginMode?"Sign In":"Create Account";el.submitBtn.disabled=false}}
             async function handleLogout(){await sb.auth.signOut();state.user=null;state.session=null;state.profile=null;state.isAgeVerified=false;state.userLikes=[];renderHeader();renderPosts();showToast("You have been signed out.")}
             async function loadProfile(){if(!state.user)return;const{data:p}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(p){state.profile=p;state.isAgeVerified=p.is_age_verified||false}const{data:likes}=await sb.from('likes').select('post_id').eq('user_id',state.user.id);state.userLikes=likes?likes.map(l=>l.post_id):[]}
-            async function loadPosts(){el.postGrid.innerHTML='<div class="loading">Loading...</div>';let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at',{ascending:false});if(state.currentFilter!=='all')q=q.eq('type',state.currentFilter);const{data:posts}=await q;let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true).order('created_at',{ascending:false});if(state.currentFilter!=='all')aq=aq.eq('type',state.currentFilter);const{data:articles}=await aq;const formattedPosts=(posts||[]).map(p=>({...p,item_type:'post',username:p.profiles?.username||'Anonymous',like_count:p.likes?p.likes.length:0}));const formattedArticles=(articles||[]).map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}));state.posts=[...formattedArticles,...formattedPosts];if(state.currentSort==='popular')state.posts.sort((a,b)=>b.like_count-a.like_count);else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));updateCounts();renderPosts();renderTrending()}
-            function updateCounts(){sb.from('posts').select('type').then(({data:postData})=>{sb.from('articles').select('type').eq('is_published',true).then(({data:articleData})=>{const all=[...(postData||[]),...(articleData||[])];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})})})}
+            async function loadPosts(){el.postGrid.innerHTML='<div class="loading">Loading...</div>';let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at',{ascending:false});if(state.currentFilter!=='all')q=q.eq('type',state.currentFilter);const{data:posts}=await q;let formattedArticles=[];try{let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true).order('created_at',{ascending:false});if(state.currentFilter!=='all')aq=aq.eq('type',state.currentFilter);const{data:articles,error}=await aq;if(!error&&articles){formattedArticles=articles.map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}))}}catch(e){console.log('Articles table not available')}const formattedPosts=(posts||[]).map(p=>({...p,item_type:'post',username:p.profiles?.username||'Anonymous',like_count:p.likes?p.likes.length:0}));state.posts=[...formattedArticles,...formattedPosts];if(state.currentSort==='popular')state.posts.sort((a,b)=>b.like_count-a.like_count);else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));updateCounts();renderPosts();renderTrending()}
+            function updateCounts(){sb.from('posts').select('type').then(({data:postData})=>{let articleData=[];sb.from('articles').select('type').eq('is_published',true).then(({data:ad,error})=>{if(!error&&ad)articleData=ad;const all=[...(postData||[]),...articleData];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})}).catch(()=>{const all=postData||[];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})})})}
             function renderPosts(){if(!state.posts.length){el.postGrid.innerHTML='<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>';return}el.postGrid.innerHTML=state.posts.map(p=>{const em=typeEmojis[p.type]||'💬',bc=typeBadge[p.type]||'badge-general',lb=typeLabel[p.type]||'General';if(p.item_type==='article'){return'<a href="/article.html?slug='+encodeURIComponent(p.slug)+'" class="post-card" style="text-decoration:none;cursor:pointer"><div class="card-img" style="background:linear-gradient(135deg,#4c1d95,#1e1b4b)">'+em+'</div><div class="card-content"><span class="badge '+bc+'">📝 '+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.summary||p.content.substring(0,150)+'...')+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+p.read_time+' min read</span></div></div></a>'}const liked=state.userLikes.includes(p.id);return'<article class="post-card"><div class="card-img">'+em+'</div><div class="card-content"><span class="badge '+bc+'">'+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.content)+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+getTimeAgo(p.created_at)+'</span><div class="card-actions"><button class="btn-icon '+(liked?'liked':'')+'" onclick="handleLike('+p.id+', this)">'+(liked?'❤️':'♥')+'</button><span class="like-count-'+p.id+'">'+p.like_count+'</span></div></div></div></article>'}).join('')}
             function renderTrending(){const t=[...state.posts].sort((a,b)=>b.like_count-a.like_count).slice(0,3);if(!t.length){el.trendingList.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No trending posts yet.</p>';return}el.trendingList.innerHTML=t.map(p=>'<div class="hot-topic"><h4>'+escapeHtml(p.title)+'</h4><span>❤️ '+p.like_count+' likes &bull; '+getTimeAgo(p.created_at)+'</span></div>').join('')}
             async function handleCreatePost(){const title=el.postTitle.value.trim(),content=el.postContent.value.trim(),type=el.postType.value;if(!title||!content){showToast("Please fill in both title and content.",true);return}if(!state.user){showToast("You must be logged in to post.",true);return}el.submitPostBtn.textContent="Posting...";el.submitPostBtn.disabled=true;const{error}=await sb.from('posts').insert({user_id:state.user.id,title,content,type});el.submitPostBtn.textContent="Post";el.submitPostBtn.disabled=false;if(error){showToast("Failed to create post. "+(error.message||''),true);return}el.postTitle.value='';el.postContent.value='';showToast("Post published!");loadPosts()}
