@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpinZone v2 — Platform Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-h:64px;--nav-h:48px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--primary);color:#fff}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 1.5rem;height:var(--header-h);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.4rem;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+.header-right{display:flex;align-items:center;gap:.75rem}
+.header-btn{padding:.5rem 1rem;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:none;transition:all .2s}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--card-border)}.btn-ghost:hover{color:var(--text-main);border-color:var(--text-main)}
+.btn-accent{background:var(--primary);color:#fff}.btn-accent:hover{background:var(--primary-hover)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+
+/* NAV BAR */
+.nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-h);z-index:90;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-inner{display:flex;gap:0;max-width:1200px;margin:0 auto;padding:0 1rem}
+.nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem}.nav-link:hover{color:var(--text-main)}.nav-link.active{color:var(--primary);border-bottom-color:var(--primary)}
+.nav-link .badge-new{font-size:.6rem;padding:1px 5px;background:var(--danger);color:#fff;border-radius:4px;font-weight:700}
+.nav-link .badge-pro{font-size:.6rem;padding:1px 5px;background:var(--gold);color:#000;border-radius:4px;font-weight:700}
+
+/* LAYOUT */
+.page{max-width:1200px;margin:0 auto;padding:1.5rem}
+.page-grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.section-title .see-all{font-size:.8rem;color:var(--primary);font-weight:600;cursor:pointer}
+.section-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:.75rem}
+
+/* HERO BANNER */
+.hero-banner{background:linear-gradient(135deg,#1e1145 0%,#0f172a 50%,#0c2d1e 100%);border:1px solid var(--card-border);border-radius:16px;padding:2.5rem;position:relative;overflow:hidden;margin-bottom:1.5rem}
+.hero-banner::before{content:'';position:absolute;top:-50%;right:-20%;width:400px;height:400px;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);pointer-events:none}
+.hero-banner::after{content:'';position:absolute;bottom:-50%;left:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);pointer-events:none}
+.hero-banner h1{font-size:2.2rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.5rem;position:relative;z-index:1}
+.hero-banner h1 em{font-style:normal;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-banner p{color:var(--text-muted);font-size:1rem;max-width:500px;position:relative;z-index:1}
+.hero-stats{display:flex;gap:2rem;margin-top:1.5rem;position:relative;z-index:1}
+.hero-stat{text-align:center}.hero-stat .num{font-size:1.5rem;font-weight:800;color:var(--accent)}.hero-stat .lbl{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+
+/* CARD SYSTEM */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;transition:all .25s ease}.card:hover{border-color:var(--primary);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.card-grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.card-grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
+
+/* PICK CARDS */
+.pick-card{padding:1.25rem;position:relative}
+.pick-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.pick-sport{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px;display:inline-flex;align-items:center;gap:4px}
+.sport-football{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.sport-basketball{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.sport-mma{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.sport-tennis{background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.2)}
+.pick-confidence{display:flex;gap:2px}.conf-dot{width:8px;height:8px;border-radius:50%;background:var(--card-border)}.conf-dot.filled{background:var(--gold)}
+.pick-match{font-weight:700;font-size:1.05rem;margin-bottom:.5rem}
+.pick-selection{display:inline-block;padding:.35rem .75rem;background:rgba(139,92,246,.12);color:var(--primary);border:1px solid rgba(139,92,246,.25);border-radius:6px;font-weight:700;font-size:.85rem;margin-bottom:.5rem}
+.pick-odds{font-size:.85rem;color:var(--accent);font-weight:700}
+.pick-analysis{font-size:.82rem;color:var(--text-muted);line-height:1.5;margin-top:.5rem}
+.pick-locked{position:relative}.pick-locked::after{content:'🔒 Premium Pick';position:absolute;inset:0;background:rgba(10,14,26,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:700;font-size:.9rem;border-radius:12px}
+.pick-result{position:absolute;top:1rem;right:1rem;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:4px}
+.result-won{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+.result-lost{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.result-pending{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+
+/* CASINO CARDS */
+.casino-card{display:flex;flex-direction:column}
+.casino-top{padding:1.25rem 1.25rem .75rem;display:flex;gap:1rem;align-items:flex-start}
+.casino-logo{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.casino-info{flex:1;min-width:0}
+.casino-name{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:.5rem}
+.casino-name .featured{font-size:.6rem;padding:2px 6px;background:var(--gold);color:#000;border-radius:3px;font-weight:700}
+.casino-rating{display:flex;align-items:center;gap:.25rem;margin-top:.25rem;font-size:.8rem;color:var(--gold)}
+.casino-bonus{margin:.5rem 1.25rem;padding:.75rem;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(16,185,129,.08));border:1px solid rgba(139,92,246,.15);border-radius:8px;text-align:center}
+.casino-bonus .amount{font-size:1rem;font-weight:800;color:var(--text-main)}.casino-bonus .code{font-size:.75rem;color:var(--accent);font-weight:600;margin-top:.2rem}
+.casino-tags{display:flex;gap:.4rem;padding:0 1.25rem;flex-wrap:wrap}
+.casino-tag{font-size:.65rem;padding:2px 8px;background:rgba(255,255,255,.05);border:1px solid var(--card-border);border-radius:4px;color:var(--text-muted)}
+.casino-bottom{padding:1rem 1.25rem;margin-top:auto;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
+.casino-visit{padding:.5rem 1.25rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s}.casino-visit:hover{background:var(--primary-hover);transform:translateY(-1px)}
+.casino-meta{font-size:.75rem;color:var(--text-dim)}
+
+/* WIN FEED */
+.win-card{padding:1.25rem;display:flex;gap:1rem;align-items:flex-start}
+.win-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.win-body{flex:1}
+.win-user{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:.5rem}
+.win-user .verified{width:14px;height:14px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem}
+.win-details{font-size:.82rem;color:var(--text-muted);margin-top:.25rem}
+.win-amount{font-size:1.3rem;font-weight:800;color:var(--accent);margin-top:.35rem;display:flex;align-items:baseline;gap:.5rem}
+.win-amount .multi{font-size:.8rem;color:var(--gold);font-weight:600}
+.win-time{font-size:.7rem;color:var(--text-dim);margin-top:.35rem}
+
+/* INSIGHTS */
+.insight-card{padding:1.25rem}
+.insight-category{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:.5rem}
+.insight-title{font-weight:700;font-size:1rem;margin-bottom:.5rem;line-height:1.3}
+.insight-preview{font-size:.85rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.insight-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:.75rem;color:var(--text-dim)}
+.insight-locked{position:relative}.insight-locked .insight-preview{filter:blur(4px)}
+.insight-locked::after{content:'🔒 Pro Members Only';position:absolute;bottom:2.5rem;left:0;right:0;text-align:center;color:var(--gold);font-weight:700;font-size:.8rem}
+
+/* DISCUSSION */
+.disc-card{padding:1.25rem}
+.disc-header{display:flex;gap:.75rem;align-items:flex-start}
+.disc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.disc-body{flex:1}
+.disc-title{font-weight:700;font-size:.95rem;line-height:1.3;margin-bottom:.25rem}
+.disc-meta{font-size:.75rem;color:var(--text-dim);display:flex;gap:.75rem;flex-wrap:wrap}
+.disc-stats{display:flex;gap:1rem;margin-top:.75rem;font-size:.8rem;color:var(--text-muted)}
+.disc-stats span{display:flex;align-items:center;gap:.3rem}
+.disc-cat{font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:4px}
+.cat-strategy{background:rgba(16,185,129,.12);color:#10b981}
+.cat-brags{background:rgba(245,158,11,.12);color:#f59e0b}
+.cat-help{background:rgba(59,130,246,.12);color:#3b82f6}
+.cat-general{background:rgba(148,163,184,.12);color:#94a3b8}
+
+/* PREMIUM SECTION */
+.premium-banner{background:linear-gradient(135deg,#1a0a2e,#0d1b2a);border:1px solid rgba(245,158,11,.2);border-radius:16px;padding:2rem;text-align:center;position:relative;overflow:hidden}
+.premium-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(245,158,11,.08),transparent 70%)}
+.premium-banner h2{font-size:1.5rem;font-weight:800;position:relative;z-index:1}.premium-banner h2 em{font-style:normal;color:var(--gold)}
+.premium-banner p{color:var(--text-muted);margin:.75rem auto 1.5rem;max-width:400px;position:relative;z-index:1;font-size:.9rem}
+.pricing-row{display:flex;gap:1rem;justify-content:center;position:relative;z-index:1;flex-wrap:wrap}
+.price-pill{padding:.6rem 1.5rem;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;border:1px solid var(--card-border);transition:all .2s}
+.price-free{background:transparent;color:var(--text-muted)}.price-free:hover{border-color:var(--text-main)}
+.price-pro{background:linear-gradient(135deg,var(--primary),#6366f1);color:#fff;border-color:var(--primary)}.price-pro:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(139,92,246,.3)}
+.price-vip{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;border-color:var(--gold)}.price-vip:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(245,158,11,.3)}
+
+/* RECORD TRACKER */
+.record-bar{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem}
+.record-item{text-align:center}.record-item .val{font-size:1.2rem;font-weight:800}.record-item .lbl{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+.record-item .val.green{color:var(--accent)}.record-item .val.red{color:var(--danger)}.record-item .val.gold{color:var(--gold)}
+
+/* FILTER TABS */
+.filter-row{display:flex;gap:.5rem;margin-bottom:1.25rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.25rem}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-pill{padding:.4rem 1rem;border-radius:20px;font-size:.8rem;font-weight:600;cursor:pointer;border:1px solid var(--card-border);color:var(--text-muted);white-space:nowrap;transition:all .2s;background:transparent}.filter-pill:hover{color:var(--text-main);border-color:var(--text-main)}.filter-pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* RESPONSIVE */
+@media(max-width:768px){.hero-banner{padding:1.5rem}.hero-banner h1{font-size:1.5rem}.hero-stats{gap:1.25rem}.hero-stat .num{font-size:1.2rem}.card-grid-3,.card-grid-2{grid-template-columns:1fr}.pricing-row{flex-direction:column;align-items:center}.header-right .btn-ghost{display:none}}
+@media(max-width:480px){.header{padding:0 .75rem}.logo{font-size:1.1rem}.nav-link{padding:.7rem .9rem;font-size:.8rem}.record-bar{padding:.75rem 1rem}.record-item .val{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">
+        <div class="logo-icon">🎲</div>
+        <div><b>Spin</b><span>Zone</span></div>
+    </div>
+    <div class="header-right">
+        <button class="header-btn btn-ghost">Sign In</button>
+        <button class="header-btn btn-accent">Join Free</button>
+        <button class="header-btn btn-gold">👑 Go Pro</button>
+    </div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+    <div class="nav-inner">
+        <div class="nav-link active">🏠 Home</div>
+        <div class="nav-link" onclick="showSection('sports')">⚽ Sports <span class="badge-new">NEW</span></div>
+        <div class="nav-link" onclick="showSection('casinos')">🎰 Casinos</div>
+        <div class="nav-link" onclick="showSection('picks')">🎯 Picks <span class="badge-new">HOT</span></div>
+        <div class="nav-link" onclick="showSection('wins')">🏆 Wins</div>
+        <div class="nav-link" onclick="showSection('insights')">📊 Insights <span class="badge-pro">PRO</span></div>
+        <div class="nav-link" onclick="showSection('discuss')">💬 Community</div>
+        <div class="nav-link" onclick="showSection('premium')">👑 Premium</div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="page">
+
+    <!-- HERO -->
+    <div class="hero-banner">
+        <h1>Real Players. <em>Real Wins.</em></h1>
+        <p>Casino reviews, daily picks, sports betting insights, and a community of real players sharing real results.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="num">2,847</div><div class="lbl">Members</div></div>
+            <div class="hero-stat"><div class="num">67%</div><div class="lbl">Pick Win Rate</div></div>
+            <div class="hero-stat"><div class="num">$48K</div><div class="lbl">Won This Month</div></div>
+            <div class="hero-stat"><div class="num">142</div><div class="lbl">Casino Reviews</div></div>
+        </div>
+    </div>
+
+    <!-- TODAY'S TOP PICKS -->
+    <div>
+        <div class="section-title">🎯 Today's Picks — March 12<span class="see-all">View All Picks →</span></div>
+        <div class="record-bar">
+            <div class="record-item"><div class="val green">67-43</div><div class="lbl">Season Record</div></div>
+            <div class="record-item"><div class="val gold">60.9%</div><div class="lbl">Win Rate</div></div>
+            <div class="record-item"><div class="val green">+$12,340</div><div class="lbl">Total Profit</div></div>
+            <div class="record-item"><div class="val">🔥 5W Streak</div><div class="lbl">Current</div></div>
+        </div>
+        <div class="card-grid-3">
+            <div class="card pick-card">
+                <div class="pick-header">
+                    <span class="pick-sport sport-basketball">🏀 NBA</span>
+                    <div class="pick-confidence"><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot"></div></div>
+                </div>
+                <div class="pick-match">Lakers vs Celtics</div>
+                <div class="pick-selection">Lakers -3.5</div>
+                <div class="pick-odds">Odds: -110 | 7:30 PM ET</div>
+                <div class="pick-analysis">Lakers are 8-2 in their last 10 home games. Celtics on a back-to-back with Tatum questionable.</div>
+            </div>
+            <div class="card pick-card">
+                <div class="pick-header">
+                    <span class="pick-sport sport-football">⚽ Premier League</span>
+                    <div class="pick-confidence"><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div></div>
+                </div>
+                <div class="pick-result result-won">✅ WON</div>
+                <div class="pick-match">Arsenal vs Chelsea</div>
+                <div class="pick-selection">Over 2.5 Goals</div>
+                <div class="pick-odds">Odds: -125 | Final: 3-1</div>
+                <div class="pick-analysis">Both teams averaging 3.2 goals per match in head-to-heads this season.</div>
+            </div>
+            <div class="card pick-card pick-locked">
+                <div class="pick-header">
+                    <span class="pick-sport sport-mma">🥊 UFC 315</span>
+                    <div class="pick-confidence"><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div><div class="conf-dot filled"></div></div>
+                </div>
+                <div class="pick-match">Jones vs Aspinall</div>
+                <div class="pick-selection">VIP Only: Method + Round</div>
+                <div class="pick-odds">Odds: +450</div>
+                <div class="pick-analysis">Our highest confidence play of the month. Detailed breakdown available for VIP members.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CASINO DIRECTORY -->
+    <div style="margin-top:2.5rem">
+        <div class="section-title">🎰 Top Rated Casinos<span class="see-all">Browse All →</span></div>
+        <div class="filter-row">
+            <div class="filter-pill active">All</div>
+            <div class="filter-pill">🔥 Featured</div>
+            <div class="filter-pill">🎰 Slots</div>
+            <div class="filter-pill">🃏 Poker</div>
+            <div class="filter-pill">🔴 Live</div>
+            <div class="filter-pill">₿ Crypto</div>
+            <div class="filter-pill">🆕 New</div>
+        </div>
+        <div class="card-grid-3">
+            <div class="card casino-card">
+                <div class="casino-top">
+                    <div class="casino-logo" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎲</div>
+                    <div class="casino-info">
+                        <div class="casino-name">Stake Casino <span class="featured">⭐ FEATURED</span></div>
+                        <div class="casino-rating">★★★★★ 4.9 <span style="color:var(--text-dim);margin-left:.25rem">(2,341 reviews)</span></div>
+                    </div>
+                </div>
+                <div class="casino-bonus">
+                    <div class="amount">200% up to $1,000</div>
+                    <div class="code">Code: SPINZONE200</div>
+                </div>
+                <div class="casino-tags">
+                    <span class="casino-tag">₿ Crypto</span>
+                    <span class="casino-tag">⚡ Instant Payout</span>
+                    <span class="casino-tag">🎰 4000+ Games</span>
+                    <span class="casino-tag">📱 Mobile</span>
+                </div>
+                <div class="casino-bottom">
+                    <span class="casino-meta">Curacao License · Est. 2017</span>
+                    <button class="casino-visit">Visit Casino →</button>
+                </div>
+            </div>
+            <div class="card casino-card">
+                <div class="casino-top">
+                    <div class="casino-logo" style="background:linear-gradient(135deg,#0d1117,#1a2332)">🎮</div>
+                    <div class="casino-info">
+                        <div class="casino-name">BC.Game</div>
+                        <div class="casino-rating">★★★★☆ 4.7 <span style="color:var(--text-dim);margin-left:.25rem">(1,892 reviews)</span></div>
+                    </div>
+                </div>
+                <div class="casino-bonus">
+                    <div class="amount">300% First Deposit</div>
+                    <div class="code">Code: BCZONE300</div>
+                </div>
+                <div class="casino-tags">
+                    <span class="casino-tag">₿ Crypto</span>
+                    <span class="casino-tag">🎁 Daily Rewards</span>
+                    <span class="casino-tag">🎰 5000+ Games</span>
+                </div>
+                <div class="casino-bottom">
+                    <span class="casino-meta">Curacao License · Est. 2019</span>
+                    <button class="casino-visit">Visit Casino →</button>
+                </div>
+            </div>
+            <div class="card casino-card">
+                <div class="casino-top">
+                    <div class="casino-logo" style="background:linear-gradient(135deg,#1a0a0a,#2d1a1a)">♠️</div>
+                    <div class="casino-info">
+                        <div class="casino-name">Betway</div>
+                        <div class="casino-rating">★★★★☆ 4.5 <span style="color:var(--text-dim);margin-left:.25rem">(3,204 reviews)</span></div>
+                    </div>
+                </div>
+                <div class="casino-bonus">
+                    <div class="amount">$1,000 Welcome Package</div>
+                    <div class="code">3-Part Deposit Match</div>
+                </div>
+                <div class="casino-tags">
+                    <span class="casino-tag">💳 Visa/MC</span>
+                    <span class="casino-tag">🏆 20+ Years</span>
+                    <span class="casino-tag">📺 Live Dealer</span>
+                </div>
+                <div class="casino-bottom">
+                    <span class="casino-meta">MGA License · Est. 2006</span>
+                    <button class="casino-visit">Visit Casino →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER WIN FEED -->
+    <div style="margin-top:2.5rem">
+        <div class="section-title">🏆 Recent Player Wins<span class="see-all">View All →</span></div>
+        <div class="card-grid-2">
+            <div class="card win-card">
+                <div class="win-avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent))">AK</div>
+                <div class="win-body">
+                    <div class="win-user">AceKing42 <span class="verified">✓</span></div>
+                    <div class="win-details">Sweet Bonanza · Stake Casino</div>
+                    <div class="win-amount">$5,420 <span class="multi">542x multiplier</span></div>
+                    <div class="win-time">12 minutes ago</div>
+                </div>
+            </div>
+            <div class="card win-card">
+                <div class="win-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JP</div>
+                <div class="win-body">
+                    <div class="win-user">JackpotJane</div>
+                    <div class="win-details">Lightning Roulette · BC.Game</div>
+                    <div class="win-amount">$2,150 <span class="multi">430x</span></div>
+                    <div class="win-time">34 minutes ago</div>
+                </div>
+            </div>
+            <div class="card win-card">
+                <div class="win-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">MR</div>
+                <div class="win-body">
+                    <div class="win-user">MrRoyal <span class="verified">✓</span></div>
+                    <div class="win-details">NFL Parlay · Stake Sportsbook</div>
+                    <div class="win-amount">$8,900 <span class="multi">+890% ROI</span></div>
+                    <div class="win-time">1 hour ago</div>
+                </div>
+            </div>
+            <div class="card win-card">
+                <div class="win-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">SL</div>
+                <div class="win-body">
+                    <div class="win-user">SlotLover99</div>
+                    <div class="win-details">Gates of Olympus · Betway</div>
+                    <div class="win-amount">$1,280 <span class="multi">256x</span></div>
+                    <div class="win-time">2 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BETTING INSIGHTS -->
+    <div style="margin-top:2.5rem">
+        <div class="section-title">📊 Betting Insights<span class="see-all">View All →</span></div>
+        <div class="card-grid-3">
+            <div class="card insight-card">
+                <div class="insight-category">📈 Market Analysis</div>
+                <div class="insight-title">NBA Playoffs: Why Underdogs Are Covering at a Historic Rate</div>
+                <div class="insight-preview">Through 42 playoff games, underdogs are covering the spread at 58.3%, the highest rate since 2018. Here's how to exploit this trend in your next bets.</div>
+                <div class="insight-footer"><span>5 min read</span><span>🔓 Free</span></div>
+            </div>
+            <div class="card insight-card insight-locked">
+                <div class="insight-category">🎯 Advanced Strategy</div>
+                <div class="insight-title">The Kelly Criterion: How to Size Your Bets Like a Pro</div>
+                <div class="insight-preview">Professional bettors don't use flat betting. They use mathematical formulas to determine exactly how much to wager on each bet based on their edge.</div>
+                <div class="insight-footer"><span>8 min read</span><span>👑 Pro Only</span></div>
+            </div>
+            <div class="card insight-card">
+                <div class="insight-category">📊 Statistics</div>
+                <div class="insight-title">Premier League BTTS Trends: Which Teams to Target</div>
+                <div class="insight-preview">Both Teams to Score is one of the most popular football markets. We analyzed 380 matches to find the most profitable teams to target.</div>
+                <div class="insight-footer"><span>6 min read</span><span>🔓 Free</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMUNITY DISCUSSIONS -->
+    <div style="margin-top:2.5rem">
+        <div class="section-title">💬 Community Discussions<span class="see-all">View All →</span></div>
+        <div class="page-grid">
+            <div class="card disc-card">
+                <div class="disc-header">
+                    <div class="disc-avatar" style="background:linear-gradient(135deg,var(--primary),#6366f1)">RK</div>
+                    <div class="disc-body">
+                        <div class="disc-title">What's your go-to bankroll management strategy?</div>
+                        <div class="disc-meta">
+                            <span>by <b>RoyalKing</b></span>
+                            <span class="disc-cat cat-strategy">Strategy</span>
+                            <span>2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="disc-stats">
+                    <span>💬 34 replies</span>
+                    <span>❤️ 89 likes</span>
+                    <span>👁 412 views</span>
+                </div>
+            </div>
+            <div class="card disc-card">
+                <div class="disc-header">
+                    <div class="disc-avatar" style="background:linear-gradient(135deg,var(--gold),#d97706)">SQ</div>
+                    <div class="disc-body">
+                        <div class="disc-title">Just hit $10K on a 3-leg parlay! AMA 🎉</div>
+                        <div class="disc-meta">
+                            <span>by <b>SlotQueen</b></span>
+                            <span class="disc-cat cat-brags">Brags & Wins</span>
+                            <span>45 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="disc-stats">
+                    <span>💬 67 replies</span>
+                    <span>❤️ 234 likes</span>
+                    <span>👁 1.2K views</span>
+                </div>
+            </div>
+            <div class="card disc-card">
+                <div class="disc-header">
+                    <div class="disc-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">NB</div>
+                    <div class="disc-body">
+                        <div class="disc-title">Best crypto casino for fast withdrawals in 2025?</div>
+                        <div class="disc-meta">
+                            <span>by <b>NewbieBettor</b></span>
+                            <span class="disc-cat cat-help">Help</span>
+                            <span>3 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="disc-stats">
+                    <span>💬 21 replies</span>
+                    <span>❤️ 45 likes</span>
+                    <span>👁 289 views</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREMIUM SECTION -->
+    <div style="margin-top:2.5rem;margin-bottom:2rem">
+        <div class="premium-banner">
+            <h2>Upgrade to <em>SpinZone Pro</em></h2>
+            <p>Unlock premium picks, advanced insights, exclusive casino deals, and a proven winning edge.</p>
+            <div class="pricing-row">
+                <div class="price-pill price-free">Free — $0</div>
+                <div class="price-pill price-pro">🔥 Pro — $9.99/mo</div>
+                <div class="price-pill price-vip">👑 VIP — $24.99/mo</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:2rem 1rem;border-top:1px solid var(--card-border);color:var(--text-dim);font-size:.8rem">
+    <p><b>SpinZone</b> — Real Players. Real Wins.</p>
+    <p style="margin-top:.5rem">18+ Only. Please Gamble Responsibly. SpinZone does not offer real money gambling.</p>
+</div>
+
+<script>
+// Simple section highlighting for demo
+document.querySelectorAll('.nav-link').forEach(link=>{
+    link.addEventListener('click',function(){
+        document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+</script>
+</body>
+</html>
