@@ -329,19 +329,19 @@
             <div class="fpill" data-filter="crypto">₿ Crypto</div>
         </div>
         <div class="grid-3" id="casinoGrid">
-            <div class="ns-card casino-card" data-categories="featured crypto slots live">
+            <div class="ns-card casino-card" data-categories="featured crypto slots live" data-rating="4.9" data-bonus="1000" data-order="1">
                 <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎲</div><div class="c-info"><div class="c-name">Stake Casino <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★★ 4.9 <span style="color:var(--text-dim);margin-left:.25rem">(2,341 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">200% up to $1,000</div><div class="cde">Code: SPINZONE200</div></div>
                 <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">⚡ Instant Payout</span><span class="c-tag">🎰 4000+ Games</span></div>
                 <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2017</span><a class="c-visit" href="/go.html?slug=stake-casino&src=homepage">Visit Casino →</a></div>
             </div>
-            <div class="ns-card casino-card" data-categories="crypto slots featured">
+            <div class="ns-card casino-card" data-categories="crypto slots featured" data-rating="4.7" data-bonus="300" data-order="2">
                 <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0d1117,#1a2332)">🎮</div><div class="c-info"><div class="c-name">BC.Game <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★☆ 4.7 <span style="color:var(--text-dim);margin-left:.25rem">(1,892 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">300% First Deposit</div><div class="cde">Code: BCZONE300</div></div>
                 <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">🎁 Daily Rewards</span><span class="c-tag">🎰 5000+ Games</span></div>
                 <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2019</span><a class="c-visit" href="/go.html?slug=bc-game&src=homepage">Visit Casino →</a></div>
             </div>
-            <div class="ns-card casino-card" data-categories="live slots poker">
+            <div class="ns-card casino-card" data-categories="live slots poker" data-rating="4.5" data-bonus="1000" data-order="3">
                 <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a0a0a,#2d1a1a)">♠️</div><div class="c-info"><div class="c-name">Betway</div><div class="c-rating">★★★★☆ 4.5 <span style="color:var(--text-dim);margin-left:.25rem">(3,204 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">$1,000 Welcome Package</div><div class="cde">3-Part Deposit Match</div></div>
                 <div class="c-tags"><span class="c-tag">💳 Visa/MC</span><span class="c-tag">🏆 20+ Years</span><span class="c-tag">📺 Live Dealer</span></div>
@@ -501,8 +501,8 @@
         <p>Unlock premium picks, advanced insights, exclusive casino deals, and a proven winning edge.</p>
         <div class="prc-row">
             <a href="#" onclick="showPage('premium'); return false;" class="prc prc-free" style="text-decoration:none;color:inherit">Free — $0</a>
-            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-pro" style="text-decoration:none">🔥 Pro — $9.99/mo</a>
-            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-vip" style="text-decoration:none">👑 VIP — $24.99/mo</a>
+            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-pro" style="text-decoration:none">🔥 Pro — <span class="price-val">$9.99</span>/mo</a>
+            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-vip" style="text-decoration:none">👑 VIP — <span class="price-val">$24.99</span>/mo</a>
         </div>
     </div>
 
@@ -570,34 +570,34 @@
             <h1 style="font-size:2rem;font-weight:800;margin-bottom:.5rem">📊 Betting Insights</h1>
             <p style="color:var(--text-muted);margin-bottom:1.5rem">Deep dives, market analysis, and advanced betting strategies from professional bettors.</p>
 
-            <div class="sport-tabs">
-                <div class="sport-tab active">All Insights</div>
-                <div class="sport-tab">📈 Market Analysis</div>
-                <div class="sport-tab">🎯 Strategy</div>
-                <div class="sport-tab">📊 Statistics</div>
-                <div class="sport-tab">💡 Betting Guides</div>
+            <div class="sport-tabs" id="insightFilters">
+                <div class="sport-tab active" data-insight="all">All Insights</div>
+                <div class="sport-tab" data-insight="market">📈 Market Analysis</div>
+                <div class="sport-tab" data-insight="strategy">🎯 Strategy</div>
+                <div class="sport-tab" data-insight="stats">📊 Statistics</div>
+                <div class="sport-tab" data-insight="guides">💡 Betting Guides</div>
             </div>
 
-            <div class="grid-3">
-                <div class="ns-card ins-card clickable-card" onclick="openInsight('nba')">
+            <div class="grid-3" id="insightGrid">
+                <div class="ns-card ins-card clickable-card" data-insight="market" onclick="openInsight('nba')">
                     <div class="ins-cat">📈 Market Analysis</div>
                     <div class="ins-title">NBA Playoffs: Why Underdogs Are Covering at a Historic Rate</div>
                     <div class="ins-preview">Through 42 playoff games, underdogs are covering the spread at 58.3%, the highest rate since 2018. We break down the key data driving this trend and how to exploit it...</div>
                     <div class="ins-footer"><span>5 min read</span><span>🔓 Free</span></div>
                 </div>
-                <div class="ns-card ins-card ins-locked clickable-card" onclick="openInsight('kelly')">
+                <div class="ns-card ins-card ins-locked clickable-card" data-insight="strategy" onclick="openInsight('kelly')">
                     <div class="ins-cat">🎯 Advanced Strategy</div>
                     <div class="ins-title">The Kelly Criterion: How to Size Your Bets Like a Pro</div>
                     <div class="ins-preview">Professional bettors don't use flat betting. They use mathematical formulas like the Kelly Criterion to determine exactly how much to wager...</div>
                     <div class="ins-footer"><span>8 min read</span><span>👑 Pro Only</span></div>
                 </div>
-                <div class="ns-card ins-card clickable-card" onclick="openInsight('bankroll')">
+                <div class="ns-card ins-card clickable-card" data-insight="guides" onclick="openInsight('bankroll')">
                     <div class="ins-cat">💡 Betting Guides</div>
                     <div class="ins-title">Bankroll Management 101: Preventing the Bust</div>
                     <div class="ins-preview">The single biggest reason casual sports bettors lose their bankroll isn't bad picks—it's disastrous bankroll management. We cover the unit system, chasing losses...</div>
                     <div class="ins-footer"><span>4 min read</span><span>🔓 Free</span></div>
                 </div>
-                <div class="ns-card ins-card clickable-card" onclick="openInsight('btts')">
+                <div class="ns-card ins-card clickable-card" data-insight="stats" onclick="openInsight('btts')">
                     <div class="ins-cat">📊 Statistics</div>
                     <div class="ins-title">Premier League BTTS Trends: Which Teams to Target</div>
                     <div class="ins-preview">Both Teams to Score (BTTS) is one of the most popular football markets. We analyzed 380 matches from the current season to find the most profitable teams to target...</div>
@@ -626,59 +626,51 @@
     </div>
 
     <!-- COMMUNITY PAGE -->
+    
+    <!-- COMMUNITY PAGE -->
     <div id="page-community" class="page-view">
         <div style="max-width:1200px;margin:1.5rem auto 0;padding:0 1.5rem">
-            <h1 style="font-size:2rem;font-weight:800;margin-bottom:.5rem">💬 Community Discussions</h1>
-            <p style="color:var(--text-muted);margin-bottom:1.5rem">Join thousands of players discussing strategy, sharing wins, and helping each other.</p>
-
-            <div class="sport-tabs">
-                <div class="sport-tab active">All Categories</div>
-                <div class="sport-tab">💎 General Discussion</div>
-                <div class="sport-tab">🎯 Strategy & Tips</div>
-                <div class="sport-tab">🎉 Brags & Wins</div>
-                <div class="sport-tab">❓ Help & Questions</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:.5rem;flex-wrap:wrap;gap:1ex">
+                <div>
+                    <h1 style="font-size:2.2rem;font-weight:800;letter-spacing:-1px">💬 Community Discussions</h1>
+                    <p style="color:var(--text-muted);font-size:1.05rem">Join thousands of players discussing strategy, sharing wins, and helping each other.</p>
+                </div>
+                <button class="btn btn-primary" onclick="window.scrollTo(0, document.getElementById('createPostBar').offsetTop - 100);document.getElementById('postTitle').focus()">+ New Topic</button>
             </div>
             
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-                <div class="fpill-row" style="margin:0"><div class="fpill active">🔥 Hot</div><div class="fpill">✨ New</div><div class="fpill">📈 Top</div></div>
-                <button class="plan-btn plan-btn-pro" style="width:auto;padding:.5rem 1rem;border-radius:6px;font-size:.85rem" onclick="showToast('Login required')">+ New Topic</button>
+            <div class="sport-tabs" style="margin:2rem 0">
+                <div class="sport-tab cat-btn active" data-filter="all">All Categories <span class="count" id="countAll" style="display:none">0</span></div>
+                <div class="sport-tab cat-btn" data-filter="general">💎 General</div>
+                <div class="sport-tab cat-btn" data-filter="slots">🎰 Slots</div>
+                <div class="sport-tab cat-btn" data-filter="poker">🃏 Poker</div>
+                <div class="sport-tab cat-btn" data-filter="strat">🎯 Strategy</div>
+                <div class="sport-tab cat-btn" data-filter="live">🔴 Live Casino</div>
+                <div class="sport-tab cat-btn" data-filter="betting">💡 Betting Guides</div>
             </div>
-
-            <div style="display:flex;flex-direction:column;gap:1rem">
-                <!-- Thread 1 -->
-                <div class="ns-card dsc-card clickable-card" style="border-left:3px solid var(--accent)">
-                    <div class="dsc-header">
-                        <div class="dsc-av" style="background:linear-gradient(135deg,var(--primary),#6366f1)">RK</div>
-                        <div class="dsc-body">
-                            <div class="dsc-title" style="font-size:1.1rem">📌 [MEGA THREAD] What's your go-to bankroll management strategy?</div>
-                            <div class="dsc-meta"><span>by <b>RoyalKing</b> <span class="badge-nav gold">MOD</span></span><span class="dsc-cat dsc-cat-strat">Strategy & Tips</span><span>2 hours ago</span></div>
-                        </div>
-                    </div>
-                    <div class="dsc-stats"><span>💬 124 replies</span><span>❤️ 89 likes</span><span>👁 1.2K views</span></div>
-                </div>
-                
-                <!-- Thread 2 -->
-                <div class="ns-card dsc-card clickable-card">
-                    <div class="dsc-header">
-                        <div class="dsc-av" style="background:linear-gradient(135deg,var(--gold),#d97706)">SQ</div>
-                        <div class="dsc-body">
-                            <div class="dsc-title" style="font-size:1.1rem">Just hit $10K on a 3-leg parlay! I'm buying the bar shots tonight! 🎉</div>
-                            <div class="dsc-meta"><span>by <b>SlotQueen</b></span><span class="dsc-cat dsc-cat-brags">Brags & Wins</span><span>45 minutes ago</span></div>
-                            <p style="color:var(--text-muted);font-size:.85rem;margin-top:.5rem;line-height:1.4">Hit the Lakers spread, Arsenal moneyline, and Jones by sub. Sweated the last 5 minutes of that Arsenal game so hard...</p>
-                        </div>
-                    </div>
-                    <div class="dsc-stats"><span>💬 67 replies</span><span>❤️ 234 likes</span><span>👁 4.5K views</span></div>
-                </div>
+            
+            <div id="communityContainer" style="max-width:900px;margin:0 auto">
+            <!-- POSTS SECTION -->
+            <div class="posts-section" id="postsSection" style="margin-top:1.5rem">
+            <div class="create-post-bar" id="createPostBar"><h3>Create a Post</h3><div class="form-row"><input type="text" id="postTitle" placeholder="Post title..."><select id="postType"><option value="general">General</option><option value="slots">Slots</option><option value="poker">Poker</option><option value="strat">Strategy</option><option value="live">Live Casino</option><option value="betting">Betting</option></select></div><textarea id="postContent" placeholder="What's on your mind?"></textarea><button class="btn btn-primary" id="submitPostBtn" style="margin-top:1rem">Post</button></div>
+            <div class="feed-header"><h3>Latest Posts</h3><div class="feed-filters" id="sortFilters"><button class="filter-btn active" data-sort="new">Newest</button><button class="filter-btn" data-sort="popular">Most Liked</button></div></div>
+            <div class="card-grid" id="postGrid"><div class="loading">Loading posts...</div></div>
+            </div><!-- end posts-section -->
             </div>
         </div>
     </div>
+
 
     <!-- PREMIUM PAGE -->
     <div id="page-premium" class="page-view">
         <div style="max-width:1000px;margin:2rem auto;padding:0 1.5rem">
             <div style="text-align:center;margin-bottom:3rem">
                 <h1 style="font-size:2.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:-1px">Take Your Betting to the <span style="background:linear-gradient(135deg,var(--gold),#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Next Level</span></h1>
-                <p style="color:var(--text-muted);font-size:1.1rem;max-width:600px;margin:0 auto">Join thousands of professional bettors using SpinZone's advanced insights, data models, and exclusive VIP picks to beat the house.</p>
+                <p style="color:var(--text-muted);font-size:1.1rem;max-width:600px;margin:0 auto;margin-bottom:2rem">Join thousands of professional bettors using SpinZone's advanced insights, data models, and exclusive VIP picks to beat the house.</p>
+                
+                <div style="display:inline-flex;background:var(--card-bg);border:1px solid var(--card-border);border-radius:30px;padding:4px">
+                    <button id="billMonthly" class="btn active" style="background:var(--primary);color:#fff;border-radius:26px;border:none;padding:.5rem 1.5rem">Monthly</button>
+                    <button id="billYearly" class="btn" style="background:transparent;color:var(--text-muted);border-radius:26px;border:none;padding:.5rem 1.5rem">Yearly <span style="color:var(--accent);font-size:.7rem;margin-left:4px;font-weight:800">SAVE 20%</span></button>
+                </div>
             </div>
 
             <div class="plan-cards">
@@ -686,7 +678,7 @@
                 <div class="plan-card featured clickable-card" style="cursor:default">
                     <span class="plan-badge">🔥</span>
                     <h3 class="plan-name">SpinZone Pro</h3>
-                    <div class="plan-price">$9.99<span>/mo</span></div>
+                    <div class="plan-price" id="pricePro">$9.99<span>/mo</span></div>
                     <p class="plan-desc">Everything you need to turn professional and build your bankroll.</p>
                     <ul class="plan-features">
                         <li>Full Community Access</li>
@@ -703,7 +695,7 @@
                 <div class="plan-card clickable-card" style="cursor:default">
                     <span class="plan-badge">👑</span>
                     <h3 class="plan-name">High Roller VIP</h3>
-                    <div class="plan-price">$24.99<span>/mo</span></div>
+                    <div class="plan-price" id="priceVip">$24.99<span>/mo</span></div>
                     <p class="plan-desc">The ultimate edge. Direct line to our analysts and max value deals.</p>
                     <ul class="plan-features">
                         <li>Everything in Pro</li>
@@ -729,9 +721,128 @@
         </div>
     </div>
 
-    <div id="page-casinos" class="page-view"><div style="max-width:1200px;margin:3rem auto;text-align:center"><h1 style="font-size:2rem">🎰 Full Casino Directory</h1><p style="color:var(--text-muted);margin:1rem">(Redirected to SPA view - content matches homepage)</p><button class="btn btn-primary" onclick="showPage('home')">Return Home</button></div></div>
+    
+    <!-- CASINOS PAGE -->
+    <div id="page-casinos" class="page-view">
+        <div style="max-width:1200px;margin:1.5rem auto 0;padding:0 1.5rem">
+            <h1 style="font-size:2rem;font-weight:800;margin-bottom:.5rem">🎰 Full Casino Directory</h1>
+            <p style="color:var(--text-muted);margin-bottom:1.5rem">Comprehensive reviews and exclusive bonuses for the world's top online casinos.</p>
+            
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+        <div class="sport-tabs" id="pageCasinoFilters" style="margin-bottom:0">
+            <div class="sport-tab active" data-filter="all">All Casinos</div>
+            <div class="sport-tab" data-filter="featured">🔥 Featured</div>
+            <div class="sport-tab" data-filter="slots">🎰 Slots</div>
+            <div class="sport-tab" data-filter="poker">🃏 Poker</div>
+            <div class="sport-tab" data-filter="live">🔴 Live</div>
+            <div class="sport-tab" data-filter="crypto">₿ Crypto</div>
+        </div>
+        <select id="casinoSort" style="padding:0.5rem 1rem;background:var(--card-bg);border:1px solid var(--card-border);color:var(--text-main);border-radius:8px;outline:none;cursor:pointer;font-weight:600">
+            <option value="recommended">Recommended</option>
+            <option value="rating">Highest Rated</option>
+            <option value="bonus">Biggest Bonus</option>
+        </select>
+    </div>
+                <div class="sport-tab" data-filter="featured">🔥 Featured</div>
+                <div class="sport-tab" data-filter="slots">🎰 Slots</div>
+                <div class="sport-tab" data-filter="poker">🃏 Poker</div>
+                <div class="sport-tab" data-filter="live">🔴 Live</div>
+                <div class="sport-tab" data-filter="crypto">₿ Crypto</div>
+            </div>
+
+            <div class="grid-3" id="pageCasinoGrid">
+                <div class="ns-card casino-card" data-categories="featured crypto slots live">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎲</div><div class="c-info"><div class="c-name">Stake Casino <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★★ 4.9 <span style="color:var(--text-dim);margin-left:.25rem">(2,341 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">200% up to $1,000</div><div class="cde">Code: SPINZONE200</div></div>
+                    <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">⚡ Instant Payout</span><span class="c-tag">🎰 4000+ Games</span></div>
+                    <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2017</span><a class="c-visit" href="/go.html?slug=stake-casino&src=homepage">Visit Casino →</a></div>
+                </div>
+                <!-- BC Game -->
+                <div class="ns-card casino-card" data-categories="crypto slots featured">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0d1117,#1a2332)">🎮</div><div class="c-info"><div class="c-name">BC.Game <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★☆ 4.7 <span style="color:var(--text-dim);margin-left:.25rem">(1,892 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">300% First Deposit</div><div class="cde">Code: BCZONE300</div></div>
+                    <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">🎁 Daily Rewards</span><span class="c-tag">🎰 5000+ Games</span></div>
+                    <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2019</span><a class="c-visit" href="/go.html?slug=bc-game&src=homepage">Visit Casino →</a></div>
+                </div>
+                <!-- Betway -->
+                <div class="ns-card casino-card" data-categories="live slots poker">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a0a0a,#2d1a1a)">♠️</div><div class="c-info"><div class="c-name">Betway</div><div class="c-rating">★★★★☆ 4.5 <span style="color:var(--text-dim);margin-left:.25rem">(3,204 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">$1,000 Welcome Package</div><div class="cde">3-Part Deposit Match</div></div>
+                    <div class="c-tags"><span class="c-tag">💳 Visa/MC</span><span class="c-tag">🏆 20+ Years</span><span class="c-tag">📺 Live Dealer</span></div>
+                    <div class="c-bottom"><span class="c-meta">MGA License · Est. 2006</span><a class="c-visit" href="/go.html?slug=betway&src=homepage">Visit Casino →</a></div>
+                </div>
+                <!-- 888 Casino -->
+                <div class="ns-card casino-card" data-categories="poker live" data-rating="4.3" data-bonus="200" data-order="4">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0a2818,#1a3a28)">🃏</div><div class="c-info"><div class="c-name">888 Casino</div><div class="c-rating">★★★★☆ 4.3 <span style="color:var(--text-dim);margin-left:.25rem">(4,560 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">$200 Welcome + 25 Spins</div><div class="cde">Code: SPIN888</div></div>
+                    <div class="c-tags"><span class="c-tag">💳 All Cards</span><span class="c-tag">♠️ Poker Room</span><span class="c-tag">🔴 Live Tables</span></div>
+                    <div class="c-bottom"><span class="c-meta">Gibraltar License · Est. 1997</span><a class="c-visit" href="/go.html?slug=888-casino&src=homepage">Visit Casino →</a></div>
+                </div>
+                <!-- Duelbits -->
+                <div class="ns-card casino-card" data-categories="crypto slots poker" data-rating="4.6" data-bonus="150" data-order="5">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0a1628,#1a2a4a)">🎯</div><div class="c-info"><div class="c-name">Duelbits</div><div class="c-rating">★★★★☆ 4.6 <span style="color:var(--text-dim);margin-left:.25rem">(1,120 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">150% Welcome Bonus</div><div class="cde">Code: SPINDB150</div></div>
+                    <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">🎰 3000+ Games</span><span class="c-tag">🏅 VIP Program</span></div>
+                    <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2020</span><a class="c-visit" href="/go.html?slug=duelbits&src=homepage">Visit Casino →</a></div>
+                </div>
+                <!-- Roobet -->
+                <div class="ns-card casino-card" data-categories="crypto slots live" data-rating="4.4" data-bonus="100" data-order="6">
+                    <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a0a2e,#2d1a4a)">🌟</div><div class="c-info"><div class="c-name">Roobet</div><div class="c-rating">★★★★☆ 4.4 <span style="color:var(--text-dim);margin-left:.25rem">(890 reviews)</span></div></div></div>
+                    <div class="c-bonus"><div class="amt">$100 Free Play</div><div class="cde">No Code Needed</div></div>
+                    <div class="c-tags"><span class="c-tag">₿ Crypto Only</span><span class="c-tag">🎰 Originals</span><span class="c-tag">📺 Live</span></div>
+                    <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2019</span><a class="c-visit" href="/go.html?slug=roobet&src=homepage">Visit Casino →</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page-picks" class="page-view"><div style="max-width:1200px;margin:3rem auto;text-align:center"><h1 style="font-size:2rem">🎯 Daily Picks Feed</h1><p style="color:var(--text-muted);margin:1rem">(Redirected to SPA view - content matches homepage)</p><button class="btn btn-primary" onclick="showPage('home')">Return Home</button></div></div>
-    <div id="page-wins" class="page-view"><div style="max-width:1200px;margin:3rem auto;text-align:center"><h1 style="font-size:2rem">🏆 Player Wins Feed</h1><p style="color:var(--text-muted);margin:1rem">(Redirected to SPA view - content matches homepage)</p><button class="btn btn-primary" onclick="showPage('home')">Return Home</button></div></div>
+    
+    <!-- WINS PAGE -->
+    <div id="page-wins" class="page-view">
+        <div style="max-width:1200px;margin:1.5rem auto 0;padding:0 1.5rem">
+            <h1 style="font-size:2.2rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-1px">🏆 Global Player Wins</h1>
+            <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:1.05rem">The biggest verified multipliers and cash-outs from across the community.</p>
+            
+            <div id="winsContainer" style="max-width:850px;margin:0 auto">
+            <!-- WINS SECTION -->
+            <div class="wins-section active" id="winsSection" style="display:block">
+                <div class="wins-stats" id="winsStats">
+                    <div class="win-stat"><div class="win-stat-value" id="statTotalWins">0</div><div class="win-stat-label">Total Wins</div></div>
+                    <div class="win-stat"><div class="win-stat-value" id="statBiggestWin">$0</div><div class="win-stat-label">Biggest Win</div></div>
+                    <div class="win-stat"><div class="win-stat-value" id="statTodayWins">0</div><div class="win-stat-label">Wins Today</div></div>
+                </div>
+                <div class="create-win-bar visible" id="createWinBar">
+                    <h3>Post Your Win</h3>
+                    <div class="form-row">
+                        <input type="text" id="winCasino" placeholder="Casino name (e.g. Stake, BC.Game)">
+                        <input type="text" id="winSlot" placeholder="Slot / Game name">
+                    </div>
+                    <div class="form-row">
+                        <input type="number" id="winAmount" placeholder="Win amount ($)" step="0.01" min="0">
+                        <input type="text" id="winMultiplier" placeholder="Multiplier (e.g. 120x)">
+                    </div>
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-zone-icon">📸</div>
+                        <div class="upload-zone-text"><strong>Click to upload</strong> or drag & drop your screenshot</div>
+                        <div class="upload-zone-hint">PNG, JPG, GIF, WEBP — Max 5MB</div>
+                        <input type="file" id="winScreenshotFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none">
+                    </div>
+                    <div class="upload-preview" id="uploadPreview">
+                        <img id="uploadPreviewImg" src="" alt="Preview">
+                        <button class="upload-preview-remove" id="uploadPreviewRemove" type="button">&times;</button>
+                    </div>
+                    <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+                    <textarea id="winDescription" placeholder="Tell us about your win! (optional)"></textarea>
+                    <button class="btn-win" id="submitWinBtn" style="margin-top:1rem">Post Win</button>
+                </div>
+                <div class="feed-header"><h3>Live Wins Feed</h3><div class="feed-filters" id="winSortFilters"><button class="filter-btn active" data-winsort="new">Newest</button><button class="filter-btn" data-winsort="biggest">Biggest</button></div></div>
+                <div id="winsGrid"><div class="loading">Loading wins...</div></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <footer><h3>SpinZone</h3><p>Your daily dose of casino culture.</p><div class="disclaimer"><p><strong>18+ Only. Please Gamble Responsibly.</strong></p><p>SpinZone does not offer real money gambling. All content is for informational purposes only.</p></div></footer>
 
     <!-- Floating Prize Wheel — Lead Magnet -->
@@ -1129,6 +1240,115 @@
                 }
             });
             
+
+            // PAGE CASINO FILTERING
+            document.addEventListener("DOMContentLoaded", () => {
+                const pcFilters = document.querySelectorAll('#pageCasinoFilters .sport-tab');
+                const pcCards = document.querySelectorAll('#pageCasinoGrid .casino-card');
+                
+                if(pcFilters && pcCards) {
+                    pcFilters.forEach(f => {
+                        f.addEventListener('click', () => {
+                            pcFilters.forEach(btn => btn.classList.remove('active'));
+                            f.classList.add('active');
+                            const filter = f.dataset.filter;
+                            
+                            pcCards.forEach(c => {
+                                const cats = c.dataset.categories || '';
+                                if(filter === 'all' || cats.includes(filter)) {
+                                    c.style.display = 'flex';
+                                } else {
+                                    c.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+
+
+            // PAGE CASINO SORTING
+            document.addEventListener("DOMContentLoaded", () => {
+                const sortSelect = document.getElementById('casinoSort');
+                const pcGrid = document.getElementById('pageCasinoGrid');
+                if(sortSelect && pcGrid) {
+                    sortSelect.addEventListener('change', () => {
+                        const cards = Array.from(pcGrid.querySelectorAll('.casino-card'));
+                        const val = sortSelect.value;
+                        cards.sort((a,b) => {
+                            if(val === 'rating') return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                            if(val === 'bonus') return parseInt(b.dataset.bonus) - parseInt(a.dataset.bonus);
+                            return parseInt(a.dataset.order) - parseInt(b.dataset.order);
+                        });
+                        cards.forEach(c => pcGrid.appendChild(c));
+                    });
+                }
+            });
+
+            // PAGE INSIGHTS FILTERING
+            document.addEventListener("DOMContentLoaded", () => {
+                const iFilters = document.querySelectorAll('#insightFilters .sport-tab');
+                const iCards = document.querySelectorAll('#insightGrid .ins-card');
+                
+                if(iFilters && iCards) {
+                    iFilters.forEach(f => {
+                        f.addEventListener('click', () => {
+                            iFilters.forEach(btn => btn.classList.remove('active'));
+                            f.classList.add('active');
+                            const filter = f.dataset.insight;
+                            
+                            iCards.forEach(c => {
+                                if(filter === 'all' || c.dataset.insight === filter) {
+                                    c.style.display = 'block';
+                                } else {
+                                    c.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+
+
+            // PREMIUM PRICING TOGGLE
+            document.addEventListener("DOMContentLoaded", () => {
+                const btnM = document.getElementById('billMonthly');
+                const btnY = document.getElementById('billYearly');
+                const pricePro = document.getElementById('pricePro');
+                const priceVip = document.getElementById('priceVip');
+                const bannerPrices = document.querySelectorAll('.prem-banner .price-val');
+                
+                if(btnM && btnY) {
+                    btnM.addEventListener('click', () => {
+                        btnM.style.background = 'var(--primary)';
+                        btnM.style.color = '#fff';
+                        btnY.style.background = 'transparent';
+                        btnY.style.color = 'var(--text-muted)';
+                        
+                        pricePro.innerHTML = '$9.99<span>/mo</span>';
+                        priceVip.innerHTML = '$24.99<span>/mo</span>';
+                        if(bannerPrices.length > 1) {
+                            bannerPrices[0].innerText = '$9.99';
+                            bannerPrices[1].innerText = '$24.99';
+                        }
+                    });
+                    
+                    btnY.addEventListener('click', () => {
+                        btnY.style.background = 'var(--primary)';
+                        btnY.style.color = '#fff';
+                        btnM.style.background = 'transparent';
+                        btnM.style.color = 'var(--text-muted)';
+                        
+                        pricePro.innerHTML = '$95.90<span>/yr</span>';
+                        priceVip.innerHTML = '$239.90<span>/yr</span>';
+                        if(bannerPrices.length > 1) {
+                            bannerPrices[0].innerText = '$7.99';
+                            bannerPrices[1].innerText = '$19.99';
+                        }
+                    });
+                }
+            });
+
             // Allow URL hash parsing for direct links initially
             document.addEventListener("DOMContentLoaded", () => {
                 if(window.location.hash) {
