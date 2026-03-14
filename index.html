@@ -267,28 +267,54 @@
         </div>
     </div>
 
+    
     <!-- CASINOS -->
     <div class="new-section">
         <div class="section-hdr">🎰 Top Rated Casinos<a href="/casinos.html" class="see-all">Browse All →</a></div>
-        <div class="fpill-row"><div class="fpill active">All</div><div class="fpill">🔥 Featured</div><div class="fpill">🎰 Slots</div><div class="fpill">🃏 Poker</div><div class="fpill">🔴 Live</div><div class="fpill">₿ Crypto</div></div>
-        <div class="grid-3">
-            <div class="ns-card casino-card">
+        <div class="fpill-row" id="casinoFilters">
+            <div class="fpill active" data-filter="all">All</div>
+            <div class="fpill" data-filter="featured">🔥 Featured</div>
+            <div class="fpill" data-filter="slots">🎰 Slots</div>
+            <div class="fpill" data-filter="poker">🃏 Poker</div>
+            <div class="fpill" data-filter="live">🔴 Live</div>
+            <div class="fpill" data-filter="crypto">₿ Crypto</div>
+        </div>
+        <div class="grid-3" id="casinoGrid">
+            <div class="ns-card casino-card" data-categories="featured crypto slots live">
                 <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎲</div><div class="c-info"><div class="c-name">Stake Casino <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★★ 4.9 <span style="color:var(--text-dim);margin-left:.25rem">(2,341 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">200% up to $1,000</div><div class="cde">Code: SPINZONE200</div></div>
-                <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">⚡ Instant Payout</span><span class="c-tag">🎰 4000+ Games</span><span class="c-tag">📱 Mobile</span></div>
+                <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">⚡ Instant Payout</span><span class="c-tag">🎰 4000+ Games</span></div>
                 <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2017</span><a class="c-visit" href="/go.html?slug=stake-casino&src=homepage">Visit Casino →</a></div>
             </div>
-            <div class="ns-card casino-card">
-                <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0d1117,#1a2332)">🎮</div><div class="c-info"><div class="c-name">BC.Game</div><div class="c-rating">★★★★☆ 4.7 <span style="color:var(--text-dim);margin-left:.25rem">(1,892 reviews)</span></div></div></div>
+            <div class="ns-card casino-card" data-categories="crypto slots featured">
+                <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0d1117,#1a2332)">🎮</div><div class="c-info"><div class="c-name">BC.Game <span class="feat">⭐ FEATURED</span></div><div class="c-rating">★★★★☆ 4.7 <span style="color:var(--text-dim);margin-left:.25rem">(1,892 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">300% First Deposit</div><div class="cde">Code: BCZONE300</div></div>
                 <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">🎁 Daily Rewards</span><span class="c-tag">🎰 5000+ Games</span></div>
                 <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2019</span><a class="c-visit" href="/go.html?slug=bc-game&src=homepage">Visit Casino →</a></div>
             </div>
-            <div class="ns-card casino-card">
+            <div class="ns-card casino-card" data-categories="live slots poker">
                 <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a0a0a,#2d1a1a)">♠️</div><div class="c-info"><div class="c-name">Betway</div><div class="c-rating">★★★★☆ 4.5 <span style="color:var(--text-dim);margin-left:.25rem">(3,204 reviews)</span></div></div></div>
                 <div class="c-bonus"><div class="amt">$1,000 Welcome Package</div><div class="cde">3-Part Deposit Match</div></div>
                 <div class="c-tags"><span class="c-tag">💳 Visa/MC</span><span class="c-tag">🏆 20+ Years</span><span class="c-tag">📺 Live Dealer</span></div>
                 <div class="c-bottom"><span class="c-meta">MGA License · Est. 2006</span><a class="c-visit" href="/go.html?slug=betway&src=homepage">Visit Casino →</a></div>
+            </div>
+            <div class="ns-card casino-card" style="display:none" data-categories="poker live">
+                <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0a2818,#1a3a28)">🃏</div><div class="c-info"><div class="c-name">888 Casino</div><div class="c-rating">★★★★☆ 4.3 <span style="color:var(--text-dim);margin-left:.25rem">(4,560 reviews)</span></div></div></div>
+                <div class="c-bonus"><div class="amt">$200 Welcome + 25 Spins</div><div class="cde">Code: SPIN888</div></div>
+                <div class="c-tags"><span class="c-tag">💳 All Cards</span><span class="c-tag">♠️ Poker Room</span><span class="c-tag">🔴 Live Tables</span></div>
+                <div class="c-bottom"><span class="c-meta">Gibraltar License · Est. 1997</span><a class="c-visit" href="/go.html?slug=888-casino&src=homepage">Visit Casino →</a></div>
+            </div>
+            <div class="ns-card casino-card" style="display:none" data-categories="crypto slots poker">
+                <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#0a1628,#1a2a4a)">🎯</div><div class="c-info"><div class="c-name">Duelbits</div><div class="c-rating">★★★★☆ 4.6 <span style="color:var(--text-dim);margin-left:.25rem">(1,120 reviews)</span></div></div></div>
+                <div class="c-bonus"><div class="amt">150% Welcome Bonus</div><div class="cde">Code: SPINDB150</div></div>
+                <div class="c-tags"><span class="c-tag">₿ Crypto</span><span class="c-tag">🎰 3000+ Games</span><span class="c-tag">🏅 VIP Program</span></div>
+                <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2020</span><a class="c-visit" href="/go.html?slug=duelbits&src=homepage">Visit Casino →</a></div>
+            </div>
+            <div class="ns-card casino-card" style="display:none" data-categories="crypto slots live">
+                <div class="casino-top"><div class="c-logo" style="background:linear-gradient(135deg,#1a0a2e,#2d1a4a)">🌟</div><div class="c-info"><div class="c-name">Roobet</div><div class="c-rating">★★★★☆ 4.4 <span style="color:var(--text-dim);margin-left:.25rem">(890 reviews)</span></div></div></div>
+                <div class="c-bonus"><div class="amt">$100 Free Play</div><div class="cde">No Code Needed</div></div>
+                <div class="c-tags"><span class="c-tag">₿ Crypto Only</span><span class="c-tag">🎰 Originals</span><span class="c-tag">📺 Live</span></div>
+                <div class="c-bottom"><span class="c-meta">Curacao License · Est. 2019</span><a class="c-visit" href="/go.html?slug=roobet&src=homepage">Visit Casino →</a></div>
             </div>
         </div>
     </div>
@@ -723,6 +749,36 @@
             renderHeader=function(){origRenderHeader();updateHero()};
             // Nav active state
             document.querySelectorAll('.sz-nav-link').forEach(l=>{l.addEventListener('click',function(e){document.querySelectorAll('.sz-nav-link').forEach(n=>n.classList.remove('active'));this.classList.add('active')})});
+            
+            // Casino filters
+            const cFilters = document.querySelectorAll('#casinoFilters .fpill');
+            const cCards = document.querySelectorAll('#casinoGrid .casino-card');
+            cFilters.forEach(f => {
+                f.addEventListener('click', () => {
+                    cFilters.forEach(btn => btn.classList.remove('active'));
+                    f.classList.add('active');
+                    const filter = f.dataset.filter;
+                    let visibleCount = 0;
+                    cCards.forEach(c => {
+                        const cats = c.dataset.categories || '';
+                        if(filter === 'all') {
+                            // Show first 3 for 'all'
+                            if(visibleCount < 3) {
+                                c.style.display = 'flex';
+                                visibleCount++;
+                            } else {
+                                c.style.display = 'none';
+                            }
+                        } else if(cats.includes(filter)) {
+                            c.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            c.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
             initSession();
         });
     </script>
