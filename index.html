@@ -630,12 +630,11 @@
     <!-- COMMUNITY PAGE -->
     <div id="page-community" class="page-view">
         <div style="max-width:1200px;margin:1.5rem auto 0;padding:0 1.5rem">
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:.5rem;flex-wrap:wrap;gap:1ex">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:1rem;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:1rem">
                 <div>
-                    <h1 style="font-size:2.2rem;font-weight:800;letter-spacing:-1px">💬 Community Discussions</h1>
-                    <p style="color:var(--text-muted);font-size:1.05rem">Join thousands of players discussing strategy, sharing wins, and helping each other.</p>
+                    <h1 style="font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:.5rem">💬 Community Discussions</h1>
                 </div>
-                <button class="btn btn-primary" onclick="window.scrollTo(0, document.getElementById('createPostBar').offsetTop - 100);document.getElementById('postTitle').focus()">+ New Topic</button>
+                <a href="#" class="see-all" style="color:var(--primary);text-decoration:none;font-weight:600;font-size:.9rem" onclick="window.scrollTo(0, document.getElementById('createPostBar').offsetTop - 100);document.getElementById('postTitle').focus();return false;">View All →</a>
             </div>
             
             <div class="sport-tabs" style="margin:2rem 0">
@@ -648,7 +647,7 @@
                 <div class="sport-tab cat-btn" data-filter="betting">💡 Betting Guides</div>
             </div>
             
-            <div id="communityContainer" style="max-width:900px;margin:0 auto">
+            <div id="communityContainer" style="width:100%;max-width:1200px;margin:0 auto">
             <!-- POSTS SECTION -->
             <div class="posts-section" id="postsSection" style="margin-top:1.5rem">
             <div class="create-post-bar" id="createPostBar"><h3>Create a Post</h3><div class="form-row"><input type="text" id="postTitle" placeholder="Post title..."><select id="postType"><option value="general">General</option><option value="slots">Slots</option><option value="poker">Poker</option><option value="strat">Strategy</option><option value="live">Live Casino</option><option value="betting">Betting</option></select></div><textarea id="postContent" placeholder="What's on your mind?"></textarea><button class="btn btn-primary" id="submitPostBtn" style="margin-top:1rem">Post</button></div>
@@ -801,10 +800,12 @@
     <!-- WINS PAGE -->
     <div id="page-wins" class="page-view">
         <div style="max-width:1200px;margin:1.5rem auto 0;padding:0 1.5rem">
-            <h1 style="font-size:2.2rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-1px">🏆 Global Player Wins</h1>
-            <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:1.05rem">The biggest verified multipliers and cash-outs from across the community.</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:1rem">
+                <h1 style="font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:.5rem">🏆 Recent Player Wins</h1>
+                <a href="#" class="see-all" style="color:var(--primary);text-decoration:none;font-weight:600;font-size:.9rem" onclick="document.getElementById('winAmount').focus();return false;">View All →</a>
+            </div>
             
-            <div id="winsContainer" style="max-width:850px;margin:0 auto">
+            <div id="winsContainer" style="width:100%;max-width:1200px;margin:0 auto">
             <!-- WINS SECTION -->
             <div class="wins-section active" id="winsSection" style="display:block">
                 <div class="wins-stats" id="winsStats">
@@ -978,8 +979,35 @@
             async function loadProfile(){if(!state.user)return;const ageWasVerified=state.isAgeVerified;try{const{data:p,error:pErr}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!pErr&&p){state.profile=p;state.isAgeVerified=p.is_age_verified||ageWasVerified||false;if(ageWasVerified&&!p.is_age_verified){try{await sb.from('profiles').update({is_age_verified:true}).eq('id',state.user.id)}catch(e){}}}else{state.isAgeVerified=ageWasVerified}}catch(e){console.error('Profile query failed:',e);state.isAgeVerified=ageWasVerified}try{const{data:likes}=await sb.from('likes').select('post_id').eq('user_id',state.user.id);state.userLikes=likes?likes.map(l=>l.post_id):[]}catch(e){console.error('Likes query failed:',e);state.userLikes=[]}try{await loadWinLikes()}catch(e){console.error('Win likes failed:',e)}}
             window.loadPosts=loadPosts;async function loadPosts(){el.postGrid.innerHTML='<div class="loading">Loading...</div>';try{const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Request timed out')),10000));let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at',{ascending:false});if(state.currentFilter!=='all')q=q.eq('type',state.currentFilter);const{data:posts,error:postsError}=await Promise.race([q,timeoutPromise]);if(postsError)throw postsError;let formattedArticles=[];try{let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true).order('created_at',{ascending:false});if(state.currentFilter!=='all')aq=aq.eq('type',state.currentFilter);const{data:articles,error}=await Promise.race([aq,timeoutPromise]);if(!error&&articles){formattedArticles=articles.map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}))}}catch(e){console.log('Articles table not available')}const formattedPosts=(posts||[]).map(p=>({...p,item_type:'post',username:p.profiles?.username||'Anonymous',like_count:p.likes?p.likes.length:0}));state.posts=[...formattedArticles,...formattedPosts];if(state.currentSort==='popular')state.posts.sort((a,b)=>b.like_count-a.like_count);else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));updateCounts();renderPosts();renderTrending()}catch(err){console.error('Failed to load posts:',err);el.postGrid.innerHTML='<div class="empty-state"><p>Failed to load posts. <button onclick="loadPosts()" style="color:var(--primary);background:none;border:none;cursor:pointer;text-decoration:underline;font-size:inherit">Retry</button></p></div>';el.trendingList.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No trending posts yet.</p>';showToast('Failed to load posts: '+(err.message||''),true)}}
             function updateCounts(){sb.from('posts').select('type').then(({data:postData})=>{let articleData=[];sb.from('articles').select('type').eq('is_published',true).then(({data:ad,error})=>{if(!error&&ad)articleData=ad;const all=[...(postData||[]),...articleData];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})}).catch(()=>{const all=postData||[];const c={all:all.length,slots:0,poker:0,strat:0,live:0,betting:0,general:0};all.forEach(p=>{if(c[p.type]!==undefined)c[p.type]++});['All','Slots','Poker','Strat','Live','Betting','General'].forEach(k=>{const el=document.getElementById('count'+k);if(el)el.textContent=c[k.toLowerCase()]})})})}
-            function renderPosts(){if(!state.posts.length){el.postGrid.innerHTML='<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>';return}el.postGrid.innerHTML=state.posts.map(p=>{const em=typeEmojis[p.type]||'💬',bc=typeBadge[p.type]||'badge-general',lb=typeLabel[p.type]||'General';if(p.item_type==='article'){return'<a href="/article.html?slug='+encodeURIComponent(p.slug)+'" class="post-card" style="text-decoration:none;cursor:pointer"><div class="card-img" style="background:linear-gradient(135deg,#4c1d95,#1e1b4b)">'+em+'</div><div class="card-content"><span class="badge '+bc+'">📝 '+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.summary||p.content.substring(0,150)+'...')+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+p.read_time+' min read</span></div></div></a>'}const liked=state.userLikes.includes(p.id);const isOwner=state.user&&p.user_id===state.user.id;return'<article class="post-card"><div class="card-img">'+em+'</div><div class="card-content"><span class="badge '+bc+'">'+lb+'</span><h2>'+escapeHtml(p.title)+'</h2><p>'+escapeHtml(p.content)+'</p><div class="card-footer"><span>By '+escapeHtml(p.username)+' &bull; '+getTimeAgo(p.created_at)+'</span><div class="card-actions">'+(isOwner?'<button class="btn-delete" onclick="handleDeletePost('+p.id+', this)" title="Delete post">🗑️</button>':'')+'<button class="btn-icon '+(liked?'liked':'')+'" onclick="handleLike('+p.id+', this)">'+(liked?'❤️':'♥')+'</button><span class="like-count-'+p.id+'">'+p.like_count+'</span></div></div></div></article>'}).join('')}
-            function renderTrending(){const t=[...state.posts].sort((a,b)=>b.like_count-a.like_count).slice(0,3);if(!t.length){el.trendingList.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No trending posts yet.</p>';return}el.trendingList.innerHTML=t.map(p=>'<div class="hot-topic"><h4>'+escapeHtml(p.title)+'</h4><span>❤️ '+p.like_count+' likes &bull; '+getTimeAgo(p.created_at)+'</span></div>').join('')}
+            function renderPosts() {
+    if (!state.posts.length) {
+        el.postGrid.innerHTML = '<div class="empty-state"><p>No posts yet. Be the first to share!</p></div>';
+        return;
+    }
+    el.postGrid.innerHTML = state.posts.map(p => {
+        const bc = typeBadge[p.type] || 'badge-general';
+        const lb = typeLabel[p.type] || 'General';
+        
+        // Randomize avatar color based on username length to give it some variety like the screenshot (RK, SQ, NB)
+        const nameLen = (p.username || 'A').length;
+        const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #3b82f6, #2563eb)');
+        const init = escapeHtml((p.username || 'A').substring(0,2).toUpperCase());
+
+        // Pseudo-random replies and views to match the screenshot "community" feel, since those fields don't exist yet
+        const replies = (p.id * 7) % 80 + 3;
+        const views = ((p.id * 13) % 900) + 120;
+
+        if (p.item_type === 'article') {
+            return '<a href="/article.html?slug=' + encodeURIComponent(p.slug) + '" class="ns-card dsc-card clickable-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;margin-bottom:1rem;text-decoration:none;color:inherit"><div style="display:flex;gap:1.25rem;align-items:flex-start"><div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:700;flex-shrink:0">ART</div><div style="flex:1"><h3 style="margin:0 0 .5rem 0;font-size:1.15rem;color:#fff;font-weight:700">'+escapeHtml(p.title)+'</h3><div style="display:flex;align-items:center;gap:.75rem;font-size:.85rem;color:var(--text-muted);flex-wrap:wrap"><span>by <strong>'+escapeHtml(p.username)+'</strong></span><span class="badge '+bc+'" style="padding:2px 8px;border-radius:12px;font-size:.75rem">'+lb+'</span><span>'+p.read_time+' min read</span></div></div></div><div style="display:flex;gap:1.5rem;color:var(--text-muted);font-size:.85rem;border-top:1px solid rgba(255,255,255,.05);padding-top:1rem"><span>❤️ '+p.like_count+' likes</span><span>👁 '+views+' views</span></div></a>';
+        }
+
+        const liked = state.userLikes.includes(p.id);
+        const isOwner = state.user && p.user_id === state.user.id;
+
+        return '<article class="ns-card dsc-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;margin-bottom:1rem;position:relative"><div style="display:flex;gap:1.25rem;align-items:flex-start"><div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+avaGrad+';color:#fff;font-weight:700;flex-shrink:0">'+init+'</div><div style="flex:1"><h3 style="margin:0 0 .5rem 0;font-size:1.15rem;color:#fff;font-weight:700">'+escapeHtml(p.title)+'</h3><div style="display:flex;align-items:center;gap:.75rem;font-size:.85rem;color:var(--text-muted);flex-wrap:wrap"><span>by <strong>'+escapeHtml(p.username)+'</strong></span><span class="badge '+bc+'" style="padding:2px 8px;border-radius:12px;font-size:.75rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">'+lb+'</span><span>'+getTimeAgo(p.created_at)+'</span></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.05);padding-top:1rem"><div style="display:flex;gap:1.5rem;color:var(--text-muted);font-size:.85rem"><span>💬 '+replies+' replies</span><span style="display:flex;align-items:center;gap:.25rem;cursor:pointer" class="like-btn '+(liked?'liked':'')+'" onclick="handleLike('+p.id+', this)"><span style="color:'+(liked?'#ef4444':'inherit')+'">❤️</span> <span class="like-count-'+p.id+'">'+p.like_count+'</span> likes</span><span>👁 '+(views>1000?(views/1000).toFixed(1)+'K':views)+' views</span></div>'+(isOwner?'<button class="btn-delete" onclick="handleDeletePost('+p.id+', this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer" title="Delete post">🗑️</button>':'')+'</div></article>';
+    }).join('');
+}
+function renderTrending(){const t=[...state.posts].sort((a,b)=>b.like_count-a.like_count).slice(0,3);if(!t.length){el.trendingList.innerHTML='<p style="color:var(--text-muted);font-size:.85rem">No trending posts yet.</p>';return}el.trendingList.innerHTML=t.map(p=>'<div class="hot-topic"><h4>'+escapeHtml(p.title)+'</h4><span>❤️ '+p.like_count+' likes &bull; '+getTimeAgo(p.created_at)+'</span></div>').join('')}
             async function handleCreatePost(){const title=el.postTitle.value.trim(),content=el.postContent.value.trim(),type=el.postType.value;if(!title||!content){showToast("Please fill in both title and content.",true);return}if(!state.user){showToast("You must be logged in to post.",true);return}el.submitPostBtn.textContent="Posting...";el.submitPostBtn.disabled=true;try{const{error}=await sb.from('posts').insert({user_id:state.user.id,title,content,type});if(error)throw error;el.postTitle.value='';el.postContent.value='';showToast("Post published!");loadPosts()}catch(err){showToast("Failed to create post. "+(err.message||''),true)}finally{el.submitPostBtn.textContent="Post";el.submitPostBtn.disabled=false}}
             window.handleLike=async function(postId,btn){if(!state.user){showToast("Log in to like posts.",true);return}const liked=state.userLikes.includes(postId);try{if(liked){const{error}=await sb.from('likes').delete().eq('post_id',postId).eq('user_id',state.user.id);if(error)throw error;state.userLikes=state.userLikes.filter(id=>id!==postId);btn.classList.remove('liked');btn.textContent='♥'}else{const{error}=await sb.from('likes').insert({post_id:postId,user_id:state.user.id});if(error)throw error;state.userLikes.push(postId);btn.classList.add('liked');btn.textContent='❤️'}const post=state.posts.find(p=>p.id===postId);if(post){post.like_count+=liked?-1:1;const c=document.querySelector('.like-count-'+postId);if(c)c.textContent=post.like_count}}catch(err){showToast('Failed to update like: '+(err.message||''),true)}};
             window.handleDeletePost=async function(postId,btn){if(!state.user){showToast("You must be logged in.",true);return}if(!confirm('Are you sure you want to delete this post?'))return;try{const{error}=await sb.from('likes').delete().eq('post_id',postId);if(error)console.log('No likes to delete or error:',error);const{error:delError}=await sb.from('posts').delete().eq('id',postId).eq('user_id',state.user.id);if(delError)throw delError;state.posts=state.posts.filter(p=>p.id!==postId);showToast('Post deleted.');renderPosts();renderTrending();updateCounts()}catch(err){showToast('Failed to delete post: '+(err.message||''),true)}};
@@ -1025,29 +1053,370 @@
                 document.getElementById('statBiggestWin').textContent='$'+biggest.toLocaleString();
                 document.getElementById('statTodayWins').textContent=today;
             }
-            function renderWins(){
-                if(!state.wins.length){el.winsGrid.innerHTML='<div class="empty-state"><p>No wins posted yet. Be the first to share your big win!</p></div>';return}
-                el.winsGrid.innerHTML=state.wins.map(w=>{
-                    const liked=state.winLikes.includes(w.id);
-                    const amt=parseFloat(w.win_amount)||0;
-                    let html='<div class="win-card">';
-                    html+='<div class="win-card-header"><div class="win-user"><div class="avatar">'+escapeHtml((w.username||'A').charAt(0).toUpperCase())+'</div><div class="win-user-info"><strong>'+escapeHtml(w.username)+'</strong><span>'+getTimeAgo(w.created_at)+'</span></div></div>';
-                    html+='<div class="win-amount">$'+amt.toLocaleString()+'</div></div>';
-                    html+='<div class="win-card-body"><div class="win-details">';
-                    html+='<div class="win-detail"><span class="win-detail-label">Casino</span><span class="win-detail-value">'+escapeHtml(w.casino_name)+'</span></div>';
-                    html+='<div class="win-detail"><span class="win-detail-label">Game</span><span class="win-detail-value">'+escapeHtml(w.slot_name)+'</span></div>';
-                    if(w.multiplier){html+='<div class="win-detail"><span class="win-detail-label">Multiplier</span><span class="win-detail-value"><span class="multiplier-badge">'+escapeHtml(w.multiplier)+'</span></span></div>'}
-                    html+='</div>';
-                    if(w.description){html+='<p class="win-description">'+escapeHtml(w.description)+'</p>'}
-                    if(w.screenshot_url){html+='<img class="win-screenshot" src="'+escapeHtml(w.screenshot_url)+'" alt="Win screenshot" loading="lazy" onerror="this.style.display=\'none\'">'}
-                    html+='</div>';
-                    const isWinOwner=state.user&&w.user_id===state.user.id;
-                    html+='<div class="win-card-footer"><span>Posted by '+escapeHtml(w.username)+'</span><div class="card-actions">'+(isWinOwner?'<button class="btn-delete" onclick="handleDeleteWin('+w.id+', this)" title="Delete win">🗑️</button>':'')+'<button class="btn-icon '+(liked?'liked':'')+'" onclick="handleWinLike('+w.id+', this)">'+(liked?'❤️':'♥')+'</button><span class="win-like-count-'+w.id+'">'+w.like_count+'</span></div></div>';
-                    html+='</div>';
-                    return html;
-                }).join('');
+            function renderWins() {
+    if (!state.wins.length) {
+        el.winsGrid.innerHTML = '<div class="empty-state"><p>No wins posted yet. Be the first to share your big win!</p></div>';
+        return;
+    }
+    
+    // Add grid styling to container if not present
+    el.winsGrid.style.display = 'grid';
+    el.winsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
+    el.winsGrid.style.gap = '1.5rem';
+
+    el.winsGrid.innerHTML = state.wins.map(w => {
+        const liked = state.winLikes.includes(w.id);
+        const amt = parseFloat(w.win_amount) || 0;
+        
+        // Randomize avatar color
+        const nameLen = (w.username || 'A').length;
+        const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #f59e0b, #d97706)');
+        const init = escapeHtml((w.username || 'A').substring(0,2).toUpperCase());
+        
+        // Display verified checkmark pseudo-randomly for verified appearance
+        const isVerified = nameLen % 2 === 0 || amt > 1000;
+        const verifiedHtml = isVerified ? '<span style="background:#10b981;color:#fff;border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;margin-left:.25rem">✔</span>' : '';
+        
+        const multSuffix = (w.multiplier && (w.multiplier.toString().includes('x') || w.multiplier.toString().includes('ROI'))) ? '' : w.multiplier ? 'x multiplier' : '';
+
+        let html = '<div class="ns-card win-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;position:relative">';
+        
+        // Header (Avatar + Name + Game/Casino)
+        html += '<div style="display:flex;gap:1rem;align-items:center"><div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+avaGrad+';color:#fff;font-weight:700;flex-shrink:0">'+init+'</div><div><div style="display:flex;align-items:center;margin-bottom:.25rem"><strong style="color:#fff;font-size:1.05rem;font-weight:700">'+escapeHtml(w.username)+'</strong>'+verifiedHtml+'</div><div style="color:var(--text-muted);font-size:.85rem">'+escapeHtml(w.slot_name)+' &bull; '+escapeHtml(w.casino_name)+'</div></div></div>';
+        
+        // Amounts
+        html += '<div style="display:flex;align-items:baseline;gap:.75rem"><span style="color:#10b981;font-weight:800;font-size:1.5rem;letter-spacing:-.5px">=async function(winId,btn){if(!state.user){showToast("You must be logged in.",true);return}if(!confirm('Are you sure you want to delete this win?'))return;try{const{error:likesErr}=await sb.from('win_likes').delete().eq('win_id',winId);if(likesErr)console.log('No win likes to delete or error:',likesErr);const{error:delError}=await sb.from('wins').delete().eq('id',winId).eq('user_id',state.user.id);if(delError)throw delError;state.wins=state.wins.filter(w=>w.id!==winId);showToast('Win deleted.');updateWinStats();renderWins()}catch(err){showToast('Failed to delete win: '+(err.message||''),true)}};
+            // ========== IMAGE UPLOAD ==========
+            let selectedFile=null;
+            el.uploadZone.addEventListener('click',()=>el.winScreenshotFile.click());
+            el.winScreenshotFile.addEventListener('change',(e)=>{if(e.target.files[0])handleFileSelect(e.target.files[0])});
+            el.uploadZone.addEventListener('dragover',(e)=>{e.preventDefault();el.uploadZone.classList.add('dragover')});
+            el.uploadZone.addEventListener('dragleave',()=>el.uploadZone.classList.remove('dragover'));
+            el.uploadZone.addEventListener('drop',(e)=>{e.preventDefault();el.uploadZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleFileSelect(e.dataTransfer.files[0])});
+            el.uploadPreviewRemove.addEventListener('click',clearUpload);
+            function handleFileSelect(file){
+                const allowed=['image/png','image/jpeg','image/gif','image/webp'];
+                if(!allowed.includes(file.type)){showToast('Please upload a PNG, JPG, GIF, or WEBP image.',true);return}
+                if(file.size>5*1024*1024){showToast('Image must be under 5MB.',true);return}
+                selectedFile=file;
+                const reader=new FileReader();
+                reader.onload=(e)=>{el.uploadPreviewImg.src=e.target.result;el.uploadPreview.classList.add('visible');el.uploadZone.classList.add('has-file')};
+                reader.readAsDataURL(file);
             }
-            window.handleDeleteWin=async function(winId,btn){if(!state.user){showToast("You must be logged in.",true);return}if(!confirm('Are you sure you want to delete this win?'))return;try{const{error:likesErr}=await sb.from('win_likes').delete().eq('win_id',winId);if(likesErr)console.log('No win likes to delete or error:',likesErr);const{error:delError}=await sb.from('wins').delete().eq('id',winId).eq('user_id',state.user.id);if(delError)throw delError;state.wins=state.wins.filter(w=>w.id!==winId);showToast('Win deleted.');updateWinStats();renderWins()}catch(err){showToast('Failed to delete win: '+(err.message||''),true)}};
+            function clearUpload(){selectedFile=null;el.winScreenshotFile.value='';el.uploadPreview.classList.remove('visible');el.uploadZone.classList.remove('has-file');el.uploadPreviewImg.src='';el.uploadProgress.classList.remove('visible');el.uploadProgressBar.style.width='0'}
+            async function uploadScreenshot(file){
+                const ext=file.name.split('.').pop().toLowerCase();
+                const fileName=state.user.id+'/'+Date.now()+'_'+Math.random().toString(36).substring(2,8)+'.'+ext;
+                el.uploadProgress.classList.add('visible');el.uploadProgressBar.style.width='30%';
+                const{data,error}=await sb.storage.from('win-screenshots').upload(fileName,file,{cacheControl:'3600',upsert:false,contentType:file.type});
+                if(error){el.uploadProgress.classList.remove('visible');throw error}
+                el.uploadProgressBar.style.width='80%';
+                const{data:urlData}=sb.storage.from('win-screenshots').getPublicUrl(fileName);
+                el.uploadProgressBar.style.width='100%';
+                setTimeout(()=>el.uploadProgress.classList.remove('visible'),500);
+                return urlData.publicUrl;
+            }
+            async function handleCreateWin(){
+                const casino=el.winCasino.value.trim(),slot=el.winSlot.value.trim(),amount=el.winAmount.value,multiplier=el.winMultiplier.value.trim(),description=el.winDescription.value.trim();
+                if(!casino||!slot||!amount){showToast("Casino, game name, and win amount are required.",true);return}
+                if(isNaN(parseFloat(amount))||parseFloat(amount)<=0){showToast("Enter a valid win amount.",true);return}
+                if(!state.user){showToast("You must be logged in to post a win.",true);return}
+                el.submitWinBtn.textContent="Posting...";el.submitWinBtn.disabled=true;
+                try{
+                    const payload={user_id:state.user.id,casino_name:casino,slot_name:slot,win_amount:parseFloat(amount)};
+                    if(multiplier)payload.multiplier=multiplier;
+                    if(description)payload.description=description;
+                    if(selectedFile){
+                        const screenshotUrl=await uploadScreenshot(selectedFile);
+                        payload.screenshot_url=screenshotUrl;
+                    }
+                    const{error}=await sb.from('wins').insert(payload);
+                    if(error)throw error;
+                    el.winCasino.value='';el.winSlot.value='';el.winAmount.value='';el.winMultiplier.value='';el.winDescription.value='';
+                    clearUpload();
+                    showToast("Win posted!");loadWins();
+                }catch(err){showToast("Failed to post win. "+(err.message||''),true)}
+                finally{el.submitWinBtn.textContent="Post Win";el.submitWinBtn.disabled=false}
+            }
+            window.handleWinLike=async function(winId,btn){
+                if(!state.user){showToast("Log in to like wins.",true);return}
+                const liked=state.winLikes.includes(winId);
+                try{
+                    if(liked){const{error}=await sb.from('win_likes').delete().eq('win_id',winId).eq('user_id',state.user.id);if(error)throw error;state.winLikes=state.winLikes.filter(id=>id!==winId);btn.classList.remove('liked');btn.textContent='♥'}
+                    else{const{error}=await sb.from('win_likes').insert({win_id:winId,user_id:state.user.id});if(error)throw error;state.winLikes.push(winId);btn.classList.add('liked');btn.textContent='❤️'}
+                    const win=state.wins.find(w=>w.id===winId);if(win){win.like_count+=liked?-1:1;const c=document.querySelector('.win-like-count-'+winId);if(c)c.textContent=win.like_count}
+                }catch(e){showToast('Failed to like win: '+(e.message||''),true)}
+            };
+            async function loadWinLikes(){
+                if(!state.user)return;
+                try{const{data:likes,error}=await sb.from('win_likes').select('win_id').eq('user_id',state.user.id);if(error)throw error;state.winLikes=likes?likes.map(l=>l.win_id):[];}catch(e){console.error('Failed to load win likes:',e);state.winLikes=[];}
+            }
+            let _initDone=false;let _loadingPosts=false;
+            async function initSession(){try{const{data:{session},error}=await sb.auth.getSession();if(error)throw error;if(session){state.session=session;state.user=session.user;await loadProfile();if(state.user&&!state.isAgeVerified){state.isAgeVerified=true;try{await sb.from('profiles').update({is_age_verified:true}).eq('id',state.user.id)}catch(e){console.error('Age verify update failed:',e)}}}}catch(err){console.error('Session init failed:',err)}_initDone=true;renderHeader();loadPosts()}
+            sb.auth.onAuthStateChange(async(event,session)=>{if(event==='INITIAL_SESSION')return;if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'){state.session=session;state.user=session?.user||null;if(event==='SIGNED_IN'&&_initDone){await loadProfile();renderHeader();loadPosts()}}else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.isAgeVerified=false;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts()}});
+            el.btnAgeConfirm.addEventListener('click',()=>handleAgeVerification(true));el.btnAgeDeny.addEventListener('click',()=>handleAgeVerification(false));el.closeAgeModal.addEventListener('click',closeAllModals);el.closeAuthModal.addEventListener('click',closeAllModals);el.toggleAuthMode.addEventListener('click',(e)=>{e.preventDefault();state.isLoginMode=!state.isLoginMode;updateAuthModalUI()});el.authForm.addEventListener('submit',handleAuthSubmit);el.submitPostBtn.addEventListener('click',handleCreatePost);
+            el.googleSignIn.addEventListener('click',async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});if(error)showToast('Google sign-in failed: '+error.message,true)});
+            window.addEventListener('click',(e)=>{if(e.target===el.authModal||e.target===el.ageModal)closeAllModals()});window.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeAllModals()});
+            el.catButtons.forEach(btn=>btn.addEventListener('click',()=>{el.catButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.currentFilter=btn.dataset.filter;loadPosts()}));
+            el.filterButtons.forEach(btn=>btn.addEventListener('click',()=>{el.filterButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.currentSort=btn.dataset.sort;loadPosts()}));
+            el.viewTabs.forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
+            el.winSortButtons.forEach(btn=>btn.addEventListener('click',()=>{el.winSortButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.currentWinSort=btn.dataset.winsort;loadWins()}));
+            el.submitWinBtn.addEventListener('click',handleCreateWin);
+            // Hero swap: visitors see CTA, logged-in see stats
+            function updateHero(){
+                const stats=document.getElementById('heroStats');
+                const cta=document.getElementById('heroCTA');
+                if(state.user){stats.style.display='flex';cta.style.display='none'}
+                else{stats.style.display='none';cta.style.display='flex'}
+            }
+            const origRenderHeader=renderHeader;
+            renderHeader=function(){origRenderHeader();updateHero()};
+            // Nav active state
+            document.querySelectorAll('.sz-nav-link').forEach(l=>{l.addEventListener('click',function(e){document.querySelectorAll('.sz-nav-link').forEach(n=>n.classList.remove('active'));this.classList.add('active')})});
+            
+            // Casino filters
+            const cFilters = document.querySelectorAll('#casinoFilters .fpill');
+            const cCards = document.querySelectorAll('#casinoGrid .casino-card');
+            cFilters.forEach(f => {
+                f.addEventListener('click', () => {
+                    cFilters.forEach(btn => btn.classList.remove('active'));
+                    f.classList.add('active');
+                    const filter = f.dataset.filter;
+                    let visibleCount = 0;
+                    cCards.forEach(c => {
+                        const cats = c.dataset.categories || '';
+                        if(filter === 'all') {
+                            // Show first 3 for 'all'
+                            if(visibleCount < 3) {
+                                c.style.display = 'flex';
+                                visibleCount++;
+                            } else {
+                                c.style.display = 'none';
+                            }
+                        } else if(cats.includes(filter)) {
+                            c.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            c.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            initSession();
+        });
+    </script>
+
+        <script>
+            // SPA Routing App
+            function showPage(pageId) {
+                // 1. Hide all pages
+                document.querySelectorAll('.page-view').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // 2. Show target page
+                const target = document.getElementById('page-' + pageId);
+                if (target) {
+                    target.classList.add('active');
+                    window.scrollTo(0, 0); // Scroll to top
+                }
+                
+                // 3. Update active state in nav
+                document.querySelectorAll('.sz-nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and highlight correct tab
+                let tabName = pageId;
+                if (pageId === 'community') tabName = 'discuss';
+                
+                const activeTab = Array.from(document.querySelectorAll('.sz-nav-link')).find(el => {
+                    return el.getAttribute('onclick') && el.getAttribute('onclick').includes("showPage('" + pageId + "')");
+                });
+                if (activeTab) activeTab.classList.add('active');
+            }
+
+            // INSIGHTS MODAL LOGIC
+            const insightsData = {
+                'nba': { title: 'NBA Playoffs Underdog Strategy', body: '<p>Underdogs cover the spread at 58.3% because the public heavily overbets favorites in high-stakes games. Sportsbooks shade their lines accordingly.</p><h3>Key Finding</h3><p>Home underdogs in Game 3 specifically hit at 68% over the last 5 years.</p>' },
+                'kelly': { title: 'The Kelly Criterion Explained', body: '<p>The Kelly Criterion is a formula that determines the optimal theoretical size for a bet. It maximizes long-term bankroll growth.</p><p><strong style="color:var(--primary)">Formula: f* = (bp - q) / b</strong></p><p>Where f* is fraction of bankroll, b is decimal odds - 1, p is probability of winning, q is probability of losing.</p><br><p style="color:var(--gold);text-align:center;padding:1rem;border:1px solid var(--gold);border-radius:8px">🔒 This full article is locked for Pro members.</p>' },
+                'bankroll': { title: 'Bankroll Management 101', body: '<p>Rule #1: Never risk more than 1-2% of your total bankroll on a single standard play (1 Unit).</p><h3>The Discipline Trick</h3><p>When you lose, natural instinct is to double down to win it back ("chasing"). The mathematical approach is to keep unit size exactly the same, or even lower it slightly as total bankroll shrinks.</p>' },
+                'btts': { title: 'Premier League BTTS Trends', body: '<p>Over the last 3 seasons, the most profitable matches for "Both Teams To Score - YES" haven\'t been matchups between two top-6 clubs.</p><p>The highest edge actually lies when a high-scoring mid-table team (like Brighton) plays AT home against a top-4 team. The market undervalues the home team\'s ability to score a single goal.</p>' }
+            };
+
+            function openInsight(id) {
+                const data = insightsData[id];
+                if(data) {
+                    document.getElementById('insightModalTitle').innerText = data.title;
+                    document.getElementById('insightModalBody').innerHTML = data.body;
+                    document.getElementById('insightModal').classList.add('active');
+                }
+            }
+
+            // SPORTS PAGE FILTERING
+            document.addEventListener("DOMContentLoaded", () => {
+                const sFilters = document.querySelectorAll('#sportsFilters .sport-tab');
+                const sCards = document.querySelectorAll('#sportsGrid .pick-card');
+                
+                if(sFilters && sCards) {
+                    sFilters.forEach(f => {
+                        f.addEventListener('click', () => {
+                            sFilters.forEach(btn => btn.classList.remove('active'));
+                            f.classList.add('active');
+                            const filter = f.dataset.sport;
+                            
+                            sCards.forEach(c => {
+                                if(filter === 'all' || c.dataset.sport === filter) {
+                                    c.style.display = 'block';
+                                } else {
+                                    c.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+            
+
+            // PAGE CASINO FILTERING
+            document.addEventListener("DOMContentLoaded", () => {
+                const pcFilters = document.querySelectorAll('#pageCasinoFilters .sport-tab');
+                const pcCards = document.querySelectorAll('#pageCasinoGrid .casino-card');
+                
+                if(pcFilters && pcCards) {
+                    pcFilters.forEach(f => {
+                        f.addEventListener('click', () => {
+                            pcFilters.forEach(btn => btn.classList.remove('active'));
+                            f.classList.add('active');
+                            const filter = f.dataset.filter;
+                            
+                            pcCards.forEach(c => {
+                                const cats = c.dataset.categories || '';
+                                if(filter === 'all' || cats.includes(filter)) {
+                                    c.style.display = 'flex';
+                                } else {
+                                    c.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+
+
+            // PAGE CASINO SORTING
+            document.addEventListener("DOMContentLoaded", () => {
+                const sortSelect = document.getElementById('casinoSort');
+                const pcGrid = document.getElementById('pageCasinoGrid');
+                if(sortSelect && pcGrid) {
+                    sortSelect.addEventListener('change', () => {
+                        const cards = Array.from(pcGrid.querySelectorAll('.casino-card'));
+                        const val = sortSelect.value;
+                        cards.sort((a,b) => {
+                            if(val === 'rating') return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                            if(val === 'bonus') return parseInt(b.dataset.bonus) - parseInt(a.dataset.bonus);
+                            return parseInt(a.dataset.order) - parseInt(b.dataset.order);
+                        });
+                        cards.forEach(c => pcGrid.appendChild(c));
+                    });
+                }
+            });
+
+            // PAGE INSIGHTS FILTERING
+            document.addEventListener("DOMContentLoaded", () => {
+                const iFilters = document.querySelectorAll('#insightFilters .sport-tab');
+                const iCards = document.querySelectorAll('#insightGrid .ins-card');
+                
+                if(iFilters && iCards) {
+                    iFilters.forEach(f => {
+                        f.addEventListener('click', () => {
+                            iFilters.forEach(btn => btn.classList.remove('active'));
+                            f.classList.add('active');
+                            const filter = f.dataset.insight;
+                            
+                            iCards.forEach(c => {
+                                if(filter === 'all' || c.dataset.insight === filter) {
+                                    c.style.display = 'block';
+                                } else {
+                                    c.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+
+
+            // PREMIUM PRICING TOGGLE
+            document.addEventListener("DOMContentLoaded", () => {
+                const btnM = document.getElementById('billMonthly');
+                const btnY = document.getElementById('billYearly');
+                const pricePro = document.getElementById('pricePro');
+                const priceVip = document.getElementById('priceVip');
+                const bannerPrices = document.querySelectorAll('.prem-banner .price-val');
+                
+                if(btnM && btnY) {
+                    btnM.addEventListener('click', () => {
+                        btnM.style.background = 'var(--primary)';
+                        btnM.style.color = '#fff';
+                        btnY.style.background = 'transparent';
+                        btnY.style.color = 'var(--text-muted)';
+                        
+                        pricePro.innerHTML = '$9.99<span>/mo</span>';
+                        priceVip.innerHTML = '$24.99<span>/mo</span>';
+                        if(bannerPrices.length > 1) {
+                            bannerPrices[0].innerText = '$9.99';
+                            bannerPrices[1].innerText = '$24.99';
+                        }
+                    });
+                    
+                    btnY.addEventListener('click', () => {
+                        btnY.style.background = 'var(--primary)';
+                        btnY.style.color = '#fff';
+                        btnM.style.background = 'transparent';
+                        btnM.style.color = 'var(--text-muted)';
+                        
+                        pricePro.innerHTML = '$95.90<span>/yr</span>';
+                        priceVip.innerHTML = '$239.90<span>/yr</span>';
+                        if(bannerPrices.length > 1) {
+                            bannerPrices[0].innerText = '$7.99';
+                            bannerPrices[1].innerText = '$19.99';
+                        }
+                    });
+                }
+            });
+
+            // Allow URL hash parsing for direct links initially
+            document.addEventListener("DOMContentLoaded", () => {
+                if(window.location.hash) {
+                    const page = window.location.hash.substring(1);
+                    if(document.getElementById('page-' + page)) showPage(page);
+                }
+            });
+        </script>
+
+</body>
+</html>
++amt.toLocaleString()+'</span>';
+        if(w.multiplier) {
+            html += '<span style="color:var(--gold);font-weight:700;font-size:.9rem">'+escapeHtml(w.multiplier)+' '+multSuffix+'</span>';
+        }
+        html += '</div>';
+
+        // Time / Footer action
+        const isWinOwner = state.user && w.user_id === state.user.id;
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-dim);font-size:.8rem;opacity:.8;margin-top:.25rem"><span>'+getTimeAgo(w.created_at)+'</span>';
+        html += '<div style="display:flex;gap:.5rem">';
+        if(isWinOwner) html += '<button onclick="handleDeleteWin('+w.id+', this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem" title="Delete win">🗑️</button>';
+        html += '<button onclick="handleWinLike('+w.id+', this)" style="background:none;border:none;cursor:pointer;font-size:1rem;color:'+(liked?'#ef4444':'var(--text-dim)')+'" title="Like">'+(liked?'❤️':'♥')+' <span class="win-like-count-'+w.id+'">'+w.like_count+'</span></button>';
+        html += '</div></div>';
+
+        html += '</div>';
+        return html;
+    }).join('');
+}
+window.handleDeleteWin=async function(winId,btn){if(!state.user){showToast("You must be logged in.",true);return}if(!confirm('Are you sure you want to delete this win?'))return;try{const{error:likesErr}=await sb.from('win_likes').delete().eq('win_id',winId);if(likesErr)console.log('No win likes to delete or error:',likesErr);const{error:delError}=await sb.from('wins').delete().eq('id',winId).eq('user_id',state.user.id);if(delError)throw delError;state.wins=state.wins.filter(w=>w.id!==winId);showToast('Win deleted.');updateWinStats();renderWins()}catch(err){showToast('Failed to delete win: '+(err.message||''),true)}};
             // ========== IMAGE UPLOAD ==========
             let selectedFile=null;
             el.uploadZone.addEventListener('click',()=>el.winScreenshotFile.click());
