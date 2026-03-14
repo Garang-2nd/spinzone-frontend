@@ -772,7 +772,13 @@
                     <div class="win-stat"><div class="win-stat-value" id="statBiggestWin">$0</div><div class="win-stat-label">Biggest Win</div></div>
                     <div class="win-stat"><div class="win-stat-value" id="statTodayWins">0</div><div class="win-stat-label">Wins Today</div></div>
                 </div>
-                <div class="create-win-bar visible" id="createWinBar">
+                
+                <div id="winActionContainer" style="margin-bottom:1.5rem;display:none;justify-content:center">
+                    <button class="btn btn-primary" onclick="toggleWinForm()" id="shareWinBtn" style="padding:.8rem 2rem;font-size:1rem;gap:.5rem">🏆 Share Your Win</button>
+                    <button class="btn btn-outline" onclick="toggleWinForm()" id="cancelWinBtn" style="display:none;padding:.8rem 2rem;font-size:1rem">Cancel</button>
+                </div>
+
+                <div class="create-win-bar" id="createWinBar">
                     <h3>Post Your Win</h3>
                     <div class="form-row">
                         <input type="text" id="winCasino" placeholder="Casino name (e.g. Stake, BC.Game)">
@@ -794,7 +800,7 @@
                     </div>
                     <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
                     <textarea id="winDescription" placeholder="Tell us about your win! (optional)"></textarea>
-                    <button class="btn-win" id="submitWinBtn" style="margin-top:1rem">Post Win</button>
+                    <button class="btn-win" id="submitWinBtn" style="margin-top:1rem;width:100%">Post Win</button>
                 </div>
                 <div class="feed-header"><h3>Live Wins Feed</h3><div class="feed-filters" id="winSortFilters"><button class="filter-btn active" data-winsort="new">Newest</button><button class="filter-btn" data-winsort="biggest">Biggest</button></div></div>
                 <div id="winsGrid"><div class="loading">Loading wins...</div></div>
@@ -1048,7 +1054,9 @@
                 if(jb) jb.addEventListener('click',()=>initiateAuthFlow(false));
             }
             if(el.createPostBar) el.createPostBar.classList.toggle('visible', !!state.user && state.currentView !== 'wins');
-            if(el.createWinBar) el.createWinBar.classList.toggle('visible', !!state.user && state.currentView === 'wins');
+            const actionContainer = document.getElementById('winActionContainer');
+            if(actionContainer) actionContainer.style.display = (!!state.user && state.currentView === 'wins') ? 'flex' : 'none';
+            if(el.createWinBar) el.createWinBar.classList.remove('visible');
             updateHero();
         }
 
@@ -1202,28 +1210,44 @@
         function switchView(view){
             state.currentView=view;
             el.viewTabs.forEach(t=>{t.classList.toggle('active',t.dataset.view===view)});
+            const actionContainer = document.getElementById('winActionContainer');
             if(view==='wins'){
                 el.winsSection.classList.add('visible');
                 el.postsSection.classList.add('hidden');
-                el.createWinBar.classList.toggle('visible',!!state.user);
+                if(actionContainer) actionContainer.style.display = !!state.user ? 'flex' : 'none';
+                if(el.createWinBar) el.createWinBar.classList.remove('visible');
+                const swb = document.getElementById('shareWinBtn');
+                const cwb = document.getElementById('cancelWinBtn');
+                if(swb) swb.style.display = 'flex';
+                if(cwb) cwb.style.display = 'none';
                 el.createPostBar.classList.remove('visible');
                 loadWins();
             }else{
                 el.winsSection.classList.remove('visible');
                 el.postsSection.classList.remove('hidden');
-                el.createWinBar.classList.remove('visible');
+                if(actionContainer) actionContainer.style.display = 'none';
+                if(el.createWinBar) el.createWinBar.classList.remove('visible');
                 el.createPostBar.classList.toggle('visible',!!state.user);
             }
+        }
+
+        window.toggleWinForm = function() {
+            if(!el.createWinBar) return;
+            const isVisible = el.createWinBar.classList.toggle('visible');
+            const swb = document.getElementById('shareWinBtn');
+            const cwb = document.getElementById('cancelWinBtn');
+            if(swb) swb.style.display = isVisible ? 'none' : 'flex';
+            if(cwb) cwb.style.display = isVisible ? 'flex' : 'none';
         }
 
         async function loadWins(){
             if(!el.winsGrid) return;
             el.winsGrid.innerHTML='<div class="loading">Loading wins...</div>';
             try{
-                let q=sb.from('wins').select('*, profiles!left(username), win_likes(id)').order('created_at',{ascending:false});
+                let q=sb.from('wins').select('*, profiles!left(username, is_verified), win_likes(id)').order('created_at',{ascending:false});
                 const{data:wins,error}=await q;
                 if(error)throw error;
-                state.wins=(wins||[]).map(w=>({...w,username:w.profiles?.username||'Anonymous',like_count:Array.isArray(w.win_likes)?w.win_likes.length:(w.win_likes?1:0)}));
+                state.wins=(wins||[]).map(w=>({...w,username:w.profiles?.username||'Anonymous',is_verified:w.profiles?.is_verified||false,like_count:Array.isArray(w.win_likes)?w.win_likes.length:(w.win_likes?1:0)}));
                 if(state.currentWinSort==='biggest')state.wins.sort((a,b)=>parseFloat(b.win_amount)-parseFloat(a.win_amount));
                 updateWinStats();
                 renderWins();
@@ -1252,23 +1276,26 @@
                 const nameLen = (w.username || 'A').length;
                 const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #f59e0b, #d97706)');
                 const init = escapeHtml((w.username || 'A').substring(0,2).toUpperCase());
+                const verifiedIcon = w.is_verified ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#10b981;color:#fff;border-radius:50%;font-size:10px;margin-left:6px">✓</span>' : '';
+                const mult = w.win_multiplier ? '<span style="color:#f59e0b;font-weight:600;font-size:1rem">'+escapeHtml(w.win_multiplier)+'</span>' : '';
+                
                 return '<div class="ns-card win-card" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;position:relative">' +
                         '<div style="display:flex;gap:1rem;align-items:center">' +
-                            '<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+avaGrad+';color:#fff;font-weight:700;flex-shrink:0">'+init+'</div>' +
+                            '<div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:'+avaGrad+';color:#fff;font-weight:700;flex-shrink:0">'+init+'</div>' +
                             '<div>' +
-                                '<div style="display:flex;align-items:center;margin-bottom:.25rem">' +
-                                    '<strong style="color:#fff;font-size:1.05rem;font-weight:700">'+escapeHtml(w.username)+'</strong>' +
+                                '<div style="display:flex;align-items:center;margin-bottom:.1rem">' +
+                                    '<strong style="color:#fff;font-size:1.15rem;font-weight:700">'+escapeHtml(w.username)+'</strong>' + verifiedIcon +
                                 '</div>' +
-                                '<div style="color:var(--text-muted);font-size:.85rem">'+escapeHtml(w.slot_name)+' &bull; '+escapeHtml(w.casino_name)+'</div>' +
+                                '<div style="color:var(--text-muted);font-size:.9rem">'+escapeHtml(w.slot_name || 'Big Win')+' &bull; '+escapeHtml(w.casino_name)+'</div>' +
                             '</div>' +
                         '</div>' +
                         '<div style="display:flex;align-items:baseline;gap:.75rem">' +
-                            '<span style="color:#10b981;font-weight:800;font-size:1.5rem;letter-spacing:-.5px">$'+amt.toLocaleString()+'</span>' +
+                            '<span style="color:#10b981;font-weight:800;font-size:1.8rem;letter-spacing:-.8px">$'+amt.toLocaleString()+'</span>' + mult +
                         '</div>' +
-                        '<div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-dim);font-size:.8rem;opacity:.8;margin-top:.25rem">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-dim);font-size:.85rem;opacity:.8;margin-top:.25rem">' +
                             '<span>'+getTimeAgo(w.created_at)+'</span>' +
                             '<div style="display:flex;gap:.5rem">' +
-                                '<button onclick="handleWinLike('+w.id+', this)" style="background:none;border:none;cursor:pointer;font-size:1rem;color:'+(liked?'#ef4444':'var(--text-dim)')+'" title="Like">'+(liked?'❤️':'♥')+' <span class="win-like-count-'+w.id+'">'+w.like_count+'</span></button>' +
+                                '<button onclick="handleWinLike('+w.id+', this)" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:'+(liked?'#ef4444':'var(--text-dim)')+'" title="Like">'+(liked?'❤️':'♥')+' <span class="win-like-count-'+w.id+'">'+w.like_count+'</span></button>' +
                             '</div>' +
                         '</div>' +
                     '</div>';
