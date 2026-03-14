@@ -178,7 +178,7 @@
         /* INSIGHT CARDS */
         .ins-card{padding:1.25rem}.ins-cat{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:.5rem}
         .ins-title{font-weight:700;font-size:1rem;margin-bottom:.5rem;line-height:1.3;color:var(--text-main)}
-        .ins-preview{font-size:.85rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+        .ins-preview{font-size:.85rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
         .ins-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:.75rem;color:var(--text-dim)}
         .ins-locked{position:relative}.ins-locked .ins-preview{filter:blur(4px)}.ins-locked::after{content:'\1F512 Pro Members Only';position:absolute;bottom:2.5rem;left:0;right:0;text-align:center;color:var(--gold);font-weight:700;font-size:.8rem}
         /* DISCUSSION CARDS */
@@ -241,7 +241,10 @@
     <header>
         <a href="#" onclick="showPage('home'); return false;" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
         <div style="display:flex;align-items:center;gap:.75rem">
-            <div class="user-actions" id="authButtons" aria-live="polite"></div>
+            <div class="user-actions" id="authButtons" aria-live="polite">
+                <button class="btn btn-outline" onclick="initiateAuthFlow(true)">Sign In</button>
+                <button class="btn btn-primary" onclick="initiateAuthFlow(false)">Join Community</button>
+            </div>
             <button class="btn-gold" onclick="showPage('premium')">👑 Go Pro</button>
         </div>
     </header>
@@ -828,9 +831,6 @@
         let canvas, ctx, wheelSpinBtn, wheelResult, wheelCTA, wheelToggleBtn, wheelWidget;
         let currentAngle=0;let isWheelSpinning=false;
 
-        document.addEventListener('DOMContentLoaded',()=>{
-            initApp();
-        });
 
         function initApp() {
             // Map common elements
@@ -1040,17 +1040,15 @@
                 el.authContainer.innerHTML='<div class="user-profile"><div class="avatar">'+u.charAt(0).toUpperCase()+'</div><span class="username">Hi, '+escapeHtml(u)+'</span><button class="btn btn-outline" id="logoutBtn">Sign Out</button></div>';
                 const lo = document.getElementById('logoutBtn');
                 if(lo) lo.addEventListener('click',handleLogout);
-                if(el.createPostBar) el.createPostBar.classList.toggle('visible',state.currentView!=='wins');
-                if(el.createWinBar) el.createWinBar.classList.toggle('visible',state.currentView==='wins');
             }else{
                 el.authContainer.innerHTML='<button class="btn btn-outline" id="loginBtn">Sign In</button><button class="btn btn-primary" id="joinBtn">Join Community</button>';
                 const li = document.getElementById('loginBtn');
                 const jb = document.getElementById('joinBtn');
                 if(li) li.addEventListener('click',()=>initiateAuthFlow(true));
                 if(jb) jb.addEventListener('click',()=>initiateAuthFlow(false));
-                if(el.createPostBar) el.createPostBar.classList.remove('visible');
-                if(el.createWinBar) el.createWinBar.classList.remove('visible');
             }
+            if(el.createPostBar) el.createPostBar.classList.toggle('visible', !!state.user && state.currentView !== 'wins');
+            if(el.createWinBar) el.createWinBar.classList.toggle('visible', !!state.user && state.currentView === 'wins');
             updateHero();
         }
 
@@ -1222,10 +1220,10 @@
             if(!el.winsGrid) return;
             el.winsGrid.innerHTML='<div class="loading">Loading wins...</div>';
             try{
-                let q=sb.from('wins').select('*, profiles ( username ), win_likes ( id )').order('created_at',{ascending:false});
+                let q=sb.from('wins').select('*, profiles!left(username), win_likes(id)').order('created_at',{ascending:false});
                 const{data:wins,error}=await q;
                 if(error)throw error;
-                state.wins=(wins||[]).map(w=>({...w,username:w.profiles?.username||'Anonymous',like_count:w.win_likes?w.win_likes.length:0}));
+                state.wins=(wins||[]).map(w=>({...w,username:w.profiles?.username||'Anonymous',like_count:Array.isArray(w.win_likes)?w.win_likes.length:(w.win_likes?1:0)}));
                 if(state.currentWinSort==='biggest')state.wins.sort((a,b)=>parseFloat(b.win_amount)-parseFloat(a.win_amount));
                 updateWinStats();
                 renderWins();
