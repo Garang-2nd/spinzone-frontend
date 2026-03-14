@@ -174,6 +174,21 @@
         .prc-vip{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;border-color:var(--gold)}.prc-vip:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(245,158,11,.3)}
         .articles-label{font-size:1.15rem;font-weight:800;max-width:1200px;margin:0 auto .5rem;padding:0 2rem;display:flex;align-items:center;gap:.5rem;color:var(--text-main)}
         @media(max-width:768px){.hero-banner{padding:1.5rem}.hero-banner h1{font-size:1.5rem}.hero-stats{gap:1rem;flex-wrap:wrap}.hero-stat .num{font-size:1.1rem}.grid-3,.grid-2{grid-template-columns:1fr}.prc-row{flex-direction:column;align-items:center}.hero-cta{flex-direction:column}.sz-nav-link{padding:.7rem .9rem;font-size:.8rem}.header .btn-gold{display:none}}
+
+        /* INSIGHT CARDS */
+        .ins-card{padding:1.25rem}.ins-cat{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:.5rem}
+        .ins-title{font-weight:700;font-size:1rem;margin-bottom:.5rem;line-height:1.3;color:var(--text-main)}
+        .ins-preview{font-size:.85rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+        .ins-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:.75rem;color:var(--text-dim)}
+        .ins-locked{position:relative}.ins-locked .ins-preview{filter:blur(4px)}.ins-locked::after{content:'\1F512 Pro Members Only';position:absolute;bottom:2.5rem;left:0;right:0;text-align:center;color:var(--gold);font-weight:700;font-size:.8rem}
+        /* DISCUSSION CARDS */
+        .dsc-card{padding:1.25rem}.dsc-header{display:flex;gap:.75rem;align-items:flex-start}
+        .dsc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;color:#fff}
+        .dsc-body{flex:1}.dsc-title{font-weight:700;font-size:.95rem;line-height:1.3;margin-bottom:.25rem;color:var(--text-main)}
+        .dsc-meta{font-size:.75rem;color:var(--text-dim);display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+        .dsc-stats{display:flex;gap:1rem;margin-top:.75rem;font-size:.8rem;color:var(--text-muted)}.dsc-stats span{display:flex;align-items:center;gap:.3rem}
+        .dsc-cat{font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block}
+        .dsc-cat-strat{background:rgba(16,185,129,.12);color:#10b981}.dsc-cat-brags{background:rgba(245,158,11,.12);color:#f59e0b}.dsc-cat-help{background:rgba(59,130,246,.12);color:#3b82f6}.dsc-cat-gen{background:rgba(148,163,184,.12);color:#94a3b8}
     </style>
 </head>
 <body>
@@ -344,6 +359,69 @@
     </div>
 
     
+    
+    <!-- BETTING INSIGHTS -->
+    <div class="new-section">
+        <div class="section-hdr">📊 Betting Insights<span class="see-all">View All →</span></div>
+        <div class="grid-3">
+            <div class="ns-card ins-card">
+                <div class="ins-cat">📈 Market Analysis</div>
+                <div class="ins-title">NBA Playoffs: Why Underdogs Are Covering at a Historic Rate</div>
+                <div class="ins-preview">Through 42 playoff games, underdogs are covering the spread at 58.3%, the highest rate since 2018. Here's how to exploit this trend in your next bets.</div>
+                <div class="ins-footer"><span>5 min read</span><span>🔓 Free</span></div>
+            </div>
+            <div class="ns-card ins-card ins-locked">
+                <div class="ins-cat">🎯 Advanced Strategy</div>
+                <div class="ins-title">The Kelly Criterion: How to Size Your Bets Like a Pro</div>
+                <div class="ins-preview">Professional bettors don't use flat betting. They use mathematical formulas to determine exactly how much to wager on each bet based on their edge.</div>
+                <div class="ins-footer"><span>8 min read</span><span>👑 Pro Only</span></div>
+            </div>
+            <div class="ns-card ins-card">
+                <div class="ins-cat">📊 Statistics</div>
+                <div class="ins-title">Premier League BTTS Trends: Which Teams to Target</div>
+                <div class="ins-preview">Both Teams to Score is one of the most popular football markets. We analyzed 380 matches to find the most profitable teams to target.</div>
+                <div class="ins-footer"><span>6 min read</span><span>🔓 Free</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMUNITY DISCUSSIONS -->
+    <div class="new-section">
+        <div class="section-hdr">💬 Community Discussions<span class="see-all">View All →</span></div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="ns-card dsc-card">
+                <div class="dsc-header">
+                    <div class="dsc-av" style="background:linear-gradient(135deg,var(--primary),#6366f1)">RK</div>
+                    <div class="dsc-body">
+                        <div class="dsc-title">What's your go-to bankroll management strategy?</div>
+                        <div class="dsc-meta"><span>by <b>RoyalKing</b></span><span class="dsc-cat dsc-cat-strat">Strategy</span><span>2 hours ago</span></div>
+                    </div>
+                </div>
+                <div class="dsc-stats"><span>💬 34 replies</span><span>❤️ 89 likes</span><span>👁 412 views</span></div>
+            </div>
+            <div class="ns-card dsc-card">
+                <div class="dsc-header">
+                    <div class="dsc-av" style="background:linear-gradient(135deg,var(--gold),#d97706)">SQ</div>
+                    <div class="dsc-body">
+                        <div class="dsc-title">Just hit $10K on a 3-leg parlay! AMA 🎉</div>
+                        <div class="dsc-meta"><span>by <b>SlotQueen</b></span><span class="dsc-cat dsc-cat-brags">Brags & Wins</span><span>45 minutes ago</span></div>
+                    </div>
+                </div>
+                <div class="dsc-stats"><span>💬 67 replies</span><span>❤️ 234 likes</span><span>👁 1.2K views</span></div>
+            </div>
+            <div class="ns-card dsc-card">
+                <div class="dsc-header">
+                    <div class="dsc-av" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">NB</div>
+                    <div class="dsc-body">
+                        <div class="dsc-title">Best crypto casino for fast withdrawals in 2025?</div>
+                        <div class="dsc-meta"><span>by <b>NewbieBettor</b></span><span class="dsc-cat dsc-cat-help">Help</span><span>3 hours ago</span></div>
+                    </div>
+                </div>
+                <div class="dsc-stats"><span>💬 21 replies</span><span>❤️ 45 likes</span><span>👁 289 views</span></div>
+            </div>
+        </div>
+    </div>
+
     <!-- PREMIUM -->
     <div class="prem-banner" style="margin:0 1.5rem 2rem;max-width:calc(1200px - 3rem);margin-left:auto;margin-right:auto">
         <h2>Upgrade to <em>SpinZone Pro</em></h2>
