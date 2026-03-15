@@ -1204,14 +1204,16 @@
         async function loadProfile(){if(!state.user)return;try{const{data:p,error:pErr}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!pErr&&p){state.profile=p;state.isAgeVerified=p.is_age_verified||state.isAgeVerified}}catch(e){}try{const{data:likes}=await sb.from('likes').select('post_id').eq('user_id',state.user.id);state.userLikes=likes?likes.map(l=>l.post_id):[]}catch(e){}}
         async function loadWinLikes(){if(!state.user)return;try{const{data:likes,error}=await sb.from('win_likes').select('win_id').eq('user_id',state.user.id);state.winLikes=likes?likes.map(l=>l.win_id):[];}catch(e){}}
 
+        let _loadingPosts=false;
         window.loadPosts=loadPosts;
         async function loadPosts(){
-            if(!el.postGrid) return;
+            if(!el.postGrid||_loadingPosts) return;
+            _loadingPosts=true;
             el.postGrid.innerHTML='<div class="loading">Loading...</div>';
             try{
                 const timeout=ms=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
                 const postsPromise=(async()=>{
-                    let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at', {ascending:false});
+                    let q=sb.from('posts').select('*, profiles!left ( username ), likes!left ( id )').order('created_at', {ascending:false});
                     if(state.currentFilter!=='all') q=q.eq('type', state.currentFilter);
                     return await q;
                 })();
@@ -1220,7 +1222,7 @@
 
                 let articles=[];
                 try{
-                    let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true);
+                    let aq=sb.from('articles').select('*, profiles!left ( username )').eq('is_published',true);
                     if(state.currentFilter!=='all') aq=aq.eq('type', state.currentFilter);
                     const{data:ad,error:aErr}=await Promise.race([aq,timeout(10000)]);
                     if(!aErr&&ad) articles=ad.map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}));
@@ -1232,7 +1234,7 @@
                 else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
                 updateCounts();renderPosts();renderTrending();renderHomeDiscussions();
-            }catch(err){console.error(err);if(el.postGrid) el.postGrid.innerHTML='<div class="empty-state">No posts yet. <button onclick="loadPosts()" style="background:var(--primary);color:#fff;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;margin-top:.5rem;font-size:.82rem">Retry</button></div>';renderHomeDiscussions();}
+            }catch(err){console.error(err);if(el.postGrid) el.postGrid.innerHTML='<div class="empty-state">No posts yet. <button onclick="loadPosts()" style="background:var(--primary);color:#fff;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;margin-top:.5rem;font-size:.82rem">Retry</button></div>';renderHomeDiscussions();}finally{_loadingPosts=false;}
         }
 
         function renderHomeDiscussions() {
