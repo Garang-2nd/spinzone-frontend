@@ -97,8 +97,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 
 function _sb(){
     if(window._szSb) return window._szSb;
-    window._szSb=window.supabase.createClient(SB_URL,SB_KEY);
-    return window._szSb;
+    window._szSb=window.supabase.createClient(SB_URL,SB_KEY);return window._szSb;
 }
 
 let currentUser=null;

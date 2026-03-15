@@ -333,7 +333,7 @@
 <script>
     const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
     const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
-    const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const sb=window._szSb||(window._szSb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY));
 
     /* ── state ── */
     let currentUser=null;
