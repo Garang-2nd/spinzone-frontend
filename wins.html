@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SpinZone Big Wins — Share and celebrate your biggest casino wins.">
+    <title>Wins | SpinZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/winsService.js" defer></script>
+    <style>
+        :root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+        body{background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+        a{text-decoration:none;color:inherit;transition:color .2s}a:hover{color:var(--primary)}
+        :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+        /* ── HEADER ─────────────────────────────────────────────────────────── */
+        header{background:rgba(10,14,26,.92);backdrop-filter:blur(20px);padding:0 1.5rem;height:var(--header-height);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:1.4rem;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem}.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+        .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap;display:inline-flex;align-items:center;gap:.3rem}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3);color:#000}
+
+        /* ── NAV ────────────────────────────────────────────────────────────── */
+        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-height);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
+        .sz-nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 1rem}
+        .sz-nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem}.sz-nav-link:hover{color:var(--text-main)}.sz-nav-link.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .badge-nav{font-size:.6rem;padding:1px 5px;border-radius:4px;font-weight:700}.badge-nav.red{background:var(--danger);color:#fff}.badge-nav.gold{background:var(--gold);color:#000}
+
+        /* ── STATS BANNER ───────────────────────────────────────────────────── */
+        .wins-banner{background:linear-gradient(135deg,rgba(245,158,11,.12) 0%,rgba(239,68,68,.08) 100%);border-bottom:1px solid rgba(245,158,11,.15);padding:.9rem 1.5rem;overflow:hidden}
+        .wins-banner-inner{max-width:1100px;margin:0 auto;display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
+        .banner-stat{display:flex;flex-direction:column;align-items:center;min-width:80px}
+        .banner-stat-num{font-size:1.5rem;font-weight:800;color:var(--gold);line-height:1.1}
+        .banner-stat-lbl{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+        .banner-divider{width:1px;height:36px;background:var(--card-border)}
+
+        /* ── MAIN WRAP ──────────────────────────────────────────────────────── */
+        .wins-wrap{max-width:780px;margin:0 auto;padding:1.5rem 1rem 4rem}
+
+        /* ── POST WIN BUTTON ────────────────────────────────────────────────── */
+        .post-win-trigger{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.1));border:1px dashed rgba(245,158,11,.4);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:.2s;margin-bottom:1.25rem}.post-win-trigger:hover{border-color:var(--gold);background:rgba(245,158,11,.12)}
+        .post-win-trigger p{font-size:.9rem;color:var(--text-muted);flex:1}
+        .btn-share-win{background:linear-gradient(135deg,var(--gold),#ef4444);color:#fff;border:none;padding:.55rem 1.25rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.2s;display:flex;align-items:center;gap:.4rem}.btn-share-win:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.35)}
+        .sign-in-nudge{font-size:.82rem;color:var(--text-dim);text-align:center;padding:.75rem;background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);border-radius:8px;margin-bottom:1.25rem}
+        .sign-in-nudge a{color:var(--primary);font-weight:600}
+
+        /* ── SUBMISSION FORM ────────────────────────────────────────────────── */
+        .win-form{background:var(--card-bg);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;display:none;animation:fadeIn .25s ease}
+        .win-form.visible{display:block}
+        .win-form-title{font-size:1.1rem;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.85rem}
+        .form-group{margin-bottom:.85rem}.form-group label{display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:.35rem;font-weight:600}
+        .form-input{width:100%;padding:.72rem 1rem;background:var(--surface);border:1px solid var(--card-border);color:var(--text-main);border-radius:8px;font-size:.92rem;outline:none;transition:.2s;font-family:inherit}.form-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+        textarea.form-input{resize:vertical;min-height:72px}
+
+        /* Upload zone */
+        .upload-zone{border:2px dashed var(--card-border);border-radius:10px;padding:1.4rem;text-align:center;cursor:pointer;transition:.2s;background:rgba(15,23,42,.5);position:relative;margin-bottom:.85rem}.upload-zone:hover,.upload-zone.dragover{border-color:var(--gold);background:rgba(245,158,11,.05)}.upload-zone.has-file{border-color:var(--accent);border-style:solid}
+        .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+        .upload-zone-icon{font-size:1.8rem;margin-bottom:.4rem;opacity:.7}
+        .upload-zone-text{font-size:.85rem;color:var(--text-muted);line-height:1.4}.upload-zone-text strong{color:var(--text-main)}
+        .upload-zone-hint{font-size:.72rem;color:var(--text-dim);margin-top:.3rem}
+        .upload-preview{display:none;position:relative;margin-bottom:.85rem}.upload-preview.visible{display:block}
+        .upload-preview img{width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--card-border)}
+        .upload-remove{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.15s}.upload-remove:hover{background:var(--danger)}
+        .upload-progress{height:3px;background:var(--card-border);border-radius:2px;overflow:hidden;margin-bottom:.85rem;display:none}.upload-progress.visible{display:block}
+        .upload-progress-bar{height:100%;background:linear-gradient(90deg,var(--gold),#ef4444);border-radius:2px;width:0;transition:width .3s}
+
+        .form-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:.5rem;flex-wrap:wrap}
+        .btn-cancel{padding:.65rem 1.25rem;background:transparent;color:var(--text-muted);border:1px solid var(--card-border);border-radius:8px;font-weight:600;font-size:.88rem;cursor:pointer;transition:.2s}.btn-cancel:hover{border-color:var(--text-main);color:var(--text-main)}
+        .btn-submit{padding:.65rem 1.5rem;background:linear-gradient(135deg,var(--gold),#ef4444);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.92rem;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:.4rem}.btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(245,158,11,.4)}.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .form-error{font-size:.82rem;color:var(--danger);margin-top:.5rem;display:none}.form-error.visible{display:block}
+
+        /* ── FEED CONTROLS ──────────────────────────────────────────────────── */
+        .feed-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem}
+        .feed-header h3{font-size:1rem;font-weight:700}
+        .filter-pills{display:flex;gap:.4rem;flex-wrap:wrap}
+        .filter-pill{padding:.38rem .9rem;background:transparent;border:1px solid var(--card-border);color:var(--text-muted);cursor:pointer;border-radius:20px;font-size:.82rem;font-weight:600;transition:.2s;white-space:nowrap}.filter-pill:hover{border-color:var(--text-main);color:var(--text-main)}.filter-pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+        .casino-filter{padding:.38rem .75rem;background:var(--surface);border:1px solid var(--card-border);color:var(--text-muted);border-radius:8px;font-size:.82rem;cursor:pointer;outline:none}
+
+        /* ── WIN CARD ───────────────────────────────────────────────────────── */
+        .win-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;transition:all .22s ease;margin-bottom:1rem;animation:fadeIn .3s ease;cursor:pointer}.win-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,158,11,.15)}
+        .win-card-header{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.05));padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border)}
+        .win-user{display:flex;align-items:center;gap:.75rem}
+        .win-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;font-size:.95rem}
+        .win-avatar img{width:100%;height:100%;object-fit:cover}
+        .win-user-name{font-size:.95rem;font-weight:700;color:var(--text-main);display:flex;align-items:center;gap:.35rem}
+        .badge-verified{width:16px;height:16px;background:var(--accent);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.55rem;color:#fff;flex-shrink:0}
+        .win-user-sub{font-size:.77rem;color:var(--text-muted);margin-top:.05rem}
+        .win-amount-badge{font-size:1.35rem;font-weight:800;color:var(--accent);letter-spacing:-.5px;white-space:nowrap}
+
+        .win-card-body{padding:1.1rem 1.25rem}
+        .win-screenshot{width:100%;max-height:260px;object-fit:cover;border-radius:8px;margin-bottom:.9rem;border:1px solid var(--card-border);display:block}
+        .win-game-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.6rem}
+        .win-tag{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:5px}
+        .win-tag-casino{background:rgba(139,92,246,.15);color:#8b5cf6;border:1px solid rgba(139,92,246,.2)}
+        .win-tag-game{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+        .win-multiplier{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.2);font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:5px}
+        .win-description{font-size:.86rem;color:var(--text-muted);line-height:1.5;margin-top:.5rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+        .win-card-footer{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1.25rem;border-top:1px solid var(--card-border);font-size:.8rem;color:var(--text-dim)}
+        .win-actions{display:flex;gap:.25rem;align-items:center}
+        .win-action-btn{background:none;border:none;cursor:pointer;padding:.35rem .6rem;border-radius:7px;font-size:.82rem;color:var(--text-dim);display:flex;align-items:center;gap:.3rem;transition:.2s;font-family:inherit;font-weight:600}.win-action-btn:hover{background:rgba(255,255,255,.05);color:var(--text-main)}
+        .win-action-btn.liked{color:var(--danger)}.win-action-btn.liked .heart-icon{animation:pop .3s ease}
+        .win-action-btn.liked svg,.win-action-btn:hover svg{stroke:var(--danger)}
+        .win-time{font-size:.75rem;color:var(--text-dim)}
+        .own-actions{display:flex;gap:.25rem}
+        .btn-edit-win,.btn-delete-win{background:none;border:none;cursor:pointer;padding:.3rem .55rem;border-radius:6px;font-size:.75rem;color:var(--text-dim);transition:.2s;font-family:inherit}.btn-edit-win:hover{color:var(--primary);background:rgba(139,92,246,.1)}.btn-delete-win:hover{color:var(--danger);background:rgba(239,68,68,.1)}
+
+        /* ── LOADING / EMPTY ────────────────────────────────────────────────── */
+        .skeleton{background:linear-gradient(90deg,var(--card-bg) 25%,rgba(255,255,255,.03) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:14px;height:160px;margin-bottom:1rem}
+        .empty-state{text-align:center;padding:3rem 1rem;color:var(--text-dim);border:1px dashed var(--card-border);border-radius:14px}
+        .empty-state .es-icon{font-size:2.5rem;margin-bottom:.75rem}
+        .empty-state p{font-size:.9rem;line-height:1.5}
+
+        /* ── DETAIL MODAL ───────────────────────────────────────────────────── */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;justify-content:center;align-items:flex-start;z-index:2000;opacity:0;visibility:hidden;transition:.25s;padding:1rem;overflow-y:auto;backdrop-filter:blur(6px)}.modal-overlay.active{opacity:1;visibility:visible}
+        .modal-box{background:var(--card-bg);border-radius:16px;width:100%;max-width:600px;border:1px solid var(--card-border);margin:auto;transform:translateY(20px);transition:transform .3s}.modal-overlay.active .modal-box{transform:translateY(0)}
+        .modal-hdr{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid var(--card-border)}
+        .modal-hdr h2{font-size:1.1rem;font-weight:800}
+        .modal-close{background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:.2rem;transition:.2s}.modal-close:hover{color:#fff;transform:rotate(90deg)}
+        .modal-body{padding:1.5rem}
+        .modal-screenshot{width:100%;border-radius:10px;max-height:340px;object-fit:cover;margin-bottom:1.25rem;border:1px solid var(--card-border)}
+        .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+        .detail-item{background:var(--surface);border:1px solid var(--card-border);border-radius:8px;padding:.75rem 1rem}
+        .detail-label{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:.25rem}
+        .detail-value{font-size:1rem;font-weight:700;color:var(--text-main)}
+        .modal-desc{font-size:.88rem;color:var(--text-muted);line-height:1.6;background:var(--surface);border:1px solid var(--card-border);border-radius:8px;padding:.9rem 1rem;margin-bottom:1.25rem}
+        .modal-actions{display:flex;justify-content:space-between;align-items:center;padding-top:1rem;border-top:1px solid var(--card-border)}
+
+        /* Comments */
+        .comments-section{border-top:1px solid var(--card-border);padding:1.25rem 1.5rem}
+        .comments-title{font-size:.9rem;font-weight:700;margin-bottom:1rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+        .comment-item{display:flex;gap:.75rem;margin-bottom:.85rem}
+        .comment-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+        .comment-avatar img{width:100%;height:100%;object-fit:cover}
+        .comment-body{flex:1;background:var(--surface);border:1px solid var(--card-border);border-radius:8px;padding:.6rem .85rem}
+        .comment-meta{display:flex;gap:.5rem;align-items:baseline;margin-bottom:.2rem}
+        .comment-author{font-size:.8rem;font-weight:700;color:var(--text-main)}
+        .comment-time{font-size:.72rem;color:var(--text-dim)}
+        .comment-text{font-size:.85rem;color:var(--text-muted);line-height:1.5}
+        .comment-form{display:flex;gap:.6rem;margin-top:.85rem}
+        .comment-input{flex:1;padding:.65rem .9rem;background:var(--surface);border:1px solid var(--card-border);color:var(--text-main);border-radius:8px;font-size:.88rem;outline:none;font-family:inherit;transition:.2s}.comment-input:focus{border-color:var(--primary)}
+        .btn-comment{padding:.65rem 1.1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.2s;white-space:nowrap}.btn-comment:hover{background:var(--primary-hover)}.btn-comment:disabled{opacity:.6;cursor:not-allowed}
+
+        /* Edit modal */
+        .edit-modal-box{max-width:480px}
+
+        /* ── TOAST ──────────────────────────────────────────────────────────── */
+        .toast{position:fixed;bottom:20px;right:20px;background:var(--card-bg);border-left:4px solid var(--accent);padding:.9rem 1.4rem;border-radius:6px;box-shadow:0 10px 15px rgba(0,0,0,.5);transform:translateY(120px);transition:.3s;z-index:3000;font-weight:600;max-width:90%;font-size:.9rem}.toast.error{border-left-color:var(--danger)}.toast.active{transform:translateY(0)}
+
+        footer{text-align:center;padding:2rem 1rem;color:var(--text-dim);border-top:1px solid var(--card-border);margin-top:2rem;font-size:.85rem}
+
+        @media(max-width:600px){
+            header{padding:0 .75rem;height:56px}:root{--header-height:56px}
+            .logo{font-size:1.1rem}
+            .wins-wrap{padding:1rem .75rem 3rem}
+            .form-row{grid-template-columns:1fr}
+            .detail-grid{grid-template-columns:1fr}
+            .win-amount-badge{font-size:1.1rem}
+            .post-win-trigger{flex-direction:column;align-items:flex-start;gap:.6rem}
+            .modal-overlay{padding:.5rem;align-items:flex-end}
+            .modal-box{border-radius:16px 16px 0 0;max-height:90vh;overflow-y:auto}
+            .wins-banner-inner{gap:1rem}
+            .banner-divider{display:none}
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header>
+    <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+    <div style="display:flex;align-items:center;gap:.75rem">
+        <div id="headerAuth"></div>
+        <a href="/premium.html" class="btn-gold">👑 Go Pro</a>
+    </div>
+</header>
+
+<nav class="sz-nav"><div class="sz-nav-inner">
+    <a class="sz-nav-link" href="/">🏠 Home</a>
+    <a class="sz-nav-link" href="/sportsbook.html">⚽ Sports <span class="badge-nav red">NEW</span></a>
+    <a class="sz-nav-link" href="/casinos.html">🎰 Casinos</a>
+    <a class="sz-nav-link" href="/picks.html">🎯 Picks <span class="badge-nav red">HOT</span></a>
+    <a class="sz-nav-link active" href="/wins.html">🏆 Wins</a>
+    <a class="sz-nav-link" href="/insights.html">📊 Insights <span class="badge-nav gold">PRO</span></a>
+    <a class="sz-nav-link" href="/discuss.html">💬 Community</a>
+    <a class="sz-nav-link" href="/premium.html">👑 Premium</a>
+</div></nav>
+
+<!-- ── STATS BANNER ───────────────────────────────────────────────────────── -->
+<div class="wins-banner">
+    <div class="wins-banner-inner">
+        <div class="banner-stat"><div class="banner-stat-num" id="bTotal">—</div><div class="banner-stat-lbl">Total Wins</div></div>
+        <div class="banner-divider"></div>
+        <div class="banner-stat"><div class="banner-stat-num" id="bBiggest">—</div><div class="banner-stat-lbl">Biggest Win</div></div>
+        <div class="banner-divider"></div>
+        <div class="banner-stat"><div class="banner-stat-num" id="bToday">—</div><div class="banner-stat-lbl">Today</div></div>
+        <div class="banner-divider"></div>
+        <div class="banner-stat"><div class="banner-stat-num" id="bUsers">—</div><div class="banner-stat-lbl">Players</div></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── WIN DETAIL MODAL ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal-box">
+        <div class="modal-hdr">
+            <h2 id="detailTitle">🏆 Win Details</h2>
+            <button class="modal-close" id="closeDetail" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body" id="detailBody"><!-- filled by JS --></div>
+        <div class="comments-section" id="commentsSection">
+            <div class="comments-title">Comments</div>
+            <div id="commentsList"></div>
+            <div id="commentFormWrap"><!-- filled by JS --></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── EDIT MODAL ─────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="editModal" role="dialog" aria-modal="true">
+    <div class="modal-box edit-modal-box">
+        <div class="modal-hdr">
+            <h2>✏️ Edit Win</h2>
+            <button class="modal-close" id="closeEdit">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group"><label for="eCasino">Casino</label><input type="text" class="form-input" id="eCasino" placeholder="e.g. Stake" maxlength="80"></div>
+                <div class="form-group"><label for="eGame">Game / Slot</label><input type="text" class="form-input" id="eGame" placeholder="e.g. Gates of Olympus" maxlength="100"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label for="eAmount">Win Amount ($)</label><input type="number" class="form-input" id="eAmount" placeholder="0.00" min="0" step="0.01"></div>
+                <div class="form-group"><label for="eMultiplier">Multiplier</label><input type="text" class="form-input" id="eMultiplier" placeholder="e.g. 150x" maxlength="20"></div>
+            </div>
+            <div class="form-group"><label for="eDesc">Description</label><textarea class="form-input" id="eDesc" placeholder="Tell us about this win..." maxlength="500"></textarea></div>
+            <div class="form-footer">
+                <button class="btn-cancel" id="cancelEdit">Cancel</button>
+                <button class="btn-submit" id="saveEditBtn">💾 Save Changes</button>
+            </div>
+            <div class="form-error" id="editError"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────────────────────── -->
+<div class="wins-wrap">
+
+    <!-- Sign-in nudge (shown when logged out) -->
+    <div class="sign-in-nudge" id="signInNudge" style="display:none">
+        <a href="/">Sign in</a> to share your wins with the community 🏆
+    </div>
+
+    <!-- Post-win trigger button -->
+    <div class="post-win-trigger" id="postWinTrigger" style="display:none" onclick="openForm()" role="button" tabindex="0" aria-label="Share your win">
+        <span style="font-size:1.4rem">🏆</span>
+        <p>Hit a big win? Share it with the SpinZone community!</p>
+        <button class="btn-share-win" onclick="event.stopPropagation();openForm()">Post Win ✨</button>
+    </div>
+
+    <!-- Submission form (collapsed by default) -->
+    <div class="win-form" id="winForm">
+        <div class="win-form-title">🏆 Share Your Win</div>
+
+        <div class="form-row">
+            <div class="form-group"><label for="wCasino">Casino <span style="color:var(--danger)">*</span></label><input type="text" class="form-input" id="wCasino" placeholder="e.g. Stake, BC.Game, Rollbit" maxlength="80" required autocomplete="off"></div>
+            <div class="form-group"><label for="wGame">Game / Slot</label><input type="text" class="form-input" id="wGame" placeholder="e.g. Gates of Olympus" maxlength="100" autocomplete="off"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="wAmount">Win Amount ($) <span style="color:var(--danger)">*</span></label><input type="number" class="form-input" id="wAmount" placeholder="0.00" min="0" step="0.01" required></div>
+            <div class="form-group"><label for="wMultiplier">Multiplier</label><input type="text" class="form-input" id="wMultiplier" placeholder="e.g. 150x" maxlength="20"></div>
+        </div>
+
+        <!-- Screenshot upload -->
+        <div class="form-group">
+            <label>Screenshot <span style="color:var(--text-dim);font-weight:400">(optional but encouraged!)</span></label>
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="screenshotFile" accept="image/jpeg,image/png,image/gif,image/webp" aria-label="Upload screenshot">
+                <div class="upload-zone-icon">📸</div>
+                <div class="upload-zone-text"><strong>Click to upload</strong> or drag &amp; drop</div>
+                <div class="upload-zone-hint">JPG, PNG, GIF, WEBP · Max 5 MB</div>
+            </div>
+            <div class="upload-preview" id="uploadPreview">
+                <img id="uploadPreviewImg" src="" alt="Screenshot preview">
+                <button class="upload-remove" id="removeScreenshot" type="button" aria-label="Remove screenshot">&times;</button>
+            </div>
+            <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadBar"></div></div>
+        </div>
+
+        <div class="form-group">
+            <label for="wDesc">Tell us about it</label>
+            <textarea class="form-input" id="wDesc" placeholder="How did it happen? What was the moment like? (optional)" maxlength="500"></textarea>
+        </div>
+
+        <div class="form-error" id="formError"></div>
+
+        <div class="form-footer">
+            <button class="btn-cancel" onclick="closeForm()">Cancel</button>
+            <button class="btn-submit" id="submitWinBtn">🏆 Post Win</button>
+        </div>
+    </div>
+
+    <!-- Feed header + filters -->
+    <div class="feed-header">
+        <h3>🔥 Live Wins Feed</h3>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <div class="filter-pills">
+                <button class="filter-pill active" data-sort="new">Newest</button>
+                <button class="filter-pill" data-sort="biggest">Biggest</button>
+                <button class="filter-pill" data-sort="liked">Most Liked</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win cards -->
+    <div id="winsGrid">
+        <div class="skeleton"></div>
+        <div class="skeleton" style="height:120px;opacity:.6"></div>
+        <div class="skeleton" style="height:100px;opacity:.4"></div>
+    </div>
+
+    <!-- Load more -->
+    <div style="text-align:center;margin-top:1.25rem;display:none" id="loadMoreWrap">
+        <button id="loadMoreBtn" class="btn-cancel" style="padding:.65rem 2rem">Load More</button>
+    </div>
+</div>
+
+<footer><p>SpinZone — Real Players. Real Wins. | 18+ Only. Please Gamble Responsibly.</p></footer>
+
+<script>
+    const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+    const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+    const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+    /* ── state ── */
+    let currentUser=null;
+    let userProfile=null;
+    let wins=[];
+    let likedWinIds=new Set();
+    let currentSort='new';
+    let currentOffset=0;
+    const PAGE_SIZE=20;
+    let selectedFile=null;
+    let editingWinId=null;
+
+    /* ── utils ── */
+    function esc(t){if(t==null)return'';const d=document.createElement('div');d.textContent=String(t);return d.innerHTML}
+    function timeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+    function fmt(n){const f=parseFloat(n)||0;return f>=1000?'$'+f.toLocaleString('en-US',{maximumFractionDigits:0}):'$'+f.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+    function showToast(m,err){const t=document.getElementById('toast');t.textContent=m;t.className=err?'toast active error':'toast active';setTimeout(()=>t.classList.remove('active'),3500)}
+    function avatarGrad(str){const h=[['#6366f1','#4f46e5'],['#10b981','#059669'],['#f59e0b','#d97706'],['#8b5cf6','#7c3aed'],['#ef4444','#dc2626']];const i=(str||'A').charCodeAt(0)%h.length;return`linear-gradient(135deg,${h[i][0]},${h[i][1]})`}
+
+    /* ── init ── */
+    async function init(){
+        try{
+            const{data:{session}}=await sb.auth.getSession();
+            if(session){
+                currentUser=session.user;
+                const{data:p}=await sb.from('user_profiles').select('username,display_name,profile_picture_url,is_verified').eq('id',currentUser.id).single().catch(()=>({data:null}));
+                if(!p){const{data:pp}=await sb.from('profiles').select('username,display_name,profile_picture_url,is_verified').eq('id',currentUser.id).single().catch(()=>({data:null}));userProfile=pp;}else{userProfile=p;}
+                await loadUserLikes();
+            }
+        }catch(e){}
+
+        renderHeaderAuth();
+        updateAuthUI();
+        await loadWins(true);
+        bindEvents();
+    }
+
+    function updateAuthUI(){
+        const nudge=document.getElementById('signInNudge');
+        const trigger=document.getElementById('postWinTrigger');
+        if(currentUser){if(nudge)nudge.style.display='none';if(trigger)trigger.style.display='flex';}
+        else{if(nudge)nudge.style.display='block';if(trigger)trigger.style.display='none';}
+    }
+
+    async function loadUserLikes(){
+        if(!currentUser)return;
+        try{
+            // Try 'likes' table with win_id column first
+            const{data}=await sb.from('likes').select('win_id').eq('user_id',currentUser.id).not('win_id','is',null);
+            if(data)likedWinIds=new Set(data.map(r=>r.win_id));
+        }catch(e){
+            try{
+                // Fallback: win_likes table
+                const{data}=await sb.from('win_likes').select('win_id').eq('user_id',currentUser.id);
+                if(data)likedWinIds=new Set(data.map(r=>r.win_id));
+            }catch(e2){}
+        }
+    }
+
+    /* ── load & render wins ── */
+    async function loadWins(reset=false){
+        if(reset){wins=[];currentOffset=0;document.getElementById('winsGrid').innerHTML='<div class="skeleton"></div><div class="skeleton" style="height:120px;opacity:.6"></div>';}
+
+        let q=sb.from('wins')
+            .select('*, profiles!left(username,display_name,is_verified,profile_picture_url), likes!left(id)')
+            .range(currentOffset,currentOffset+PAGE_SIZE-1);
+
+        if(currentSort==='biggest')q=q.order('win_amount',{ascending:false});
+        else q=q.order('created_at',{ascending:false});
+
+        const{data,error}=await q;
+
+        if(error){
+            // Try simpler query without joins
+            const{data:bare}=await sb.from('wins').select('*').order('created_at',{ascending:false}).range(currentOffset,currentOffset+PAGE_SIZE-1);
+            if(bare)processAndRender(bare,reset);
+            return;
+        }
+
+        processAndRender(data||[],reset);
+    }
+
+    function processAndRender(raw,reset){
+        const normalised=raw.map(w=>({
+            ...w,
+            display_name:w.profiles?.display_name||w.profiles?.username||w.username||'Player',
+            is_verified:w.profiles?.is_verified||false,
+            profile_picture_url:w.profiles?.profile_picture_url||null,
+            like_count:Array.isArray(w.likes)?w.likes.length:(w.likes_count||0),
+        }));
+
+        if(currentSort==='liked')normalised.sort((a,b)=>b.like_count-a.like_count);
+
+        wins=reset?normalised:[...wins,...normalised];
+        currentOffset+=raw.length;
+        updateBannerStats();
+        renderWins();
+        document.getElementById('loadMoreWrap').style.display=raw.length===PAGE_SIZE?'block':'none';
+    }
+
+    function updateBannerStats(){
+        const total=wins.length+(currentOffset>wins.length?currentOffset:0);
+        document.getElementById('bTotal').textContent=total;
+        const biggest=wins.reduce((mx,w)=>Math.max(mx,parseFloat(w.win_amount)||0),0);
+        document.getElementById('bBiggest').textContent=biggest?fmt(biggest):'—';
+        const today=wins.filter(w=>{const d=new Date(w.created_at);return d.toDateString()===new Date().toDateString()}).length;
+        document.getElementById('bToday').textContent=today;
+        const users=new Set(wins.map(w=>w.user_id)).size;
+        document.getElementById('bUsers').textContent=users;
+    }
+
+    function renderWins(){
+        const grid=document.getElementById('winsGrid');
+        if(!wins.length){
+            grid.innerHTML=`<div class="empty-state"><div class="es-icon">🏆</div><p>No wins yet — be the first to post one!</p></div>`;
+            return;
+        }
+        grid.innerHTML=wins.map(buildWinCard).join('');
+    }
+
+    /* ── WinCard component ── */
+    function buildWinCard(w){
+        const isOwn=currentUser&&currentUser.id===w.user_id;
+        const liked=likedWinIds.has(w.id);
+        const name=esc(w.display_name||w.username||'Player');
+        const initial=(w.display_name||w.username||'P').charAt(0).toUpperCase();
+        const avatarHtml=w.profile_picture_url
+            ?`<img src="${esc(w.profile_picture_url)}" alt="${name}">`
+            :initial;
+        const grad=avatarGrad(w.display_name||w.username||'P');
+
+        return `
+        <article class="win-card" onclick="openDetail('${esc(w.id)}')" data-id="${esc(w.id)}">
+            <div class="win-card-header" onclick="void(0)">
+                <div class="win-user">
+                    <a href="/profile.html?id=${esc(w.user_id)}" class="win-avatar" style="background:${grad}" onclick="event.stopPropagation()">${avatarHtml}</a>
+                    <div>
+                        <div class="win-user-name">
+                            <a href="/profile.html?id=${esc(w.user_id)}" onclick="event.stopPropagation()" style="color:inherit">${name}</a>
+                            ${w.is_verified?'<span class="badge-verified" title="Verified">✓</span>':''}
+                        </div>
+                        <div class="win-user-sub">${timeAgo(w.created_at)}</div>
+                    </div>
+                </div>
+                <div class="win-amount-badge">${fmt(w.win_amount)}</div>
+            </div>
+            <div class="win-card-body">
+                ${w.screenshot_url?`<img class="win-screenshot" src="${esc(w.screenshot_url)}" alt="Win screenshot" loading="lazy" onclick="event.stopPropagation();openDetail('${esc(w.id)}')">`:'' }
+                <div class="win-game-row">
+                    ${w.casino_name?`<span class="win-tag win-tag-casino">🎰 ${esc(w.casino_name)}</span>`:''}
+                    ${w.slot_name?`<span class="win-tag win-tag-game">🎮 ${esc(w.slot_name)}</span>`:''}
+                    ${w.win_multiplier?`<span class="win-multiplier">⚡ ${esc(w.win_multiplier)}</span>`:''}
+                </div>
+                ${w.description?`<div class="win-description">${esc(w.description)}</div>`:''}
+            </div>
+            <div class="win-card-footer" onclick="event.stopPropagation()">
+                <div class="win-actions">
+                    <button class="win-action-btn ${liked?'liked':''}" onclick="handleLike('${esc(w.id)}')" aria-label="Like" title="Like this win">
+                        <span class="heart-icon">${liked?'❤️':'🤍'}</span>
+                        <span class="like-count-${esc(w.id)}">${w.like_count}</span>
+                    </button>
+                    <button class="win-action-btn" onclick="openDetail('${esc(w.id)}')" aria-label="Comments">
+                        💬 <span class="comment-count-${esc(w.id)}">${w.comments_count||0}</span>
+                    </button>
+                </div>
+                ${isOwn?`<div class="own-actions">
+                    <button class="btn-edit-win" onclick="openEdit('${esc(w.id)}')" title="Edit">✏️</button>
+                    <button class="btn-delete-win" onclick="handleDelete('${esc(w.id)}')" title="Delete">🗑️</button>
+                </div>`:''}
+            </div>
+        </article>`;
+    }
+
+    /* ── like ── */
+    async function handleLike(winId){
+        if(!currentUser){showToast('Sign in to like wins 👆',true);return}
+        const liked=likedWinIds.has(winId);
+        // Optimistic update
+        const win=wins.find(w=>String(w.id)===String(winId));
+        if(!win)return;
+        if(liked){likedWinIds.delete(winId);win.like_count=Math.max(0,win.like_count-1);}
+        else{likedWinIds.add(winId);win.like_count++;}
+        // Update DOM directly instead of full re-render
+        const countEls=document.querySelectorAll('.like-count-'+winId);
+        const btnEls=document.querySelectorAll(`[onclick="handleLike('${winId}')"]`);
+        countEls.forEach(el=>el.textContent=win.like_count);
+        btnEls.forEach(el=>{
+            el.classList.toggle('liked',!liked);
+            const heart=el.querySelector('.heart-icon');
+            if(heart)heart.textContent=!liked?'❤️':'🤍';
+        });
+
+        try{
+            if(liked){
+                await sb.from('likes').delete().eq('win_id',winId).eq('user_id',currentUser.id);
+                // fallback: win_likes table
+            }else{
+                const{error}=await sb.from('likes').insert({win_id:winId,user_id:currentUser.id});
+                if(error&&error.code==='42P01'){
+                    await sb.from('win_likes').insert({win_id:winId,user_id:currentUser.id});
+                }
+            }
+        }catch(e){
+            // Revert on error
+            if(liked){likedWinIds.add(winId);win.like_count++;}
+            else{likedWinIds.delete(winId);win.like_count=Math.max(0,win.like_count-1);}
+            countEls.forEach(el=>el.textContent=win.like_count);
+            btnEls.forEach(el=>{el.classList.toggle('liked',liked);const h=el.querySelector('.heart-icon');if(h)h.textContent=liked?'❤️':'🤍';});
+        }
+    }
+
+    /* ── detail modal ── */
+    async function openDetail(winId){
+        const win=wins.find(w=>String(w.id)===String(winId));
+        if(!win)return;
+        const name=esc(win.display_name||win.username||'Player');
+        const liked=likedWinIds.has(winId);
+
+        document.getElementById('detailBody').innerHTML=`
+            ${win.screenshot_url?`<img class="modal-screenshot" src="${esc(win.screenshot_url)}" alt="Win screenshot">`:''}
+            <div class="detail-grid">
+                <div class="detail-item"><div class="detail-label">Win Amount</div><div class="detail-value" style="color:var(--accent)">${fmt(win.win_amount)}</div></div>
+                <div class="detail-item"><div class="detail-label">Casino</div><div class="detail-value">${esc(win.casino_name||'—')}</div></div>
+                <div class="detail-item"><div class="detail-label">Game / Slot</div><div class="detail-value">${esc(win.slot_name||'—')}</div></div>
+                <div class="detail-item"><div class="detail-label">Multiplier</div><div class="detail-value" style="color:var(--gold)">${esc(win.win_multiplier||'—')}</div></div>
+            </div>
+            ${win.description?`<div class="modal-desc">${esc(win.description)}</div>`:''}
+            <div class="modal-actions">
+                <div style="font-size:.85rem;color:var(--text-muted)">By <a href="/profile.html?id=${esc(win.user_id)}" style="color:var(--primary)">${name}</a> · ${timeAgo(win.created_at)}</div>
+                <button class="win-action-btn ${liked?'liked':''}" id="modalLikeBtn" onclick="handleLike('${esc(win.id)}');this.classList.toggle('liked');const h=this.querySelector('.heart-icon');if(h)h.textContent=this.classList.contains('liked')?'❤️':'🤍'" style="border:1px solid var(--card-border);border-radius:8px;padding:.45rem .9rem">
+                    <span class="heart-icon">${liked?'❤️':'🤍'}</span> <span class="like-count-${esc(win.id)}">${win.like_count}</span>
+                </button>
+            </div>
+        `;
+
+        // Load comments
+        loadComments(winId);
+        document.getElementById('detailModal').classList.add('active');
+    }
+
+    async function loadComments(winId){
+        const list=document.getElementById('commentsList');
+        const formWrap=document.getElementById('commentFormWrap');
+        list.innerHTML='<div style="color:var(--text-dim);font-size:.85rem">Loading comments…</div>';
+
+        try{
+            const{data:comments}=await sb.from('comments')
+                .select('*, profiles!left(username,display_name,profile_picture_url)')
+                .eq('win_id',winId)
+                .order('created_at',{ascending:true})
+                .limit(50);
+
+            if(!comments||!comments.length){
+                list.innerHTML='<div style="color:var(--text-dim);font-size:.85rem;padding:.5rem 0">No comments yet. Be the first!</div>';
+            }else{
+                list.innerHTML=comments.map(c=>{
+                    const cname=c.profiles?.display_name||c.profiles?.username||'Player';
+                    const cinit=cname.charAt(0).toUpperCase();
+                    const cavatar=c.profiles?.profile_picture_url
+                        ?`<img src="${esc(c.profiles.profile_picture_url)}" alt="${esc(cname)}">`
+                        :cinit;
+                    return`<div class="comment-item">
+                        <a href="/profile.html?id=${esc(c.user_id)}" class="comment-avatar" style="background:${avatarGrad(cname)};text-decoration:none;color:#fff">${cavatar}</a>
+                        <div class="comment-body">
+                            <div class="comment-meta">
+                                <span class="comment-author">${esc(cname)}</span>
+                                <span class="comment-time">${timeAgo(c.created_at)}</span>
+                            </div>
+                            <div class="comment-text">${esc(c.content)}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Comment form
+            if(currentUser){
+                formWrap.innerHTML=`<div class="comment-form">
+                    <input class="comment-input" id="commentInput" placeholder="Add a comment…" maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment('${esc(winId)}')}" autocomplete="off">
+                    <button class="btn-comment" onclick="submitComment('${esc(winId)}')">Post</button>
+                </div>`;
+            }else{
+                formWrap.innerHTML=`<p style="font-size:.82rem;color:var(--text-dim);margin-top:.75rem"><a href="/" style="color:var(--primary)">Sign in</a> to comment.</p>`;
+            }
+        }catch(e){
+            list.innerHTML='<div style="color:var(--text-dim);font-size:.85rem">Could not load comments.</div>';
+        }
+    }
+
+    async function submitComment(winId){
+        const input=document.getElementById('commentInput');
+        const btn=document.querySelector('.btn-comment');
+        const text=input?.value.trim();
+        if(!text||!currentUser)return;
+        if(btn){btn.disabled=true;btn.textContent='Posting…';}
+        try{
+            const{error}=await sb.from('comments').insert({win_id:winId,user_id:currentUser.id,content:text,created_at:new Date().toISOString()});
+            if(error)throw error;
+            if(input)input.value='';
+            // Update comment count optimistically
+            const win=wins.find(w=>String(w.id)===String(winId));
+            if(win){win.comments_count=(win.comments_count||0)+1;document.querySelectorAll('.comment-count-'+winId).forEach(el=>el.textContent=win.comments_count)}
+            loadComments(winId);
+        }catch(e){showToast('Failed to post comment',true);}
+        finally{if(btn){btn.disabled=false;btn.textContent='Post';}}
+    }
+
+    /* ── delete ── */
+    async function handleDelete(winId){
+        if(!confirm('Delete this win? This cannot be undone.'))return;
+        try{
+            // Delete likes
+            await sb.from('likes').delete().eq('win_id',winId).catch(()=>{});
+            await sb.from('win_likes').delete().eq('win_id',winId).catch(()=>{});
+            await sb.from('comments').delete().eq('win_id',winId).catch(()=>{});
+
+            const win=wins.find(w=>String(w.id)===String(winId));
+            if(win?.screenshot_path){
+                await sb.storage.from('win-screenshots').remove([win.screenshot_path]).catch(()=>{});
+            }
+            const{error}=await sb.from('wins').delete().eq('id',winId).eq('user_id',currentUser.id);
+            if(error)throw error;
+            wins=wins.filter(w=>String(w.id)!==String(winId));
+            renderWins();
+            updateBannerStats();
+            showToast('Win deleted.');
+        }catch(e){showToast('Failed to delete: '+(e.message||''),true)}
+    }
+
+    /* ── edit modal ── */
+    function openEdit(winId){
+        event.stopPropagation();
+        const win=wins.find(w=>String(w.id)===String(winId));
+        if(!win)return;
+        editingWinId=winId;
+        document.getElementById('eCasino').value=win.casino_name||'';
+        document.getElementById('eGame').value=win.slot_name||'';
+        document.getElementById('eAmount').value=win.win_amount||'';
+        document.getElementById('eMultiplier').value=win.win_multiplier||'';
+        document.getElementById('eDesc').value=win.description||'';
+        document.getElementById('editError').textContent='';
+        document.getElementById('editError').classList.remove('visible');
+        document.getElementById('editModal').classList.add('active');
+    }
+
+    document.getElementById('saveEditBtn').addEventListener('click',async()=>{
+        if(!editingWinId)return;
+        const btn=document.getElementById('saveEditBtn');
+        btn.disabled=true;btn.textContent='Saving…';
+        const errEl=document.getElementById('editError');
+        errEl.classList.remove('visible');
+        try{
+            const updates={
+                casino_name:document.getElementById('eCasino').value.trim(),
+                slot_name:document.getElementById('eGame').value.trim()||null,
+                win_amount:parseFloat(document.getElementById('eAmount').value)||0,
+                win_multiplier:document.getElementById('eMultiplier').value.trim()||null,
+                description:document.getElementById('eDesc').value.trim()||null,
+            };
+            if(!updates.casino_name){errEl.textContent='Casino name is required.';errEl.classList.add('visible');return;}
+            const{error}=await sb.from('wins').update({...updates,updated_at:new Date().toISOString()}).eq('id',editingWinId).eq('user_id',currentUser.id);
+            if(error)throw error;
+            // Update local state
+            const idx=wins.findIndex(w=>String(w.id)===String(editingWinId));
+            if(idx>-1)Object.assign(wins[idx],updates);
+            document.getElementById('editModal').classList.remove('active');
+            renderWins();
+            showToast('Win updated! ✅');
+        }catch(e){errEl.textContent='Failed to save: '+(e.message||'');errEl.classList.add('visible');}
+        finally{btn.disabled=false;btn.innerHTML='💾 Save Changes';}
+    });
+
+    /* ── submission form ── */
+    function openForm(){document.getElementById('winForm').classList.add('visible');document.getElementById('winForm').scrollIntoView({behavior:'smooth',block:'start'})}
+    function closeForm(){document.getElementById('winForm').classList.remove('visible');resetForm()}
+    function resetForm(){
+        ['wCasino','wGame','wMultiplier','wDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+        const amt=document.getElementById('wAmount');if(amt)amt.value='';
+        selectedFile=null;
+        const prev=document.getElementById('uploadPreview');if(prev)prev.classList.remove('visible');
+        const previewImg=document.getElementById('uploadPreviewImg');if(previewImg)previewImg.src='';
+        const zone=document.getElementById('uploadZone');if(zone)zone.classList.remove('has-file');
+        const prog=document.getElementById('uploadProgress');if(prog)prog.classList.remove('visible');
+        const bar=document.getElementById('uploadBar');if(bar)bar.style.width='0';
+        const err=document.getElementById('formError');if(err){err.textContent='';err.classList.remove('visible');}
+    }
+
+    document.getElementById('submitWinBtn').addEventListener('click',async()=>{
+        if(!currentUser){showToast('Please sign in to post wins.',true);return}
+        const casino=document.getElementById('wCasino').value.trim();
+        const amount=parseFloat(document.getElementById('wAmount').value);
+        const errEl=document.getElementById('formError');
+        errEl.classList.remove('visible');
+
+        if(!casino){errEl.textContent='Casino name is required.';errEl.classList.add('visible');document.getElementById('wCasino').focus();return}
+        if(!amount||amount<=0){errEl.textContent='Please enter a valid win amount.';errEl.classList.add('visible');document.getElementById('wAmount').focus();return}
+        if(selectedFile&&selectedFile.size>5*1024*1024){errEl.textContent='Image must be under 5 MB.';errEl.classList.add('visible');return}
+
+        const btn=document.getElementById('submitWinBtn');
+        btn.disabled=true;btn.textContent='Posting…';
+
+        let screenshotUrl=null;
+        let screenshotPath=null;
+
+        try{
+            // 1 – Upload screenshot
+            if(selectedFile){
+                const prog=document.getElementById('uploadProgress');
+                const bar=document.getElementById('uploadBar');
+                if(prog)prog.classList.add('visible');
+                if(bar)bar.style.width='30%';
+
+                const ext=selectedFile.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+                screenshotPath=`${currentUser.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+                const{error:upErr}=await sb.storage.from('win-screenshots').upload(screenshotPath,selectedFile,{contentType:selectedFile.type,upsert:false});
+                if(upErr)throw upErr;
+                if(bar)bar.style.width='75%';
+                const{data:{publicUrl}}=sb.storage.from('win-screenshots').getPublicUrl(screenshotPath);
+                screenshotUrl=publicUrl;
+                if(bar)bar.style.width='100%';
+            }
+
+            // 2 – Insert win row
+            const displayName=userProfile?.display_name||userProfile?.username||currentUser.email?.split('@')[0]||'Player';
+            const{data:newWin,error:insertErr}=await sb.from('wins').insert({
+                user_id:currentUser.id,
+                username:displayName,
+                casino_name:casino,
+                slot_name:document.getElementById('wGame').value.trim()||null,
+                win_amount:amount,
+                win_multiplier:document.getElementById('wMultiplier').value.trim()||null,
+                description:document.getElementById('wDesc').value.trim()||null,
+                screenshot_url:screenshotUrl,
+                screenshot_path:screenshotPath,
+                created_at:new Date().toISOString(),
+            }).select().single();
+
+            if(insertErr)throw insertErr;
+
+            // 3 – Prepend to local list and re-render
+            if(newWin){
+                newWin.display_name=displayName;newWin.is_verified=false;newWin.like_count=0;
+                wins.unshift(newWin);
+                updateBannerStats();
+                renderWins();
+            }
+
+            closeForm();
+            showToast('Win posted! 🎉 The community can see it now.');
+        }catch(e){
+            console.error(e);
+            errEl.textContent='Failed to post: '+(e.message||'Unknown error');
+            errEl.classList.add('visible');
+            // If insert failed but screenshot uploaded, remove orphaned file
+            if(screenshotPath&&!screenshotUrl){sb.storage.from('win-screenshots').remove([screenshotPath]).catch(()=>{})}
+        }finally{
+            btn.disabled=false;btn.innerHTML='🏆 Post Win';
+        }
+    });
+
+    /* ── upload zone ── */
+    function bindEvents(){
+        const zone=document.getElementById('uploadZone');
+        const fileInput=document.getElementById('screenshotFile');
+        const removeBtn=document.getElementById('removeScreenshot');
+
+        if(fileInput){
+            fileInput.addEventListener('change',e=>{
+                const f=e.target.files[0];
+                if(f)setSelectedFile(f);
+            });
+        }
+
+        if(zone){
+            zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover')});
+            zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+            zone.addEventListener('drop',e=>{
+                e.preventDefault();zone.classList.remove('dragover');
+                const f=e.dataTransfer.files[0];
+                if(f&&f.type.startsWith('image/'))setSelectedFile(f);
+            });
+        }
+
+        if(removeBtn){
+            removeBtn.addEventListener('click',e=>{
+                e.stopPropagation();
+                selectedFile=null;
+                document.getElementById('uploadPreviewImg').src='';
+                document.getElementById('uploadPreview').classList.remove('visible');
+                document.getElementById('uploadZone').classList.remove('has-file');
+                if(fileInput)fileInput.value='';
+            });
+        }
+
+        // Filter pills
+        document.querySelectorAll('.filter-pill').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+                document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSort=btn.dataset.sort;
+                loadWins(true);
+            });
+        });
+
+        // Load more
+        const lmBtn=document.getElementById('loadMoreBtn');
+        if(lmBtn)lmBtn.addEventListener('click',()=>loadWins(false));
+
+        // Close modals
+        document.getElementById('closeDetail').addEventListener('click',()=>document.getElementById('detailModal').classList.remove('active'));
+        document.getElementById('closeEdit').addEventListener('click',()=>document.getElementById('editModal').classList.remove('active'));
+        document.getElementById('cancelEdit').addEventListener('click',()=>document.getElementById('editModal').classList.remove('active'));
+        document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active')}));
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active'))});
+    }
+
+    function setSelectedFile(file){
+        if(!file.type.startsWith('image/')){showToast('Please select an image file.',true);return}
+        if(file.size>5*1024*1024){showToast('Image must be under 5 MB.',true);return}
+        selectedFile=file;
+        const reader=new FileReader();
+        reader.onload=e=>{
+            const img=document.getElementById('uploadPreviewImg');
+            const prev=document.getElementById('uploadPreview');
+            const zone=document.getElementById('uploadZone');
+            if(img)img.src=e.target.result;
+            if(prev)prev.classList.add('visible');
+            if(zone)zone.classList.add('has-file');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    /* ── header auth ── */
+    async function renderHeaderAuth(){
+        const el=document.getElementById('headerAuth');
+        if(!el)return;
+        if(currentUser){
+            const name=userProfile?.display_name||userProfile?.username||currentUser.email?.split('@')[0]||'User';
+            el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center">
+                <a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a>
+                <button onclick="sb.auth.signOut().then(()=>location.href='/')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.82rem">Sign out</button>
+            </div>`;
+        }else{
+            el.innerHTML=`<a href="/" style="color:var(--text-muted);font-size:.85rem;font-weight:600">Sign In</a>`;
+        }
+    }
+
+    // Expose openDetail globally for inline onclick
+    window.openDetail=openDetail;
+    window.openEdit=openEdit;
+    window.handleDelete=handleDelete;
+    window.handleLike=handleLike;
+    window.submitComment=submitComment;
+    window.openForm=openForm;
+    window.closeForm=closeForm;
+
+    init();
+</script>
+</body>
+</html>
