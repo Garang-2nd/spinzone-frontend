@@ -327,13 +327,13 @@
 </head>
 <body>
     <header>
-        <a href="#" onclick="showPage('home'); return false;" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+        <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
         <div style="display:flex;align-items:center;gap:.75rem">
             <div class="user-actions" id="authButtons" aria-live="polite">
                 <button class="btn btn-outline" onclick="initiateAuthFlow(true)">Sign In</button>
                 <button class="btn btn-primary" onclick="initiateAuthFlow(false)">Join Community</button>
             </div>
-            <button class="btn-gold" onclick="showPage('premium')">👑 Go Pro</button>
+            <a href="/premium.html" class="btn-gold" style="text-decoration:none">👑 Go Pro</a>
         </div>
     </header>
     <div class="live-feed-container" id="liveFeedContainer" style="display:none">
@@ -344,14 +344,14 @@
         <div class="feed-track" id="feedTrack"></div>
     </div>
     <nav class="sz-nav"><div class="sz-nav-inner">
-        <a class="sz-nav-link active" href="#" onclick="showPage('home'); return false;">🏠 Home</a>
-        <a class="sz-nav-link" href="#" onclick="showPage('sports'); return false;">⚽ Sports <span class="badge-nav red">NEW</span></a>
-        <a class="sz-nav-link" href="#" onclick="showPage('casinos'); return false;">🎰 Casinos</a>
-        <a class="sz-nav-link" href="#" onclick="showPage('picks'); return false;">🎯 Picks <span class="badge-nav red">HOT</span></a>
-        <a class="sz-nav-link" href="#" onclick="showPage('wins'); return false;">🏆 Wins</a>
-        <a class="sz-nav-link" href="#" onclick="showPage('insights'); return false;">📊 Insights <span class="badge-nav gold">PRO</span></a>
-        <a class="sz-nav-link" href="#" onclick="showPage('community'); return false;">💬 Community</a>
-        <a class="sz-nav-link" href="#" onclick="showPage('premium'); return false;">👑 Premium</a>
+        <a class="sz-nav-link active" href="/">🏠 Home</a>
+        <a class="sz-nav-link" href="/sportsbook.html">⚽ Sports <span class="badge-nav red">NEW</span></a>
+        <a class="sz-nav-link" href="/casinos.html">🎰 Casinos</a>
+        <a class="sz-nav-link" href="/picks.html">🎯 Picks <span class="badge-nav red">HOT</span></a>
+        <a class="sz-nav-link" href="/wins.html">🏆 Wins</a>
+        <a class="sz-nav-link" href="/insights.html">📊 Insights <span class="badge-nav gold">PRO</span></a>
+        <a class="sz-nav-link" href="/discuss.html">💬 Community</a>
+        <a class="sz-nav-link" href="/premium.html">👑 Premium</a>
     </div></nav>
 
     <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">Welcome Back</h2><button class="close-modal" id="closeAuthModal" aria-label="Close modal">&times;</button></div><div class="auth-error" id="authError"></div><button class="btn-google" id="googleSignIn"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button><div class="auth-divider"><span>or</span></div><form id="authForm"><div class="form-group" id="usernameGroup"><label for="username">Username</label><input type="text" id="username" class="form-input" placeholder="Choose a username" autocomplete="username"></div><div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email" required></div><div class="form-group"><label for="password">Password</label><input type="password" id="password" class="form-input" placeholder="Min. 6 characters" autocomplete="current-password" required minlength="6"></div><button type="submit" class="btn btn-primary btn-full" id="submitBtn">Sign In</button></form><p style="margin-top:1.5rem;font-size:.9rem;color:var(--text-muted);text-align:center"><span id="toggleAuthText">Don't have an account?</span> <button id="toggleAuthMode" style="background:none;border:none;color:var(--primary);font-weight:bold;cursor:pointer;text-decoration:underline">Sign up</button></p></div></div>
@@ -377,14 +377,14 @@
             </div>
             <div class="hero-cta" id="heroCTA" style="display:none">
                 <button class="btn btn-primary" onclick="initiateAuthFlow(false)">Join Discussion</button>
-                <button class="btn btn-outline" onclick="showPage('premium')">Go Premium</button>
+                <button class="btn btn-outline" onclick="location.href='/premium.html'">Go Premium</button>
             </div>
         </div>
     </div>
 
     <!-- TODAY'S PICKS -->
     <div class="new-section">
-        <div class="section-hdr">🎯 Today's Picks — March 13<a href="#" onclick="showPage('picks'); return false;" class="see-all">View All Picks →</a></div>
+        <div class="section-hdr">🎯 Today's Picks — March 13<a href="#" onclick="location.href='/picks.html'; return false;" class="see-all">View All Picks →</a></div>
         <div class="record-bar">
             <div class="rec-item"><div class="rv green">67-43</div><div class="rl">Season Record</div></div>
             <div class="rec-item"><div class="rv gold">60.9%</div><div class="rl">Win Rate</div></div>
@@ -417,7 +417,7 @@
     
     <!-- CASINOS -->
     <div class="new-section">
-        <div class="section-hdr">🎰 Top Rated Casinos<a href="#" onclick="showPage('casinos'); return false;" class="see-all">Browse All →</a></div>
+        <div class="section-hdr">🎰 Top Rated Casinos<a href="#" onclick="location.href='/casinos.html'; return false;" class="see-all">Browse All →</a></div>
         <div class="fpill-row" id="casinoFilters">
             <div class="fpill active" data-filter="all">All</div>
             <div class="fpill" data-filter="featured">🔥 Featured</div>
@@ -468,7 +468,7 @@
 
     <!-- PLAYER WINS -->
     <div class="new-section">
-        <div class="section-hdr">🏆 Recent Player Wins<a href="#" onclick="showPage('wins'); return false;" class="see-all">View All →</a></div>
+        <div class="section-hdr">🏆 Recent Player Wins<a href="#" onclick="location.href='/wins.html'; return false;" class="see-all">View All →</a></div>
         <div class="grid-2" id="homeWinsGrid">
             <div class="ns-card hw-card"><div class="hw-av" style="background:linear-gradient(135deg,var(--primary),var(--accent))">AK</div><div class="hw-body"><div class="hw-user">AceKing42 <span class="vf">✓</span></div><div class="hw-det">Sweet Bonanza · Stake Casino</div><div class="hw-amt">$5,420 <span class="mx">542x multiplier</span></div><div class="hw-time">12 minutes ago</div></div></div>
             <div class="ns-card hw-card"><div class="hw-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JP</div><div class="hw-body"><div class="hw-user">JackpotJane</div><div class="hw-det">Lightning Roulette · BC.Game</div><div class="hw-amt">$2,150 <span class="mx">430x</span></div><div class="hw-time">34 minutes ago</div></div></div>
@@ -481,21 +481,21 @@
     
     <!-- BETTING INSIGHTS -->
     <div class="new-section">
-        <div class="section-hdr">📊 Betting Insights<a href="#" onclick="showPage('insights'); return false;" class="see-all">View All →</a></div>
+        <div class="section-hdr">📊 Betting Insights<a href="#" onclick="location.href='/insights.html'; return false;" class="see-all">View All →</a></div>
         <div class="grid-3">
-            <a href="#" onclick="showPage('insights'); return false;" class="ns-card ins-card" style="display:block;text-decoration:none;color:inherit">
+            <a href="#" onclick="location.href='/insights.html'; return false;" class="ns-card ins-card" style="display:block;text-decoration:none;color:inherit">
                 <div class="ins-cat">📈 Market Analysis</div>
                 <div class="ins-title">NBA Playoffs: Why Underdogs Are Covering at a Historic Rate</div>
                 <div class="ins-preview">Through 42 playoff games, underdogs are covering the spread at 58.3%, the highest rate since 2018. Here's how to exploit this trend in your next bets.</div>
                 <div class="ins-footer"><span>5 min read</span><span>🔓 Free</span></div>
             </a>
-            <a href="#" onclick="showPage('premium'); return false;" class="ns-card ins-card ins-locked" style="display:block;text-decoration:none;color:inherit">
+            <a href="/premium.html" class="ns-card ins-card ins-locked" style="display:block;text-decoration:none;color:inherit">
                 <div class="ins-cat">🎯 Advanced Strategy</div>
                 <div class="ins-title">The Kelly Criterion: How to Size Your Bets Like a Pro</div>
                 <div class="ins-preview">Professional bettors don't use flat betting. They use mathematical formulas to determine exactly how much to wager on each bet based on their edge.</div>
                 <div class="ins-footer"><span>8 min read</span><span>👑 Pro Only</span></div>
             </a>
-            <a href="#" onclick="showPage('insights'); return false;" class="ns-card ins-card" style="display:block;text-decoration:none;color:inherit">
+            <a href="#" onclick="location.href='/insights.html'; return false;" class="ns-card ins-card" style="display:block;text-decoration:none;color:inherit">
                 <div class="ins-cat">📊 Statistics</div>
                 <div class="ins-title">Premier League BTTS Trends: Which Teams to Target</div>
                 <div class="ins-preview">Both Teams to Score is one of the most popular football markets. We analyzed 380 matches to find the most profitable teams to target.</div>
@@ -506,7 +506,7 @@
 
     <!-- COMMUNITY DISCUSSIONS -->
     <div class="new-section">
-        <div class="section-hdr">💬 Community Discussions<a href="#" onclick="showPage('community'); return false;" class="see-all">View All →</a></div>
+        <div class="section-hdr">💬 Community Discussions<a href="/discuss.html" class="see-all">View All →</a></div>
         <div style="display:flex;flex-direction:column;gap:1rem" id="homeDiscussions">
             <div class="loading">Loading discussions...</div>
         </div>
@@ -517,9 +517,9 @@
         <h2>Upgrade to <em>SpinZone Pro</em></h2>
         <p>Unlock premium picks, advanced insights, exclusive casino deals, and a proven winning edge.</p>
         <div class="prc-row">
-            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-free" style="text-decoration:none;color:inherit">Free — $0</a>
-            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-pro" style="text-decoration:none">🔥 Pro — <span class="price-val">$9.99</span>/mo</a>
-            <a href="#" onclick="showPage('premium'); return false;" class="prc prc-vip" style="text-decoration:none">👑 VIP — <span class="price-val">$24.99</span>/mo</a>
+            <a href="/premium.html" class="prc prc-free" style="text-decoration:none;color:inherit">Free — $0</a>
+            <a href="/premium.html" class="prc prc-pro" style="text-decoration:none">🔥 Pro — <span class="price-val">$9.99</span>/mo</a>
+            <a href="/premium.html" class="prc prc-vip" style="text-decoration:none">👑 VIP — <span class="price-val">$24.99</span>/mo</a>
         </div>
     </div>
 
@@ -543,35 +543,35 @@
             </div>
 
             <div class="grid-3" id="sportsGrid">
-                <div class="ns-card pick-card clickable-card" data-sport="basketball" onclick="showPage('picks')">
+                <div class="ns-card pick-card clickable-card" data-sport="basketball" onclick="location.href='/picks.html'">
                     <div class="pick-header"><span class="pick-sport sport-bk">🏀 NBA</span><div class="pick-res" style="position:static;background:var(--primary);color:#fff;border-color:var(--primary)">TOP PICK</div></div>
                     <div class="pick-match" style="font-size:1.2rem">Lakers vs Celtics</div>
                     <div class="pick-odds" style="margin-bottom:1rem">Moneyline: LAL -130 / BOS +110</div>
                     <div class="pick-sel">Lakers -3.5</div>
                 </div>
                 
-                <div class="ns-card pick-card clickable-card" data-sport="football" onclick="showPage('picks')">
+                <div class="ns-card pick-card clickable-card" data-sport="football" onclick="location.href='/picks.html'">
                     <div class="pick-header"><span class="pick-sport sport-fb">⚽ EPL</span><div class="pick-res" style="position:static;background:var(--primary);color:#fff;border-color:var(--primary)">TOP PICK</div></div>
                     <div class="pick-match" style="font-size:1.2rem">Arsenal vs Chelsea</div>
                     <div class="pick-odds" style="margin-bottom:1rem">Total Goals O/U 2.5</div>
                     <div class="pick-sel">Over 2.5 Goals (-125)</div>
                 </div>
 
-                <div class="ns-card pick-card clickable-card" data-sport="mma" onclick="showPage('premium')">
+                <div class="ns-card pick-card clickable-card" data-sport="mma" onclick="location.href='/premium.html'">
                     <div class="pick-header"><span class="pick-sport sport-mma">🥊 UFC 315</span><span class="badge-nav gold" style="padding:4px 8px;font-size:.7rem">VIP PRO</span></div>
                     <div class="pick-match" style="font-size:1.2rem;margin-top:1rem">Jones vs Aspinall</div>
                     <div class="pick-odds" style="margin-bottom:1rem">Main Event Analysis</div>
                     <div class="pick-sel" style="background:transparent;border-color:var(--gold);color:var(--gold)">View Detailed Breakdown 🔒</div>
                 </div>
                 
-                <div class="ns-card pick-card clickable-card" data-sport="tennis" onclick="showPage('picks')">
+                <div class="ns-card pick-card clickable-card" data-sport="tennis" onclick="location.href='/picks.html'">
                     <div class="pick-header"><span class="pick-sport" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)">🎾 ATP</span></div>
                     <div class="pick-match" style="font-size:1.2rem;margin-top:1rem">Alcaraz vs Sinner</div>
                     <div class="pick-odds" style="margin-bottom:1rem">Set Betting Odds</div>
                     <div class="pick-sel">Alcaraz to win 3-1</div>
                 </div>
                 
-                <div class="ns-card pick-card clickable-card" data-sport="hockey" onclick="showPage('picks')">
+                <div class="ns-card pick-card clickable-card" data-sport="hockey" onclick="location.href='/picks.html'">
                     <div class="pick-header"><span class="pick-sport" style="background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.2)">🏒 NHL</span></div>
                     <div class="pick-match" style="font-size:1.2rem;margin-top:1rem">Rangers vs Bruins</div>
                     <div class="pick-odds" style="margin-bottom:1rem">Puck Line Odds</div>
@@ -626,7 +626,7 @@
                 <span class="paywall-icon">👑</span>
                 <h3>Unlock Professional Betting Insights</h3>
                 <p>Get serious about your betting. Pro members get weekly market reports, advanced modeling data, and deep-dive strategy guides.</p>
-                <button class="plan-btn plan-btn-pro" style="display:inline-block;max-width:250px" onclick="showPage('premium')">View Premium Plans</button>
+                <button class="plan-btn plan-btn-pro" style="display:inline-block;max-width:250px" onclick="location.href='/premium.html'">View Premium Plans</button>
             </div>
         </div>
     </div>
@@ -820,7 +820,7 @@
         </div>
     </div>
 
-    <div id="page-picks" class="page-view"><div style="max-width:1200px;margin:3rem auto;text-align:center"><h1 style="font-size:2rem">🎯 Daily Picks Feed</h1><p style="color:var(--text-muted);margin:1rem">(Redirected to SPA view - content matches homepage)</p><button class="btn btn-primary" onclick="showPage('home')">Return Home</button></div></div>
+    <div id="page-picks" class="page-view"><div style="max-width:1200px;margin:3rem auto;text-align:center"><h1 style="font-size:2rem">🎯 Daily Picks Feed</h1><p style="color:var(--text-muted);margin:1rem">(Redirected to SPA view - content matches homepage)</p><a href="/" class="btn btn-primary" style="text-decoration:none">Return Home</a></div></div>
     
     <!-- WINS PAGE -->
     <div id="page-wins" class="page-view">
@@ -1122,7 +1122,7 @@
             if(!el.authContainer) return;
             if(state.user){
                 const u=getUsername();
-                el.authContainer.innerHTML='<div class="user-profile"><span id="notifBellMount"></span><div class="avatar">'+u.charAt(0).toUpperCase()+'</div><span class="username">Hi, '+escapeHtml(u)+'</span><button class="btn btn-outline" id="logoutBtn">Sign Out</button></div>';
+                el.authContainer.innerHTML='<div class="user-profile"><span id="notifBellMount"></span><a href="/profile.html" class="avatar" style="text-decoration:none;color:#fff" title="View Profile">'+u.charAt(0).toUpperCase()+'</a><a href="/profile.html" class="username" style="text-decoration:none;color:inherit" title="View Profile">Hi, '+escapeHtml(u)+'</a><button class="btn btn-outline" id="logoutBtn">Sign Out</button></div>';
                 const lo = document.getElementById('logoutBtn');
                 if(lo) lo.addEventListener('click',handleLogout);
                 if(window.NotificationsService){NotificationsService.mountNotificationBell(document.getElementById('notifBellMount'),{userId:state.user.id});}
@@ -1202,16 +1202,20 @@
             if(!el.postGrid) return;
             el.postGrid.innerHTML='<div class="loading">Loading...</div>';
             try{
-                let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at', {ascending:false});
-                if(state.currentFilter!=='all') q=q.eq('type', state.currentFilter);
-                const{data:posts,error}=await q;
+                const timeout=ms=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
+                const postsPromise=(async()=>{
+                    let q=sb.from('posts').select('*, profiles ( username ), likes ( id )').order('created_at', {ascending:false});
+                    if(state.currentFilter!=='all') q=q.eq('type', state.currentFilter);
+                    return await q;
+                })();
+                const{data:posts,error}=await Promise.race([postsPromise,timeout(10000)]);
                 if(error)throw error;
-                
+
                 let articles=[];
                 try{
                     let aq=sb.from('articles').select('*, profiles ( username )').eq('is_published',true);
                     if(state.currentFilter!=='all') aq=aq.eq('type', state.currentFilter);
-                    const{data:ad,error:aErr}=await aq;
+                    const{data:ad,error:aErr}=await Promise.race([aq,timeout(10000)]);
                     if(!aErr&&ad) articles=ad.map(a=>({...a,item_type:'article',username:a.profiles?.username||'SpinZone',like_count:a.views||0,read_time:Math.max(1,Math.ceil((a.content||'').split(' ').length/200))}));
                 }catch(e){}
 
@@ -1219,9 +1223,9 @@
                 state.posts=[...articles,...formattedPosts];
                 if(state.currentSort==='popular') state.posts.sort((a,b)=>b.like_count-a.like_count);
                 else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-                
+
                 updateCounts();renderPosts();renderTrending();renderHomeDiscussions();
-            }catch(err){console.error(err);if(el.postGrid) el.postGrid.innerHTML='<div class="empty-state">Failed to load.</div>'}
+            }catch(err){console.error(err);if(el.postGrid) el.postGrid.innerHTML='<div class="empty-state">No posts yet. <button onclick="loadPosts()" style="background:var(--primary);color:#fff;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;margin-top:.5rem;font-size:.82rem">Retry</button></div>';renderHomeDiscussions();}
         }
 
         function renderHomeDiscussions() {
@@ -1229,7 +1233,17 @@
             if(!container) return;
             const discussions = state.posts.filter(p => p.item_type === 'post').slice(0, 3);
             if(!discussions.length) {
-                container.innerHTML = '<div class="empty-state">No discussions yet.</div>';
+                // Hardcoded fallback discussion cards
+                container.innerHTML = `
+                <a href="/discuss.html" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
+                    <div class="dsc-header"><div class="dsc-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">AK</div><div class="dsc-body"><div class="dsc-title">Best Slots Strategy for 2025?</div><div class="dsc-meta"><span>by <b>AceKing42</b></span><span class="dsc-cat" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1)">Slots</span><span>2h ago</span></div></div></div>
+                </a>
+                <a href="/discuss.html" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
+                    <div class="dsc-header"><div class="dsc-av" style="background:linear-gradient(135deg,#f59e0b,#d97706)">JJ</div><div class="dsc-body"><div class="dsc-title">Anyone tried the new Stake promotions?</div><div class="dsc-meta"><span>by <b>JackpotJane</b></span><span class="dsc-cat" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1)">General</span><span>4h ago</span></div></div></div>
+                </a>
+                <a href="/discuss.html" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
+                    <div class="dsc-header"><div class="dsc-av" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">MR</div><div class="dsc-body"><div class="dsc-title">NFL Week 12 Parlay Discussion</div><div class="dsc-meta"><span>by <b>MrRoyal</b></span><span class="dsc-cat" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1)">Betting</span><span>6h ago</span></div></div></div>
+                </a>`;
                 return;
             }
             container.innerHTML = discussions.map(p => {
@@ -1238,7 +1252,7 @@
                 const nameLen = (p.username || 'A').length;
                 const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #3b82f6, #2563eb)');
                 const init = escapeHtml((p.username || 'A').substring(0,2).toUpperCase());
-                return `<a href="#" onclick="showPage('community'); return false;" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
+                return `<a href="/discuss.html" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
                     <div class="dsc-header">
                         <div class="dsc-av" style="background:${avaGrad}">${init}</div>
                         <div class="dsc-body">
@@ -1329,18 +1343,16 @@
                     if(el.uploadProgressBar)el.uploadProgressBar.style.width='100%';
                 }
 
-                // 2 – Insert into 'wins' table
+                // 2 – Insert into 'player_wins' table
                 const username=getUsername();
-                const{data:newWin,error:insertErr}=await sb.from('wins').insert({
+                const multVal=(el.winMultiplier?.value||'').trim()||null;
+                const{data:newWin,error:insertErr}=await sb.from('player_wins').insert({
                     user_id:state.user.id,
-                    username,
                     casino_name:casino,
-                    slot_name:(el.winSlot?.value||'').trim()||null,
-                    win_amount:amount,
-                    win_multiplier:(el.winMultiplier?.value||'').trim()||null,
-                    description:(el.winDescription?.value||'').trim()||null,
-                    screenshot_url:screenshotUrl,
-                    screenshot_path:screenshotPath,
+                    game_name:(el.winSlot?.value||'').trim()||null,
+                    win_amount:'$'+amount.toLocaleString(),
+                    multiplier:multVal?parseFloat(multVal):null,
+                    category:'general',
                     created_at:new Date().toISOString(),
                 }).select().single();
                 if(insertErr)throw insertErr;

@@ -206,7 +206,7 @@
 
         async function loadProfile(userId){
             try{
-                const{data:profile,error}=await sb.from('user_profiles').select('*').eq('id',userId).single();
+                const{data:profile,error}=await sb.from('profiles').select('*').eq('id',userId).single();
                 if(error||!profile){
                     document.getElementById('profilePage').innerHTML='<div class="loading"><p>Profile not found. <a href="/" style="color:var(--primary)">Go home</a></p></div>';
                     return;
@@ -236,7 +236,7 @@
             let actionBtns='';
             if(isOwn){
                 actionBtns=`
-                    <a class="btn-edit-profile" href="/settings.html">⚙️ Edit Profile</a>
+                    <button class="btn-edit-profile" onclick="openEditModal()">✏️ Edit Profile</button>
                 `;
             }else if(currentUser){
                 actionBtns=`
@@ -288,6 +288,7 @@
                         <div class="profile-tab active" data-tab="wins" onclick="switchTab('wins',this)">🏆 Wins <span class="tab-count" id="tcWins">…</span></div>
                         <div class="profile-tab" data-tab="picks" onclick="switchTab('picks',this)">🎯 Picks <span class="tab-count" id="tcPicks">…</span></div>
                         <div class="profile-tab" data-tab="posts" onclick="switchTab('posts',this)">💬 Posts <span class="tab-count" id="tcPosts">…</span></div>
+                        <div class="profile-tab" data-tab="likes" onclick="switchTab('likes',this)">❤️ Likes <span class="tab-count" id="tcLikes">…</span></div>
                     </div>
                     <div class="profile-content" id="profileContent"><div class="loading">Loading…</div></div>
                 </div>
@@ -339,7 +340,7 @@
 
             try{
                 if(tab==='wins'){
-                    const{data:wins}=await sb.from('wins').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(30);
+                    const{data:wins}=await sb.from('player_wins').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(30);
                     const count=(wins||[]).length;
                     tabCounts.wins=count;
                     const el=document.getElementById('tcWins');if(el)el.textContent=count;
@@ -407,6 +408,26 @@
                             </div>
                         `).join('');
                     }else{container.innerHTML='<div class="profile-empty">No posts yet. 💬</div>'}
+
+                }else if(tab==='likes'){
+                    const{data:userLikes}=await sb.from('likes').select('*,posts(id,title,content,type,created_at)').eq('user_id',userId).order('created_at',{ascending:false}).limit(30);
+                    const liked=(userLikes||[]).filter(l=>l.posts);
+                    const count=liked.length;
+                    tabCounts.likes=count;
+                    const el=document.getElementById('tcLikes');if(el)el.textContent=count;
+                    if(count){
+                        container.innerHTML=liked.map(l=>{
+                            const po=l.posts;
+                            return`<div class="p-card">
+                                <div class="p-card-header">
+                                    <span class="p-card-type type-post">${esc(po.type||'Post')}</span>
+                                    <span class="p-card-time">${timeAgo(po.created_at)}</span>
+                                </div>
+                                <div class="p-card-title">${esc(po.title||'')}</div>
+                                <div class="p-card-body">${esc((po.content||'').substring(0,220))}${(po.content||'').length>220?'…':''}</div>
+                            </div>`;
+                        }).join('');
+                    }else{container.innerHTML='<div class="profile-empty">No liked content yet. ❤️</div>'}
                 }
             }catch(e){
                 console.error(e);
@@ -433,7 +454,7 @@
                     const{error:ue}=await sb.storage.from('profile-pictures').upload(path,file,{upsert:true,contentType:file.type});
                     if(ue)throw ue;
                     const{data:{publicUrl}}=sb.storage.from('profile-pictures').getPublicUrl(path);
-                    await sb.from('user_profiles').update({profile_picture_url:publicUrl}).eq('id',currentUser.id);
+                    await sb.from('profiles').update({profile_picture_url:publicUrl}).eq('id',currentUser.id);
                     const av=document.getElementById('profileAvatar');
                     if(av){let img=av.querySelector('img');if(!img){img=document.createElement('img');av.prepend(img);}img.src=publicUrl;}
                     showToast('Profile picture updated!');
@@ -460,7 +481,7 @@
                     twitter_handle:document.getElementById('editTwitter').value.trim()||null,
                     updated_at:new Date().toISOString()
                 };
-                const{error}=await sb.from('user_profiles').update(updates).eq('id',currentUser.id);
+                const{error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
                 if(error)throw error;
                 document.getElementById('editModal').classList.remove('active');
                 showToast('Profile updated!');
@@ -485,7 +506,7 @@
             if(currentUser){
                 let name=currentUser.email?.split('@')[0]||'User';
                 try{
-                    const{data:p}=await sb.from('user_profiles').select('username,display_name').eq('id',currentUser.id).single();
+                    const{data:p}=await sb.from('profiles').select('username,display_name').eq('id',currentUser.id).single();
                     if(p)name=p.display_name||p.username||name;
                 }catch(e){}
                 el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center">

@@ -701,18 +701,16 @@
                 if(bar)bar.style.width='100%';
             }
 
-            // 2 – Insert win row
+            // 2 – Insert win row into player_wins table
             const displayName=userProfile?.display_name||userProfile?.username||currentUser.email?.split('@')[0]||'Player';
-            const{data:newWin,error:insertErr}=await sb.from('wins').insert({
+            const multVal=document.getElementById('wMultiplier').value.trim()||null;
+            const{data:newWin,error:insertErr}=await sb.from('player_wins').insert({
                 user_id:currentUser.id,
-                username:displayName,
                 casino_name:casino,
-                slot_name:document.getElementById('wGame').value.trim()||null,
-                win_amount:amount,
-                win_multiplier:document.getElementById('wMultiplier').value.trim()||null,
-                description:document.getElementById('wDesc').value.trim()||null,
-                screenshot_url:screenshotUrl,
-                screenshot_path:screenshotPath,
+                game_name:document.getElementById('wGame').value.trim()||null,
+                win_amount:'$'+parseFloat(amount).toLocaleString(),
+                multiplier:multVal?parseFloat(multVal):null,
+                category:'general',
                 created_at:new Date().toISOString(),
             }).select().single();
 
