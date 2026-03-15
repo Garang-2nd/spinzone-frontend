@@ -369,12 +369,31 @@
     let selectedPickType='moneyline';
     let editingPickId=null;
 
+    const FALLBACK_PICKS=[
+        {id:'fb-1',title:'Lakers -3.5 vs Celtics',sport:'NBA',league:'NBA',pick_type:'spread',odds:'-110',stake:'3u',reasoning:'Lakers are 8-2 in their last 10 home games. Celtics on a back-to-back with Tatum questionable. Home court advantage is huge here.',result:'pending',created_at:new Date(Date.now()-2*3600000).toISOString(),user_id:'system',display_name:'SpinZone Picks',is_verified:true,profile_picture_url:null,like_count:47,comment_count:12},
+        {id:'fb-2',title:'Arsenal vs Chelsea — Over 2.5 Goals',sport:'Soccer',league:'Premier League',pick_type:'total',odds:'-125',stake:'2u',reasoning:'Both teams averaging 3.2 goals per match in head-to-heads this season. Arsenal at home have gone over in 7 of last 10.',result:'win',created_at:new Date(Date.now()-5*3600000).toISOString(),user_id:'system',display_name:'SpinZone Picks',is_verified:true,profile_picture_url:null,like_count:83,comment_count:24},
+        {id:'fb-3',title:'Jones vs Aspinall — Method + Round',sport:'UFC/MMA',league:'UFC 315',pick_type:'prop',odds:'+450',stake:'1u',reasoning:'Our highest confidence play of the month. Detailed breakdown available for VIP members.',result:'pending',created_at:new Date(Date.now()-8*3600000).toISOString(),user_id:'system',display_name:'SpinZone VIP',is_verified:true,profile_picture_url:null,like_count:156,comment_count:38},
+        {id:'fb-4',title:'Chiefs -6.5 vs Raiders',sport:'NFL',league:'NFL Week 14',pick_type:'spread',odds:'-115',stake:'3u',reasoning:'Chiefs are 9-1 ATS as home favorites this season. Raiders offense ranks 28th in DVOA. Mahomes revenge game.',result:'win',created_at:new Date(Date.now()-12*3600000).toISOString(),user_id:'system',display_name:'GridIron Guru',is_verified:true,profile_picture_url:null,like_count:92,comment_count:31},
+        {id:'fb-5',title:'Yankees ML vs Red Sox',sport:'MLB',league:'MLB',pick_type:'moneyline',odds:'-135',stake:'2u',reasoning:'Cole on the mound with a 2.41 ERA at home. Red Sox bullpen gave up 6+ runs in 3 of last 5 games.',result:'pending',created_at:new Date(Date.now()-18*3600000).toISOString(),user_id:'system',display_name:'Diamond Capper',is_verified:false,profile_picture_url:null,like_count:34,comment_count:8},
+        {id:'fb-6',title:'Nuggets vs Bucks — Under 228.5',sport:'NBA',league:'NBA',pick_type:'total',odds:'-105',stake:'2u',reasoning:'Both teams in top 5 defensive rating last 15 games. Pace has slowed significantly heading into playoffs.',result:'loss',created_at:new Date(Date.now()-24*3600000).toISOString(),user_id:'system',display_name:'Hoops Analytics',is_verified:true,profile_picture_url:null,like_count:28,comment_count:15},
+    ];
+
     function esc(t){if(t==null)return'';const d=document.createElement('div');d.textContent=String(t);return d.innerHTML}
     function timeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'})}
     function showToast(m,err){const t=document.getElementById('toast');t.textContent=m;t.className=err?'toast active error':'toast active';setTimeout(()=>t.classList.remove('active'),3500)}
     function avatarGrad(s){const g=[['#8b5cf6','#7c3aed'],['#10b981','#059669'],['#f59e0b','#d97706'],['#3b82f6','#2563eb'],['#ef4444','#dc2626']];const i=(s||'A').charCodeAt(0)%g.length;return`linear-gradient(135deg,${g[i][0]},${g[i][1]})`}
 
     async function init(){
+        // Read sport filter from URL (e.g. /picks.html?sport=NBA)
+        const urlParams=new URLSearchParams(window.location.search);
+        const urlSport=urlParams.get('sport');
+        if(urlSport){
+            currentSport=urlSport;
+            document.querySelectorAll('#sportTabs .sport-tab').forEach(b=>{
+                b.classList.toggle('active',b.dataset.sport===urlSport);
+            });
+        }
+
         try{
             const{data:{session}}=await sb.auth.getSession();
             if(session){
@@ -467,13 +486,24 @@
     }
 
     function appendPicks(raw,reset){
-        const normalised=raw.map(p=>({
+        let normalised=raw.map(p=>({
             ...p,
-            display_name:p.profiles?.display_name||p.profiles?.username||'Capper',
-            is_verified:p.profiles?.is_verified||false,
-            profile_picture_url:p.profiles?.profile_picture_url||null,
-            like_count:Array.isArray(p.likes)?p.likes.length:0,
+            display_name:p.profiles?.display_name||p.profiles?.username||p.display_name||'Capper',
+            is_verified:p.profiles?.is_verified||p.is_verified||false,
+            profile_picture_url:p.profiles?.profile_picture_url||p.profile_picture_url||null,
+            like_count:Array.isArray(p.likes)?p.likes.length:(p.like_count||0),
         }));
+
+        // Use fallback picks if DB returned nothing
+        if(reset&&!normalised.length){
+            let fallback=FALLBACK_PICKS;
+            if(currentSport!=='all')fallback=fallback.filter(p=>p.sport===currentSport);
+            if(currentResult==='pending')fallback=fallback.filter(p=>!p.result||p.result==='pending');
+            else if(currentResult==='win')fallback=fallback.filter(p=>p.result==='win');
+            else if(currentResult==='loss')fallback=fallback.filter(p=>p.result==='loss');
+            normalised=fallback;
+        }
+
         picks=reset?normalised:[...picks,...normalised];
         offset+=raw.length;
         updateBanner();
