@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SpinZone Premium — Unlock advanced analytics, exclusive picks, and Pro cappers.">
+    <title>Premium | SpinZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root{--primary:#8b5cf6;--primary-dark:#6d28d9;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+        body{background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+        a{text-decoration:none;color:inherit}
+        header{background:rgba(10,14,26,.92);backdrop-filter:blur(20px);padding:0 1.5rem;height:var(--header-height);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:.5rem}.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+        .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-height);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
+        .sz-nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 1rem}
+        .sz-nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem}.sz-nav-link:hover{color:var(--text-main)}.sz-nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+        .badge-nav{font-size:.6rem;padding:1px 5px;border-radius:4px;font-weight:700}.badge-nav.red{background:var(--danger);color:#fff}.badge-nav.gold{background:var(--gold);color:#000}
+
+        /* HERO */
+        .hero{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(139,92,246,.12),rgba(10,14,26,0));padding:4rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,.15),transparent 70%);pointer-events:none}
+        .hero-crown{font-size:3.5rem;margin-bottom:.75rem;display:block}
+        .hero h1{font-size:2.5rem;font-weight:800;margin-bottom:.5rem;line-height:1.2}
+        .hero h1 .gold{color:var(--gold)}
+        .hero p{color:var(--text-muted);font-size:1.05rem;max-width:540px;margin:0 auto 2rem}
+        .hero-stats{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-bottom:2rem}
+        .hero-stat{text-align:center}
+        .hero-stat-num{font-size:1.5rem;font-weight:800;color:var(--gold)}
+        .hero-stat-lbl{font-size:.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em}
+
+        /* BILLING TOGGLE */
+        .billing-toggle{display:inline-flex;background:rgba(255,255,255,.06);border:1px solid var(--card-border);border-radius:50px;padding:.25rem;margin-bottom:2.5rem;gap:.15rem}
+        .billing-btn{padding:.4rem 1.25rem;border-radius:50px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;background:none;color:var(--text-muted);font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:.4rem}
+        .billing-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+        .save-badge{background:var(--accent);color:#fff;font-size:.65rem;font-weight:800;padding:.15rem .45rem;border-radius:50px}
+
+        /* PLANS */
+        .plans-grid{max-width:960px;margin:0 auto;padding:0 1rem 5rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+        @media(max-width:768px){.plans-grid{grid-template-columns:1fr;max-width:440px}}
+        .plan-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:18px;padding:2rem 1.5rem;display:flex;flex-direction:column;gap:1.25rem;position:relative;transition:border-color .2s}
+        .plan-card:hover{border-color:rgba(139,92,246,.4)}
+        .plan-card.popular{border-color:var(--gold);background:linear-gradient(135deg,rgba(245,158,11,.08),var(--card-bg))}
+        .plan-card.elite{border-color:var(--primary);background:linear-gradient(135deg,rgba(139,92,246,.1),var(--card-bg))}
+        .popular-tag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-size:.72rem;font-weight:800;padding:.3rem .9rem;border-radius:50px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+        .plan-icon{font-size:2rem}
+        .plan-name{font-size:1.1rem;font-weight:800}
+        .plan-desc{font-size:.85rem;color:var(--text-muted);margin-top:.15rem}
+        .plan-price{display:flex;align-items:baseline;gap:.25rem}
+        .plan-price .amount{font-size:2.25rem;font-weight:800}
+        .plan-price .amount.gold{color:var(--gold)}
+        .plan-price .amount.purple{color:var(--primary)}
+        .plan-price .period{font-size:.85rem;color:var(--text-dim)}
+        .plan-orig{font-size:.8rem;color:var(--text-dim);text-decoration:line-through;margin-top:.15rem}
+        .plan-features{display:flex;flex-direction:column;gap:.55rem;flex:1}
+        .feature-row{display:flex;align-items:flex-start;gap:.6rem;font-size:.875rem}
+        .feature-row .ck{color:var(--accent);font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+        .feature-row .xk{color:var(--text-dim);font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+        .feature-text{color:var(--text-muted);line-height:1.4}
+        .feature-text strong{color:var(--text-main)}
+        .plan-divider{border:none;border-top:1px solid var(--card-border);margin:0}
+        .btn-plan{padding:.75rem 1rem;border-radius:12px;border:none;font-size:.95rem;font-weight:700;cursor:pointer;width:100%;transition:all .2s;font-family:inherit}
+        .btn-free{background:rgba(255,255,255,.07);color:var(--text-muted);border:1px solid var(--card-border)}
+        .btn-free:hover{background:rgba(255,255,255,.1);color:var(--text-main)}
+        .btn-pro{background:linear-gradient(135deg,var(--gold),#d97706);color:#000}
+        .btn-pro:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,158,11,.4)}
+        .btn-elite{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
+        .btn-elite:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(139,92,246,.4)}
+        .plan-note{font-size:.72rem;color:var(--text-dim);text-align:center}
+
+        /* FEATURES SECTION */
+        .features-section{max-width:1000px;margin:0 auto;padding:0 1rem 4rem}
+        .features-section h2{font-size:1.75rem;font-weight:800;text-align:center;margin-bottom:.5rem}
+        .features-section .sub{text-align:center;color:var(--text-muted);margin-bottom:2.5rem}
+        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+        @media(max-width:700px){.features-grid{grid-template-columns:1fr}}
+        .feat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.5rem}
+        .feat-icon{font-size:1.75rem;margin-bottom:.75rem}
+        .feat-title{font-size:1rem;font-weight:800;margin-bottom:.35rem}
+        .feat-desc{font-size:.875rem;color:var(--text-muted);line-height:1.55}
+        .feat-badge{display:inline-block;margin-top:.6rem;font-size:.72rem;font-weight:700;padding:.2rem .55rem;border-radius:50px;background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.3)}
+
+        /* FAQ */
+        .faq-section{max-width:680px;margin:0 auto;padding:0 1rem 5rem}
+        .faq-section h2{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:1.5rem}
+        .faq-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;margin-bottom:.65rem;overflow:hidden}
+        .faq-q{width:100%;background:none;border:none;color:var(--text-main);font-family:inherit;font-size:.9rem;font-weight:700;text-align:left;padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+        .faq-q .arrow{font-size:.75rem;color:var(--text-dim);transition:transform .2s;flex-shrink:0}
+        .faq-q.open .arrow{transform:rotate(180deg)}
+        .faq-a{font-size:.875rem;color:var(--text-muted);line-height:1.65;padding:0 1.25rem 1rem;display:none}
+        .faq-a.open{display:block}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--card-bg);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1.25rem;font-size:.88rem;font-weight:600;color:var(--text-main);border-left:3px solid var(--accent);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+        #toast.show{opacity:1;transform:translateY(0)}#toast.error{border-left-color:var(--danger)}
+    </style>
+</head>
+<body>
+<header>
+    <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+    <div id="headerAuth"></div>
+</header>
+<nav class="sz-nav"><div class="sz-nav-inner">
+    <a class="sz-nav-link" href="/">🏠 Home</a>
+    <a class="sz-nav-link" href="/sportsbook.html">⚽ Sports <span class="badge-nav red">NEW</span></a>
+    <a class="sz-nav-link" href="/casinos.html">🎰 Casinos</a>
+    <a class="sz-nav-link" href="/picks.html">🎯 Picks</a>
+    <a class="sz-nav-link" href="/wins.html">🏆 Wins</a>
+    <a class="sz-nav-link" href="/insights.html">📊 Insights <span class="badge-nav gold">PRO</span></a>
+    <a class="sz-nav-link" href="/discuss.html">💬 Community</a>
+    <a class="sz-nav-link active" href="/premium.html">👑 Premium</a>
+</div></nav>
+
+<!-- HERO -->
+<div class="hero">
+    <span class="hero-crown">👑</span>
+    <h1>Unlock <span class="gold">SpinZone Pro</span></h1>
+    <p>Get advanced analytics, follow verified cappers, and access exclusive community features.</p>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num" id="heroMembers">2,400+</div><div class="hero-stat-lbl">Pro Members</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">94%</div><div class="hero-stat-lbl">Satisfaction Rate</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">$0</div><div class="hero-stat-lbl">Cancel Anytime</div></div>
+    </div>
+    <div class="billing-toggle">
+        <button class="billing-btn" data-billing="monthly" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="billing-btn active" data-billing="annual" id="btnAnnual" onclick="setBilling('annual')">Annual <span class="save-badge">Save 40%</span></button>
+    </div>
+</div>
+
+<!-- PRICING PLANS -->
+<div class="plans-grid">
+    <!-- FREE -->
+    <div class="plan-card">
+        <div>
+            <div class="plan-icon">🆓</div>
+            <div class="plan-name">Free</div>
+            <div class="plan-desc">Get started for free, forever.</div>
+        </div>
+        <div class="plan-price"><span class="amount">$0</span><span class="period">/month</span></div>
+        <hr class="plan-divider">
+        <div class="plan-features">
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Post wins &amp; picks</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Community discussions</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Basic profile page</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Follow other players</span></div>
+            <div class="feature-row"><span class="xk">✗</span><span class="feature-text" style="color:var(--text-dim)">Advanced analytics</span></div>
+            <div class="feature-row"><span class="xk">✗</span><span class="feature-text" style="color:var(--text-dim)">Verified capper badge</span></div>
+            <div class="feature-row"><span class="xk">✗</span><span class="feature-text" style="color:var(--text-dim)">PRO insights dashboard</span></div>
+        </div>
+        <button class="btn-plan btn-free" onclick="handlePlan('free')">Get Started Free</button>
+        <div class="plan-note">No credit card required</div>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card popular">
+        <div class="popular-tag">⭐ Most Popular</div>
+        <div>
+            <div class="plan-icon">🚀</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-desc">For serious players and cappers.</div>
+        </div>
+        <div>
+            <div class="plan-price"><span class="amount gold" id="proPrice">$5</span><span class="period">/month</span></div>
+            <div class="plan-orig" id="proOrig" style="display:none">$9/month billed monthly</div>
+        </div>
+        <hr class="plan-divider">
+        <div class="plan-features">
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text"><strong>Everything in Free</strong></span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text"><strong>📊 Full Insights dashboard</strong></span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text"><strong>✓ Verified capper badge</strong></span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Advanced win analytics</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Pick ROI tracking</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Priority support</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">🏆 Pro leaderboard placement</span></div>
+        </div>
+        <button class="btn-plan btn-pro" onclick="handlePlan('pro')">👑 Go Pro</button>
+        <div class="plan-note">Billed <span id="proBillNote">annually ($60/yr)</span> · Cancel anytime</div>
+    </div>
+
+    <!-- ELITE -->
+    <div class="plan-card elite">
+        <div>
+            <div class="plan-icon">💎</div>
+            <div class="plan-name">Elite</div>
+            <div class="plan-desc">For professional cappers &amp; power users.</div>
+        </div>
+        <div>
+            <div class="plan-price"><span class="amount purple" id="elitePrice">$15</span><span class="period">/month</span></div>
+            <div class="plan-orig" id="eliteOrig" style="display:none">$25/month billed monthly</div>
+        </div>
+        <hr class="plan-divider">
+        <div class="plan-features">
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text"><strong>Everything in Pro</strong></span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text"><strong>💎 Elite badge &amp; profile</strong></span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Sell picks to followers</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Custom pick packages</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">AI-powered bet analysis</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">Private community access</span></div>
+            <div class="feature-row"><span class="ck">✓</span><span class="feature-text">🎙️ Featured on homepage</span></div>
+        </div>
+        <button class="btn-plan btn-elite" onclick="handlePlan('elite')">💎 Go Elite</button>
+        <div class="plan-note">Billed <span id="eliteBillNote">annually ($180/yr)</span> · Cancel anytime</div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features-section">
+    <h2>Why Players Choose Pro</h2>
+    <p class="sub">Everything you need to bet smarter and build your reputation.</p>
+    <div class="features-grid">
+        <div class="feat-card">
+            <div class="feat-icon">📊</div>
+            <div class="feat-title">Advanced Analytics</div>
+            <div class="feat-desc">Track your pick ROI, win rate trends, and performance breakdowns by sport, market, and stake size.</div>
+            <span class="feat-badge">Pro+</span>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">✓</div>
+            <div class="feat-title">Verified Capper Badge</div>
+            <div class="feat-desc">Stand out with a verified checkmark that shows followers your picks are tracked and your record is authentic.</div>
+            <span class="feat-badge">Pro+</span>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">🏆</div>
+            <div class="feat-title">Pro Leaderboard</div>
+            <div class="feat-desc">Appear in the Top Cappers leaderboard with boosted visibility. Build your brand as a trusted sports bettor.</div>
+            <span class="feat-badge">Pro+</span>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">🎯</div>
+            <div class="feat-title">Pick ROI Tracker</div>
+            <div class="feat-desc">See exactly which pick types, sports, and markets generate the most value over time. Refine your strategy.</div>
+            <span class="feat-badge">Pro+</span>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">💰</div>
+            <div class="feat-title">Sell Your Picks</div>
+            <div class="feat-desc">Elite members can package and sell their picks directly to followers through your SpinZone profile.</div>
+            <span class="feat-badge">Elite</span>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">🤖</div>
+            <div class="feat-title">AI Bet Analysis</div>
+            <div class="feat-desc">Get AI-powered line movement analysis, value detection, and game summaries before you place your picks.</div>
+            <span class="feat-badge">Elite</span>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span class="arrow">▼</span></button>
+        <div class="faq-a">Yes — cancel anytime from your account settings with no questions asked. Your Pro access continues until the end of the billing period.</div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is there a free trial? <span class="arrow">▼</span></button>
+        <div class="faq-a">The Free tier is free forever with no credit card required. We're working on a 7-day Pro trial — join the waitlist to be notified.</div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does the Verified badge work? <span class="arrow">▼</span></button>
+        <div class="faq-a">When you upgrade to Pro, your picks are tracked from that point forward. After 30+ settled picks, your win rate is verified and displayed publicly with a ✓ badge on your profile and pick cards.</div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What payment methods do you accept? <span class="arrow">▼</span></button>
+        <div class="faq-a">We accept all major credit/debit cards, PayPal, and select cryptocurrencies (BTC, ETH, USDC). Crypto payments get an extra 10% off.</div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I switch between plans? <span class="arrow">▼</span></button>
+        <div class="faq-a">Absolutely. Upgrade or downgrade at any time. When upgrading, you're charged a prorated amount for the remaining days. When downgrading, the change takes effect at the next billing cycle.</div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let billingMode='annual';
+
+function esc(v){const d=document.createElement('div');d.textContent=String(v??'');return d.innerHTML}
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' error':'');setTimeout(()=>t.className='',3500)}
+
+function setBilling(mode){
+    billingMode=mode;
+    document.getElementById('btnMonthly').classList.toggle('active',mode==='monthly');
+    document.getElementById('btnAnnual').classList.toggle('active',mode==='annual');
+    if(mode==='annual'){
+        document.getElementById('proPrice').textContent='$5';
+        document.getElementById('elitePrice').textContent='$15';
+        document.getElementById('proBillNote').textContent='annually ($60/yr)';
+        document.getElementById('eliteBillNote').textContent='annually ($180/yr)';
+        document.getElementById('proOrig').style.display='block';
+        document.getElementById('eliteOrig').style.display='block';
+    }else{
+        document.getElementById('proPrice').textContent='$9';
+        document.getElementById('elitePrice').textContent='$25';
+        document.getElementById('proBillNote').textContent='monthly';
+        document.getElementById('eliteBillNote').textContent='monthly';
+        document.getElementById('proOrig').style.display='none';
+        document.getElementById('eliteOrig').style.display='none';
+    }
+}
+
+async function handlePlan(tier){
+    const{data:{session}}=await sb.auth.getSession();
+    if(!session){toast('Sign in to upgrade your account.', true);setTimeout(()=>window.location.href='/',1400);return;}
+    if(tier==='free'){window.location.href='/profile.html';return;}
+    // Record upgrade interest in Supabase (best-effort)
+    try{await sb.from('upgrade_requests').insert({user_id:session.user.id,tier,billing:billingMode,created_at:new Date().toISOString()});}catch(e){}
+    toast('🎉 Payment system coming soon! We\'ve recorded your interest in '+(tier==='pro'?'Pro':'Elite')+' and will notify you when billing is live.');
+}
+
+function toggleFaq(btn){
+    btn.classList.toggle('open');
+    const ans=btn.nextElementSibling;
+    ans.classList.toggle('open');
+}
+
+async function loadStats(){
+    try{
+        const[{count:wc},{count:pc}]=await Promise.all([
+            sb.from('wins').select('id',{count:'exact',head:true}),
+            sb.from('picks').select('id',{count:'exact',head:true}),
+        ]);
+        // Estimate pro members as ~5% of community activity
+        const est=Math.max(2400,Math.round(((wc||0)+(pc||0))*0.05));
+        const el=document.getElementById('heroMembers');
+        if(el)el.textContent=(est>=1000?(est/1000).toFixed(1)+'K+':est+'+');
+    }catch(e){}
+}
+
+async function renderAuth(){
+    const el=document.getElementById('headerAuth');if(!el)return;
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+        const{data:p}=await sb.from('profiles').select('display_name,username').eq('id',session.user.id).single();
+        const name=p?.display_name||p?.username||session.user.email?.split('@')[0]||'User';
+        el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center"><a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a><button onclick="sb.auth.signOut().then(()=>location.href='/')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.82rem">Sign out</button></div>`;
+    }else{
+        el.innerHTML=`<a href="/" style="color:var(--text-muted);font-size:.85rem;font-weight:600;padding:.4rem .85rem;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:8px">Sign In</a>`;
+    }
+}
+
+// Set annual by default on load
+setBilling('annual');
+renderAuth();
+loadStats();
+</script>
+</body>
+</html>

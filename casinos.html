@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SpinZone Casino Reviews — Find the best online casinos ranked by real players.">
+    <title>Casinos | SpinZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root{--primary:#8b5cf6;--primary-dark:#6d28d9;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+        body{background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+        a{text-decoration:none;color:inherit}
+
+        /* HEADER */
+        header{background:rgba(10,14,26,.92);backdrop-filter:blur(20px);padding:0 1.5rem;height:var(--header-height);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:.5rem}.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+        .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem}
+
+        /* NAV */
+        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-height);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
+        .sz-nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 1rem}
+        .sz-nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem}.sz-nav-link:hover{color:var(--text-main)}.sz-nav-link.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .badge-nav{font-size:.6rem;padding:1px 5px;border-radius:4px;font-weight:700}.badge-nav.red{background:var(--danger);color:#fff}.badge-nav.gold{background:var(--gold);color:#000}
+
+        /* HERO */
+        .casino-hero{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(16,185,129,.08));border-bottom:1px solid rgba(139,92,246,.2);padding:2.5rem 1.5rem}
+        .casino-hero-inner{max-width:900px;margin:0 auto;text-align:center}
+        .casino-hero h1{font-size:2rem;font-weight:800;margin-bottom:.5rem}
+        .casino-hero h1 span{color:var(--primary)}
+        .casino-hero p{color:var(--text-muted);font-size:1rem;margin-bottom:1.5rem}
+        .search-bar{display:flex;gap:.75rem;max-width:520px;margin:0 auto}
+        .search-input{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--card-border);border-radius:10px;padding:.7rem 1rem;font-size:.95rem;color:var(--text-main);font-family:inherit;transition:border-color .2s}
+        .search-input:focus{outline:none;border-color:var(--primary)}
+        .search-input::placeholder{color:var(--text-dim)}
+        .btn-search{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:.7rem 1.25rem;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap}
+
+        /* LAYOUT */
+        .page-wrap{max-width:1100px;margin:0 auto;padding:2rem 1rem 4rem;display:grid;grid-template-columns:220px 1fr;gap:1.5rem;align-items:start}
+        @media(max-width:768px){.page-wrap{grid-template-columns:1fr}.sidebar{display:none}}
+
+        /* SIDEBAR */
+        .sidebar{position:sticky;top:calc(var(--header-height)*2 + 1rem)}
+        .sidebar-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+        .sidebar-title{font-size:.78rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem}
+        .filter-group{display:flex;flex-direction:column;gap:.25rem}
+        .filter-btn{background:none;border:none;color:var(--text-muted);font-size:.875rem;font-weight:600;text-align:left;padding:.5rem .65rem;border-radius:8px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:inherit;transition:all .15s}
+        .filter-btn:hover{background:rgba(255,255,255,.05);color:var(--text-main)}
+        .filter-btn.active{background:rgba(139,92,246,.12);color:var(--primary)}
+        .filter-count{font-size:.72rem;background:rgba(255,255,255,.07);padding:.1rem .45rem;border-radius:50px}
+        .trust-item{display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem;font-size:.82rem;color:var(--text-muted)}
+        .trust-item:last-child{margin-bottom:0}
+        .trust-icon{font-size:1.1rem;flex-shrink:0}
+
+        /* FILTERS ROW */
+        .filters-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap}
+        .sort-select{background:var(--card-bg);border:1px solid var(--card-border);color:var(--text-main);font-family:inherit;font-size:.82rem;padding:.4rem .75rem;border-radius:8px;cursor:pointer;margin-left:auto}
+        .sort-select option{background:var(--surface)}
+        .results-count{font-size:.82rem;color:var(--text-dim)}
+
+        /* CASINO CARD */
+        .casino-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.5rem;margin-bottom:1rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.25rem;align-items:start;transition:border-color .2s;position:relative}
+        .casino-card:hover{border-color:rgba(139,92,246,.4)}
+        .casino-card.featured{border-color:rgba(245,158,11,.35);background:linear-gradient(135deg,rgba(245,158,11,.05),var(--card-bg))}
+        .featured-badge{position:absolute;top:1rem;right:1rem;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:50px;text-transform:uppercase;letter-spacing:.05em}
+        .casino-logo{width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:1.75rem;flex-shrink:0;overflow:hidden}
+        .casino-logo img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+        .casino-info{}
+        .casino-name-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.3rem;flex-wrap:wrap}
+        .casino-name{font-size:1.1rem;font-weight:800}
+        .casino-rating{display:flex;align-items:center;gap:.25rem;font-size:.82rem;font-weight:700}
+        .stars{color:var(--gold)}
+        .casino-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.65rem}
+        .c-tag{font-size:.72rem;font-weight:600;padding:.18rem .55rem;border-radius:50px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text-muted)}
+        .c-tag.green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#34d399}
+        .casino-bonus{font-size:.88rem;color:var(--text-muted);margin-bottom:.5rem}
+        .casino-bonus strong{color:var(--accent);font-weight:700}
+        .casino-features{display:flex;flex-wrap:wrap;gap:.5rem}
+        .feature{font-size:.75rem;color:var(--text-dim);display:flex;align-items:center;gap:.2rem}
+        .casino-cta{display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;flex-shrink:0;min-width:130px}
+        .btn-claim{background:linear-gradient(135deg,var(--accent),#059669);color:#fff;border:none;padding:.65rem 1.25rem;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;width:100%;text-align:center}
+        .btn-claim:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(16,185,129,.35)}
+        .btn-review{background:transparent;border:1px solid var(--card-border);color:var(--text-muted);padding:.5rem 1rem;border-radius:8px;font-size:.8rem;cursor:pointer;width:100%;text-align:center;transition:all .15s;font-family:inherit}
+        .btn-review:hover{border-color:var(--primary);color:var(--primary)}
+        .cta-note{font-size:.68rem;color:var(--text-dim);text-align:center}
+        @media(max-width:600px){.casino-card{grid-template-columns:1fr}.casino-cta{flex-direction:row;align-items:center;min-width:auto}.casino-logo{display:none}}
+
+        /* SKELETON */
+        @keyframes shimmer{from{background-position:-600px 0}to{background-position:600px 0}}
+        .sk{background:linear-gradient(90deg,var(--card-bg) 25%,rgba(255,255,255,.04) 50%,var(--card-bg) 75%);background-size:600px 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--card-bg);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1.25rem;font-size:.88rem;font-weight:600;color:var(--text-main);border-left:3px solid var(--accent);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+        #toast.show{opacity:1;transform:translateY(0)}#toast.error{border-left-color:var(--danger)}
+        .empty-state{text-align:center;padding:3rem 1rem;color:var(--text-dim)}
+        .empty-state .ei{font-size:2.5rem;margin-bottom:.75rem}
+    </style>
+</head>
+<body>
+<header>
+    <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+    <div style="display:flex;align-items:center;gap:.75rem">
+        <div id="headerAuth"></div>
+        <a href="/premium.html" class="btn-gold">👑 Go Pro</a>
+    </div>
+</header>
+<nav class="sz-nav"><div class="sz-nav-inner">
+    <a class="sz-nav-link" href="/">🏠 Home</a>
+    <a class="sz-nav-link" href="/sportsbook.html">⚽ Sports <span class="badge-nav red">NEW</span></a>
+    <a class="sz-nav-link active" href="/casinos.html">🎰 Casinos</a>
+    <a class="sz-nav-link" href="/picks.html">🎯 Picks <span class="badge-nav red">HOT</span></a>
+    <a class="sz-nav-link" href="/wins.html">🏆 Wins</a>
+    <a class="sz-nav-link" href="/insights.html">📊 Insights <span class="badge-nav gold">PRO</span></a>
+    <a class="sz-nav-link" href="/discuss.html">💬 Community</a>
+    <a class="sz-nav-link" href="/premium.html">👑 Premium</a>
+</div></nav>
+
+<div class="casino-hero">
+    <div class="casino-hero-inner">
+        <h1>🎰 Find Your <span>Perfect Casino</span></h1>
+        <p>Ranked by real players. Updated daily. Compare bonuses, games, and trust scores.</p>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search casinos…">
+            <button class="btn-search" onclick="applySearch()">Search</button>
+        </div>
+    </div>
+</div>
+
+<div class="page-wrap">
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-title">Category</div>
+            <div class="filter-group" id="catFilters">
+                <button class="filter-btn active" data-cat="all">All Casinos <span class="filter-count" id="fc-all">0</span></button>
+                <button class="filter-btn" data-cat="slots">🎰 Slots <span class="filter-count" id="fc-slots">0</span></button>
+                <button class="filter-btn" data-cat="live">🎥 Live Casino <span class="filter-count" id="fc-live">0</span></button>
+                <button class="filter-btn" data-cat="sports">⚽ Sports <span class="filter-count" id="fc-sports">0</span></button>
+                <button class="filter-btn" data-cat="crypto">₿ Crypto <span class="filter-count" id="fc-crypto">0</span></button>
+                <button class="filter-btn" data-cat="new">🆕 New <span class="filter-count" id="fc-new">0</span></button>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <div class="sidebar-title">Why Trust Us</div>
+            <div class="trust-item"><span class="trust-icon">🔍</span><span>Independent reviews, never paid placements</span></div>
+            <div class="trust-item"><span class="trust-icon">👥</span><span>Ratings from real SpinZone players</span></div>
+            <div class="trust-item"><span class="trust-icon">🔄</span><span>Updated weekly with fresh data</span></div>
+            <div class="trust-item"><span class="trust-icon">🛡️</span><span>Only licensed & regulated casinos</span></div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="filters-row">
+            <span class="results-count" id="resultsCount">Loading…</span>
+            <select class="sort-select" id="sortSelect" onchange="applySort()">
+                <option value="rating">Top Rated</option>
+                <option value="bonus">Biggest Bonus</option>
+                <option value="newest">Newest</option>
+                <option value="name">A–Z</option>
+            </select>
+        </div>
+        <div id="casinoFeed"></div>
+    </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+// Static fallback data - shown when DB table doesn't exist yet
+const FALLBACK_CASINOS=[
+    {id:1,name:'Stake Casino',emoji:'♠️',rating:4.8,review_count:2341,bonus_offer:'$1,000 Welcome Bonus',bonus_amount:1000,categories:['slots','live','sports','crypto'],features:['⚡ Instant Withdrawal','₿ Crypto Friendly','🎮 10,000+ Games','🎥 Live Dealers'],affiliate_url:'#',is_featured:true,trust_score:98,is_new:false},
+    {id:2,name:'Rollbit',emoji:'🎲',rating:4.7,review_count:1892,bonus_offer:'3% Rakeback + Welcome Package',bonus_amount:500,categories:['slots','crypto'],features:['₿ Crypto Only','🚀 NFT Casino','⚡ Fast Payouts','🎰 Exclusive Slots'],affiliate_url:'#',is_featured:true,trust_score:95,is_new:false},
+    {id:3,name:'Roobet',emoji:'🦘',rating:4.6,review_count:1543,bonus_offer:'1.5x Rakeback for 7 Days',bonus_amount:300,categories:['slots','live','crypto'],features:['₿ Crypto','🎥 Live Games','📱 Mobile App','⚡ Fast Withdrawals'],affiliate_url:'#',is_featured:false,trust_score:92,is_new:false},
+    {id:4,name:'BC.Game',emoji:'🎮',rating:4.5,review_count:1234,bonus_offer:'Up to $20,000 Welcome Package',bonus_amount:20000,categories:['slots','live','sports','crypto'],features:['₿ 60+ Cryptos','🎰 10,000+ Games','⚽ Sports Betting','🎁 Daily Bonuses'],affiliate_url:'#',is_featured:false,trust_score:90,is_new:false},
+    {id:5,name:'Duelbits',emoji:'⚔️',rating:4.4,review_count:876,bonus_offer:'100% Up to $1,000 + Free Spins',bonus_amount:1000,categories:['slots','live','crypto'],features:['₿ Crypto','🎰 Original Games','🏆 Tournaments','💎 VIP Program'],affiliate_url:'#',is_featured:false,trust_score:88,is_new:true},
+    {id:6,name:'Cloudbet',emoji:'☁️',rating:4.3,review_count:654,bonus_offer:'100% Welcome Bonus Up to 5 BTC',bonus_amount:null,categories:['slots','sports','crypto'],features:['₿ Bitcoin Casino','⚽ Sports Book','🔒 Cold Storage','🌍 150+ Countries'],affiliate_url:'#',is_featured:false,trust_score:87,is_new:false},
+    {id:7,name:'Metaspins',emoji:'🌀',rating:4.2,review_count:432,bonus_offer:'200% Up to $1,000 Welcome Bonus',bonus_amount:1000,categories:['slots','live','crypto'],features:['₿ Crypto Focused','🎰 Pragmatic Games','🎥 Evolution Live','🆕 New Platform'],affiliate_url:'#',is_featured:false,trust_score:85,is_new:true},
+    {id:8,name:'Shuffle',emoji:'🃏',rating:4.1,review_count:321,bonus_offer:'Rakeback & Reload Bonuses',bonus_amount:null,categories:['slots','live','crypto'],features:['₿ Multi-Crypto','🎴 Unique Experience','📊 Provably Fair','🎯 Daily Drops'],affiliate_url:'#',is_featured:false,trust_score:84,is_new:true},
+];
+
+let allCasinos=[...FALLBACK_CASINOS];
+let filtered=[...FALLBACK_CASINOS];
+let currentCat='all';
+let searchQuery='';
+
+function esc(v){const d=document.createElement('div');d.textContent=String(v??'');return d.innerHTML}
+function stars(r){const full=Math.floor(r);const half=r-full>=.5;let s='';for(let i=0;i<full;i++)s+='★';if(half)s+='½';return s}
+
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' error':'');setTimeout(()=>t.className='',3200)}
+
+async function loadFromDB(){
+    try{
+        const{data,error}=await sb.from('casinos').select('*').order('rating',{ascending:false});
+        if(!error&&data?.length){
+            allCasinos=data.map(c=>({...c,emoji:c.emoji||'🎰',categories:c.categories||[],features:c.features||[]}));
+        }
+    }catch(e){}
+    applyFilters();
+    updateCounts();
+}
+
+function updateCounts(){
+    const counts={all:allCasinos.length,slots:0,live:0,sports:0,crypto:0,new:0};
+    allCasinos.forEach(c=>{
+        (c.categories||[]).forEach(cat=>{if(counts[cat]!==undefined)counts[cat]++});
+        if(c.is_new)counts.new++;
+    });
+    Object.entries(counts).forEach(([k,v])=>{const el=document.getElementById('fc-'+k);if(el)el.textContent=v});
+}
+
+function applyFilters(){
+    filtered=allCasinos.filter(c=>{
+        if(currentCat==='new')return c.is_new;
+        if(currentCat!=='all'&&!(c.categories||[]).includes(currentCat))return false;
+        if(searchQuery){const q=searchQuery.toLowerCase();if(!c.name.toLowerCase().includes(q))return false;}
+        return true;
+    });
+    applySort(false);
+}
+
+function applySort(rerender=true){
+    const sort=document.getElementById('sortSelect')?.value||'rating';
+    if(sort==='rating')filtered.sort((a,b)=>b.rating-a.rating);
+    else if(sort==='bonus')filtered.sort((a,b)=>(b.bonus_amount||0)-(a.bonus_amount||0));
+    else if(sort==='newest')filtered.sort((a,b)=>(b.is_new?1:0)-(a.is_new?1:0)||b.rating-a.rating);
+    else if(sort==='name')filtered.sort((a,b)=>a.name.localeCompare(b.name));
+    renderCasinos();
+}
+
+function applySearch(){
+    searchQuery=document.getElementById('searchInput')?.value.trim()||'';
+    applyFilters();
+}
+
+function renderCasinos(){
+    const feed=document.getElementById('casinoFeed');
+    const count=document.getElementById('resultsCount');
+    if(count)count.textContent=filtered.length+' casino'+(filtered.length!==1?'s':'');
+    if(!filtered.length){
+        feed.innerHTML=`<div class="empty-state"><div class="ei">🎰</div><p>No casinos match your filter.</p></div>`;
+        return;
+    }
+    feed.innerHTML=filtered.map(c=>{
+        const r=Number(c.rating||0).toFixed(1);
+        const bonus_text=c.bonus_offer?`<strong>${esc(c.bonus_offer)}</strong>`:'No current bonus';
+        const tags=(c.categories||[]).map(t=>`<span class="c-tag green">${esc(t)}</span>`).join('');
+        const feats=(c.features||[]).map(f=>`<div class="feature">${esc(f)}</div>`).join('');
+        const logo=c.logo_url?`<img src="${esc(c.logo_url)}" alt="${esc(c.name)}">`:(c.emoji||'🎰');
+        return`<div class="casino-card${c.is_featured?' featured':''}">
+            ${c.is_featured?'<div class="featured-badge">⭐ Featured</div>':''}
+            <div class="casino-logo">${logo}</div>
+            <div class="casino-info">
+                <div class="casino-name-row">
+                    <span class="casino-name">${esc(c.name)}</span>
+                    <span class="casino-rating"><span class="stars">${stars(c.rating)}</span> ${r} <span style="color:var(--text-dim);font-weight:400">(${(c.review_count||0).toLocaleString()})</span></span>
+                    ${c.trust_score?`<span class="c-tag green">🛡️ ${c.trust_score}% Trust</span>`:''}
+                </div>
+                <div class="casino-tags">${tags}</div>
+                <div class="casino-bonus">🎁 ${bonus_text}</div>
+                <div class="casino-features">${feats}</div>
+            </div>
+            <div class="casino-cta">
+                <a class="btn-claim" href="${esc(c.affiliate_url||'#')}" target="_blank" rel="noopener noreferrer" onclick="trackClick(${c.id})">Claim Bonus →</a>
+                <button class="btn-review" onclick="toast('Full review coming soon!')">Read Review</button>
+                <span class="cta-note">T&Cs apply. 18+ only.</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function trackClick(casinoId){
+    try{sb.from('casino_clicks').insert({casino_id:casinoId,created_at:new Date().toISOString()}).then(()=>{})}catch(e){}
+}
+
+// Auth header
+async function renderAuth(){
+    const el=document.getElementById('headerAuth');if(!el)return;
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+        const{data:p}=await sb.from('profiles').select('display_name,username').eq('id',session.user.id).single();
+        const name=p?.display_name||p?.username||session.user.email?.split('@')[0]||'User';
+        el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center"><a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a><button onclick="sb.auth.signOut().then(()=>location.href='/')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.82rem">Sign out</button></div>`;
+    }else{
+        el.innerHTML=`<a href="/" style="color:var(--text-muted);font-size:.85rem;font-weight:600">Sign In</a>`;
+    }
+}
+
+// Category filter buttons
+document.getElementById('catFilters').addEventListener('click',e=>{
+    const btn=e.target.closest('.filter-btn');if(!btn)return;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat=btn.dataset.cat;
+    applyFilters();
+});
+
+// Search on Enter
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')applySearch()});
+
+// Init
+renderAuth();
+loadFromDB();
+</script>
+</body>
+</html>
