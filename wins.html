@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/winsService.js" defer></script>
     <script src="/commentsService.js" defer></script>
+    <script src="/notificationsService.js" defer></script>
     <style>
         :root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px}
         *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
@@ -534,6 +535,11 @@
                 if(error&&error.code==='42P01'){
                     await sb.from('win_likes').insert({win_id:winId,user_id:currentUser.id});
                 }
+                // Notify win owner
+                if(window.NotificationsService&&win.user_id&&win.user_id!==currentUser.id){
+                    const name=userProfile?.display_name||userProfile?.username||currentUser.email?.split('@')[0]||'Someone';
+                    NotificationsService.createNotification({userId:win.user_id,type:'like',message:name+' liked your win!',actorId:currentUser.id,referenceId:winId,referenceType:'win'}).catch(()=>{});
+                }
             }
         }catch(e){
             // Revert on error
@@ -812,9 +818,11 @@
         if(currentUser){
             const name=userProfile?.display_name||userProfile?.username||currentUser.email?.split('@')[0]||'User';
             el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center">
+                <span id="notifBellMount"></span>
                 <a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a>
                 <button onclick="sb.auth.signOut().then(()=>location.href='/')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.82rem">Sign out</button>
             </div>`;
+            if(window.NotificationsService){NotificationsService.mountNotificationBell(document.getElementById('notifBellMount'),{userId:currentUser.id});}
         }else{
             el.innerHTML=`<a href="/" style="color:var(--text-muted);font-size:.85rem;font-weight:600">Sign In</a>`;
         }

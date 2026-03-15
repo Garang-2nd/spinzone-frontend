@@ -98,6 +98,12 @@ async function followUser(targetUserId) {
         follower_id: followerId,
         following_id: targetUserId,
     });
+    // Notify the followed user
+    if(!error&&window.NotificationsService){
+        const{data:p}=await sb.from('profiles').select('display_name,username').eq('id',followerId).single().catch(()=>({data:null}));
+        const name=p?.display_name||p?.username||session.user.email?.split('@')[0]||'Someone';
+        NotificationsService.createNotification({userId:targetUserId,type:'follow',message:name+' started following you!',actorId:followerId,referenceId:followerId,referenceType:'profile'}).catch(()=>{});
+    }
     return { error };
 }
 

@@ -7,6 +7,7 @@
     <title>SpinZone | Community Discussions</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/commentsService.js" defer></script>
+    <script src="/notificationsService.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -556,11 +557,13 @@ function renderHeader() {
         const grad = avatarGrad(name);
         container.innerHTML = `
             <div style="display:flex;align-items:center;gap:.75rem">
+                <span id="notifBellMount"></span>
                 <a href="/profile.html?id=${state.user.id}" id="userAvatar" style="background:${grad}" title="${esc(name)}">
                     ${state.profile?.profile_picture_url ? `<img src="${esc(state.profile.profile_picture_url)}" alt="">` : init}
                 </a>
                 <button class="btn btn-ghost btn-sm" onclick="handleSignOut()">Sign out</button>
             </div>`;
+        if(window.NotificationsService){NotificationsService.mountNotificationBell(document.getElementById('notifBellMount'),{userId:state.user.id});}
         if (av) { av.textContent = init; av.style.background = grad; }
         document.getElementById('createPlaceholder').style.color = 'var(--text-muted)';
     } else {
@@ -717,6 +720,11 @@ async function handleLike(postId) {
             await sb.from('likes').delete().eq('post_id', postId).eq('user_id', state.user.id);
         } else {
             await sb.from('likes').upsert({ post_id: postId, user_id: state.user.id }, { onConflict: 'post_id,user_id', ignoreDuplicates: true });
+            // Notify post owner
+            if(window.NotificationsService&&post&&post.user_id&&post.user_id!==state.user.id){
+                const name=state.profile?.display_name||state.profile?.username||state.user.email?.split('@')[0]||'Someone';
+                NotificationsService.createNotification({userId:post.user_id,type:'like',message:name+' liked your post!',actorId:state.user.id,referenceId:postId,referenceType:'post'}).catch(()=>{});
+            }
         }
     } catch (err) {
         // Revert on error
