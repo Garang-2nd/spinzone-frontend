@@ -904,7 +904,7 @@
         let currentAngle=0;let isWheelSpinning=false;
 
 
-        function initApp() {
+        async function initApp() {
             // Map common elements
             el = {
                 authButtons: document.getElementById('authButtons'),
@@ -1012,7 +1012,14 @@
 
             // Start session and load data
             createFeed(mockFeed); // Show mock immediately
-            initSession();
+            await initSession();
+
+            // Listen for auth changes AFTER el is ready
+            sb.auth.onAuthStateChange(async(event,session)=>{
+                if(session){state.session=session;state.user=session.user;await loadProfile();await loadWinLikes();renderHeader();loadPosts();loadWins()}
+                else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts();renderWins()}
+            });
+
             loadLiveFeed();
             setInterval(loadLiveFeed, 60000);
 
@@ -1572,13 +1579,6 @@
             }catch(e){}
             renderHeader();loadPosts();loadWins();
         }
-
-        sb.auth.onAuthStateChange(async(event,session)=>{
-            if(event==='SIGNED_IN'||event==='INITIAL_SESSION'||event==='TOKEN_REFRESHED'){
-                if(session){state.session=session;state.user=session.user;await loadProfile();await loadWinLikes();renderHeader();loadPosts();loadWins()}
-            }
-            else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts();renderWins()}
-        });
 
         // Initialize application on load
         document.addEventListener('DOMContentLoaded', () => {
