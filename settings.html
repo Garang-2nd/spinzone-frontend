@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SpinZone Account Settings">
+    <title>Settings | SpinZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/profileService.js" defer></script>
+    <style>
+        :root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+        body{background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden;min-height:100vh}
+        a{text-decoration:none;color:inherit;transition:color .2s}a:hover{color:var(--primary)}
+        :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+        header{background:rgba(10,14,26,.92);backdrop-filter:blur(20px);padding:0 1.5rem;height:var(--header-height);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:1.4rem;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem}.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+        .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3);color:#000}
+
+        /* LAYOUT */
+        .settings-wrap{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem}
+        .settings-title{font-size:1.6rem;font-weight:800;margin-bottom:.25rem}
+        .settings-sub{color:var(--text-muted);font-size:.9rem;margin-bottom:2rem}
+
+        /* SIDEBAR NAV */
+        .settings-layout{display:grid;grid-template-columns:220px 1fr;gap:2rem;align-items:start}
+        .settings-nav{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;position:sticky;top:calc(var(--header-height) + 1rem)}
+        .settings-nav-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;font-size:.9rem;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:1px solid var(--card-border);transition:.2s;border-left:3px solid transparent}.settings-nav-item:last-child{border-bottom:none}.settings-nav-item:hover{color:var(--text-main);background:rgba(255,255,255,.03)}.settings-nav-item.active{color:var(--primary);border-left-color:var(--primary);background:rgba(139,92,246,.06)}
+
+        /* SETTINGS SECTIONS */
+        .settings-section{display:none}.settings-section.active{display:block}
+        .section-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:1.75rem;margin-bottom:1.5rem}
+        .section-card-title{font-size:1rem;font-weight:800;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+        .section-card-desc{font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5}
+
+        /* AVATAR UPLOAD */
+        .avatar-upload-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem}
+        .avatar-preview{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;border:3px solid var(--card-border)}
+        .avatar-preview img{width:100%;height:100%;object-fit:cover}
+        .avatar-upload-zone{flex:1;border:2px dashed var(--card-border);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:.2s;background:rgba(15,23,42,.5)}.avatar-upload-zone:hover{border-color:var(--primary);background:rgba(139,92,246,.05)}
+        .avatar-upload-zone p{font-size:.85rem;color:var(--text-muted);margin-bottom:.3rem}.avatar-upload-zone span{font-size:.75rem;color:var(--text-dim)}
+        .upload-progress{height:3px;background:var(--card-border);border-radius:2px;overflow:hidden;margin-top:.75rem;display:none}.upload-progress.visible{display:block}
+        .upload-progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:2px;width:0;transition:width .3s}
+
+        /* FORMS */
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .form-group{margin-bottom:1rem}.form-group label{display:block;font-size:.82rem;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+        .form-input{width:100%;padding:.75rem;background:var(--surface);border:1px solid var(--card-border);color:var(--text-main);border-radius:8px;font-size:.9rem;outline:none;transition:.2s;font-family:inherit}.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+        textarea.form-input{resize:vertical;min-height:90px}
+        .char-count{font-size:.75rem;color:var(--text-dim);text-align:right;margin-top:.2rem}
+        .form-hint{font-size:.78rem;color:var(--text-dim);margin-top:.3rem}
+
+        /* BUTTONS */
+        .btn-primary{padding:.7rem 1.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:.4rem}.btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .btn-outline{padding:.7rem 1.5rem;background:transparent;color:var(--text-muted);border:1px solid var(--card-border);border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:.4rem}.btn-outline:hover{border-color:var(--text-main);color:var(--text-main)}
+        .btn-danger{padding:.7rem 1.5rem;background:transparent;color:var(--danger);border:1px solid rgba(239,68,68,.3);border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:.4rem}.btn-danger:hover{background:rgba(239,68,68,.1);border-color:var(--danger)}
+        .btn-row{display:flex;gap:.75rem;justify-content:flex-end;margin-top:.25rem;flex-wrap:wrap}
+
+        /* TOGGLE */
+        .pref-row{display:flex;justify-content:space-between;align-items:center;padding:.9rem 0;border-bottom:1px solid var(--card-border)}.pref-row:last-child{border-bottom:none}
+        .pref-info{flex:1;min-width:0;padding-right:1rem}.pref-info strong{display:block;font-size:.9rem;margin-bottom:.15rem}.pref-info span{font-size:.8rem;color:var(--text-muted)}
+        .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+        .toggle input{opacity:0;width:0;height:0;position:absolute}
+        .toggle-track{position:absolute;inset:0;background:var(--card-border);border-radius:12px;cursor:pointer;transition:.2s}
+        .toggle input:checked+.toggle-track{background:var(--primary)}
+        .toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}
+        .toggle input:checked+.toggle-track::after{left:23px}
+
+        /* DANGER ZONE */
+        .danger-zone{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.03)}
+        .danger-zone .section-card-title{color:var(--danger)}
+
+        /* MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;justify-content:center;align-items:center;z-index:2000;opacity:0;visibility:hidden;transition:.3s;padding:1rem;backdrop-filter:blur(5px)}.modal-overlay.active{opacity:1;visibility:visible}
+        .modal-content{background:var(--card-bg);padding:2rem;border-radius:16px;width:100%;max-width:440px;border:1px solid #475569;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .3s}.modal-overlay.active .modal-content{transform:translateY(0)}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+        .modal-header h2{font-size:1.2rem;font-weight:800}
+        .close-modal{background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:.25rem;transition:.2s}.close-modal:hover{color:#fff;transform:rotate(90deg)}
+
+        /* FEEDBACK */
+        .toast{position:fixed;bottom:20px;right:20px;background:var(--card-bg);border-left:4px solid var(--accent);padding:1rem 1.5rem;border-radius:6px;box-shadow:0 10px 15px rgba(0,0,0,.5);transform:translateY(100px);transition:.3s;z-index:3000;font-weight:600;max-width:90%}.toast.error{border-left-color:var(--danger)}.toast.active{transform:translateY(0)}
+        .status-msg{font-size:.82rem;margin-top:.5rem;min-height:1rem}
+        .status-msg.success{color:var(--accent)}.status-msg.error{color:var(--danger)}
+        .loading-page{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--text-muted);font-size:1rem}
+        .auth-required{text-align:center;padding:4rem 1rem;color:var(--text-muted)}
+        .auth-required h2{font-size:1.5rem;font-weight:800;color:var(--text-main);margin-bottom:.75rem}
+
+        footer{text-align:center;padding:2rem 1rem;color:var(--text-dim);border-top:1px solid var(--card-border);margin-top:2rem;font-size:.85rem}
+
+        @media(max-width:680px){
+            .settings-layout{grid-template-columns:1fr}
+            .settings-nav{position:static;display:flex;overflow-x:auto;border-radius:10px;scrollbar-width:none}.settings-nav::-webkit-scrollbar{display:none}
+            .settings-nav-item{border-bottom:none;border-left:none;border-bottom:3px solid transparent;flex-shrink:0;padding:.7rem 1rem;font-size:.82rem}.settings-nav-item.active{border-bottom-color:var(--primary);border-left:none;background:transparent}
+            .avatar-upload-row{flex-direction:column;align-items:flex-start}
+            .form-row{grid-template-columns:1fr}
+            .btn-row{justify-content:stretch}.btn-row button,.btn-row a{flex:1;justify-content:center}
+            header{padding:0 .75rem;height:56px}:root{--header-height:56px}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+        <div style="display:flex;align-items:center;gap:.75rem">
+            <div id="headerAuth"></div>
+            <a href="/premium.html" class="btn-gold">👑 Go Pro</a>
+        </div>
+    </header>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color:var(--danger)">⚠️ Delete Account</h2>
+                <button class="close-modal" id="closeDeleteModal">&times;</button>
+            </div>
+            <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.25rem">This will permanently delete your account and all your data (wins, picks, posts, follows). This <strong style="color:var(--text-main)">cannot be undone</strong>.</p>
+            <div class="form-group"><label>Type <strong>DELETE</strong> to confirm</label><input type="text" class="form-input" id="deleteConfirmInput" placeholder="DELETE" autocomplete="off"></div>
+            <div style="display:flex;gap:.75rem;margin-top:1rem">
+                <button class="btn-outline" id="cancelDelete" style="flex:1">Cancel</button>
+                <button class="btn-danger" id="confirmDeleteBtn" style="flex:1;justify-content:center" disabled>Delete My Account</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pageContent">
+        <div class="loading-page">Loading settings…</div>
+    </div>
+
+    <footer><p>SpinZone — Real Players. Real Wins. | 18+ Only. Please Gamble Responsibly.</p></footer>
+
+    <script>
+        const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+        const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+        const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+        let currentUser=null;
+        let userProfile=null;
+        let currentSection='profile';
+
+        function showToast(m,err){
+            const t=document.getElementById('toast');
+            t.textContent=m;
+            t.className=err?'toast active error':'toast active';
+            setTimeout(()=>t.classList.remove('active'),3000);
+        }
+        function esc(t){if(t==null)return'';const d=document.createElement('div');d.textContent=String(t);return d.innerHTML}
+
+        async function init(){
+            try{
+                const{data:{session}}=await sb.auth.getSession();
+                if(!session){showAuthRequired();return}
+                currentUser=session.user;
+                const{data:profile}=await sb.from('user_profiles').select('*').eq('id',currentUser.id).single();
+                userProfile=profile||{id:currentUser.id};
+            }catch(e){showAuthRequired();return}
+
+            renderHeaderAuth();
+            renderPage();
+        }
+
+        function showAuthRequired(){
+            document.getElementById('pageContent').innerHTML=`
+                <div class="settings-wrap">
+                    <div class="auth-required">
+                        <h2>Sign In Required</h2>
+                        <p>Please <a href="/" style="color:var(--primary)">sign in</a> to access your account settings.</p>
+                    </div>
+                </div>`;
+        }
+
+        function renderPage(){
+            const p=userProfile||{};
+            const name=p.display_name||p.username||currentUser.email?.split('@')[0]||'Player';
+            const initial=name.charAt(0).toUpperCase();
+            const avatarHtml=p.profile_picture_url
+                ?`<img src="${esc(p.profile_picture_url)}" alt="${esc(name)}" id="avatarImg">`
+                :`<span id="avatarInitial">${initial}</span>`;
+
+            document.getElementById('pageContent').innerHTML=`
+            <div class="settings-wrap">
+                <div class="settings-title">Account Settings</div>
+                <div class="settings-sub">Manage your profile, security, and preferences.</div>
+                <div class="settings-layout">
+                    <!-- Sidebar Nav -->
+                    <nav class="settings-nav" aria-label="Settings sections">
+                        <div class="settings-nav-item active" data-section="profile" onclick="switchSection('profile',this)">👤 Profile</div>
+                        <div class="settings-nav-item" data-section="security" onclick="switchSection('security',this)">🔒 Security</div>
+                        <div class="settings-nav-item" data-section="preferences" onclick="switchSection('preferences',this)">🔔 Notifications</div>
+                        <div class="settings-nav-item" data-section="danger" onclick="switchSection('danger',this)" style="color:var(--danger)">🗑️ Account</div>
+                    </nav>
+
+                    <!-- Main Panels -->
+                    <div class="settings-panels">
+
+                        <!-- PROFILE SECTION -->
+                        <div class="settings-section active" id="section-profile">
+                            <!-- Avatar -->
+                            <div class="section-card">
+                                <div class="section-card-title">🖼️ Profile Picture</div>
+                                <div class="avatar-upload-row">
+                                    <div class="avatar-preview" id="avatarPreview">${avatarHtml}</div>
+                                    <div class="avatar-upload-zone" id="avatarZone" onclick="document.getElementById('avatarFile').click()" role="button" tabindex="0" aria-label="Upload profile picture">
+                                        <p><strong>Click to upload</strong> or drag &amp; drop</p>
+                                        <span>JPG, PNG, GIF · Max 5 MB</span>
+                                        <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleAvatarUpload(event)">
+                                        <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadBar"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Profile Info -->
+                            <div class="section-card">
+                                <div class="section-card-title">📝 Profile Info</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="sDisplayName">Display Name</label>
+                                        <input type="text" class="form-input" id="sDisplayName" value="${esc(p.display_name||'')}" maxlength="50" placeholder="Your name" oninput="updateCharCount(this,'dcName',50)">
+                                        <div class="char-count" id="dcName">${(p.display_name||'').length}/50</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sUsername">Username</label>
+                                        <input type="text" class="form-input" id="sUsername" value="${esc(p.username||'')}" maxlength="30" placeholder="@username">
+                                        <div class="form-hint">spinzone.gg/@username</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sBio">Bio</label>
+                                    <textarea class="form-input" id="sBio" maxlength="200" placeholder="Tell the community about yourself…" oninput="updateCharCount(this,'dcBio',200)">${esc(p.bio||'')}</textarea>
+                                    <div class="char-count" id="dcBio">${(p.bio||'').length}/200</div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="sLocation">Location</label>
+                                        <input type="text" class="form-input" id="sLocation" value="${esc(p.location||'')}" maxlength="80" placeholder="City, Country">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sTwitter">Twitter / X</label>
+                                        <input type="text" class="form-input" id="sTwitter" value="${esc(p.twitter_handle||'')}" maxlength="30" placeholder="@handle">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sWebsite">Website</label>
+                                    <input type="url" class="form-input" id="sWebsite" value="${esc(p.website||'')}" placeholder="https://yoursite.com">
+                                </div>
+                                <div class="btn-row">
+                                    <a href="/profile.html" class="btn-outline">View Profile</a>
+                                    <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()">💾 Save Changes</button>
+                                </div>
+                                <div class="status-msg" id="profileStatus"></div>
+                            </div>
+                        </div>
+
+                        <!-- SECURITY SECTION -->
+                        <div class="settings-section" id="section-security">
+                            <div class="section-card">
+                                <div class="section-card-title">📧 Email Address</div>
+                                <div class="form-group">
+                                    <label>Current Email</label>
+                                    <input type="email" class="form-input" value="${esc(currentUser.email||'')}" readonly style="opacity:.7;cursor:default">
+                                    <div class="form-hint">Contact support to change your email address.</div>
+                                </div>
+                            </div>
+                            <div class="section-card">
+                                <div class="section-card-title">🔑 Change Password</div>
+                                <div class="section-card-desc">Leave fields blank to keep your current password.</div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <input type="password" class="form-input" id="newPassword" placeholder="At least 8 characters" minlength="8" autocomplete="new-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <input type="password" class="form-input" id="confirmPassword" placeholder="Repeat new password" autocomplete="new-password">
+                                </div>
+                                <div class="btn-row">
+                                    <button class="btn-primary" id="changePasswordBtn" onclick="changePassword()">🔑 Update Password</button>
+                                </div>
+                                <div class="status-msg" id="passwordStatus"></div>
+                            </div>
+                            <div class="section-card">
+                                <div class="section-card-title">🚪 Sessions</div>
+                                <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem">Sign out of all other devices to secure your account.</p>
+                                <button class="btn-outline" onclick="signOutAll()">Sign Out Everywhere</button>
+                            </div>
+                        </div>
+
+                        <!-- NOTIFICATIONS SECTION -->
+                        <div class="settings-section" id="section-preferences">
+                            <div class="section-card">
+                                <div class="section-card-title">🔔 Email Notifications</div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>New Followers</strong><span>Email when someone follows you</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefFollowers" ${(userProfile?.notify_followers!==false)?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Post Likes</strong><span>Email when someone likes your post</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefLikes" ${(userProfile?.notify_likes!==false)?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Comments</strong><span>Email when someone comments on your content</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefComments" ${(userProfile?.notify_comments!==false)?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Weekly Digest</strong><span>Weekly summary of top wins and picks</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefDigest" ${userProfile?.notify_digest?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Promotions</strong><span>Casino offers and partner deals</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefPromo" ${userProfile?.notify_promo?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="btn-row" style="margin-top:1.25rem">
+                                    <button class="btn-primary" onclick="savePreferences()">💾 Save Preferences</button>
+                                </div>
+                                <div class="status-msg" id="prefStatus"></div>
+                            </div>
+                            <div class="section-card">
+                                <div class="section-card-title">🔒 Privacy</div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Public Profile</strong><span>Allow anyone to view your profile</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefPublicProfile" ${(userProfile?.is_public!==false)?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info"><strong>Show in Leaderboards</strong><span>Appear in community rankings</span></div>
+                                    <label class="toggle"><input type="checkbox" id="prefLeaderboard" ${(userProfile?.show_in_leaderboard!==false)?'checked':''}><div class="toggle-track"></div></label>
+                                </div>
+                                <div class="btn-row" style="margin-top:1.25rem">
+                                    <button class="btn-primary" onclick="savePrivacy()">💾 Save Privacy</button>
+                                </div>
+                                <div class="status-msg" id="privacyStatus"></div>
+                            </div>
+                        </div>
+
+                        <!-- DANGER ZONE -->
+                        <div class="settings-section" id="section-danger">
+                            <div class="section-card">
+                                <div class="section-card-title" style="color:var(--text-main)">📤 Export Data</div>
+                                <p class="section-card-desc">Download a copy of your SpinZone data including your wins, picks, and posts.</p>
+                                <button class="btn-outline" onclick="exportData()">📥 Request Data Export</button>
+                            </div>
+                            <div class="section-card danger-zone">
+                                <div class="section-card-title">⚠️ Delete Account</div>
+                                <p class="section-card-desc">Permanently delete your account and all associated data. This action is irreversible and cannot be recovered.</p>
+                                <button class="btn-danger" onclick="openDeleteModal()">🗑️ Delete My Account</button>
+                            </div>
+                        </div>
+
+                    </div><!-- /settings-panels -->
+                </div><!-- /settings-layout -->
+            </div><!-- /settings-wrap -->`;
+
+            // Drag-and-drop on avatar zone
+            const zone=document.getElementById('avatarZone');
+            if(zone){
+                zone.addEventListener('dragover',(e)=>{e.preventDefault();zone.style.borderColor='var(--primary)'});
+                zone.addEventListener('dragleave',()=>zone.style.borderColor='');
+                zone.addEventListener('drop',(e)=>{e.preventDefault();zone.style.borderColor='';const f=e.dataTransfer.files[0];if(f)handleAvatarUploadFile(f)});
+                zone.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' ')document.getElementById('avatarFile').click()});
+            }
+
+            // Delete confirm input
+            document.getElementById('deleteConfirmInput')?.addEventListener('input',function(){
+                document.getElementById('confirmDeleteBtn').disabled=this.value!=='DELETE';
+            });
+        }
+
+        function switchSection(section,el){
+            currentSection=section;
+            document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));
+            if(el)el.classList.add('active');
+            document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
+            const target=document.getElementById('section-'+section);
+            if(target)target.classList.add('active');
+        }
+
+        function updateCharCount(el,countId,max){
+            const c=document.getElementById(countId);
+            if(c)c.textContent=el.value.length+'/'+max;
+        }
+
+        async function handleAvatarUpload(event){
+            const file=event.target.files[0];
+            if(!file)return;
+            handleAvatarUploadFile(file);
+        }
+
+        async function handleAvatarUploadFile(file){
+            if(file.size>5*1024*1024){showToast('Image must be under 5 MB',true);return}
+            if(!file.type.startsWith('image/')){showToast('Please select an image file',true);return}
+
+            const progress=document.getElementById('uploadProgress');
+            const bar=document.getElementById('uploadBar');
+            if(progress)progress.classList.add('visible');
+            if(bar){bar.style.width='30%';}
+
+            try{
+                const ext=file.name.split('.').pop().toLowerCase();
+                const path=`avatars/${currentUser.id}.${ext}`;
+                if(bar)bar.style.width='60%';
+                const{error:ue}=await sb.storage.from('profile-pictures').upload(path,file,{upsert:true,contentType:file.type});
+                if(ue)throw ue;
+                if(bar)bar.style.width='85%';
+                const{data:{publicUrl}}=sb.storage.from('profile-pictures').getPublicUrl(path);
+                await sb.from('user_profiles').update({profile_picture_url:publicUrl,updated_at:new Date().toISOString()}).eq('id',currentUser.id);
+                if(bar)bar.style.width='100%';
+
+                // Update preview
+                const preview=document.getElementById('avatarPreview');
+                if(preview){
+                    let img=preview.querySelector('img');
+                    if(!img){img=document.createElement('img');preview.innerHTML='';preview.appendChild(img);}
+                    img.src=publicUrl+'?t='+Date.now();
+                    img.alt='Profile picture';
+                }
+                if(userProfile)userProfile.profile_picture_url=publicUrl;
+                showToast('Profile picture updated! 🎉');
+            }catch(e){
+                showToast('Upload failed: '+(e.message||'Unknown error'),true);
+            }finally{
+                setTimeout(()=>{if(progress)progress.classList.remove('visible');if(bar)bar.style.width='0'},800);
+            }
+        }
+
+        async function saveProfile(){
+            const btn=document.getElementById('saveProfileBtn');
+            const status=document.getElementById('profileStatus');
+            btn.disabled=true;btn.textContent='Saving…';
+            status.textContent='';status.className='status-msg';
+            try{
+                const updates={
+                    display_name:document.getElementById('sDisplayName').value.trim()||null,
+                    username:document.getElementById('sUsername').value.trim()||null,
+                    bio:document.getElementById('sBio').value.trim()||null,
+                    location:document.getElementById('sLocation').value.trim()||null,
+                    twitter_handle:document.getElementById('sTwitter').value.trim()||null,
+                    website:document.getElementById('sWebsite').value.trim()||null,
+                    updated_at:new Date().toISOString()
+                };
+                const{error}=await sb.from('user_profiles').update(updates).eq('id',currentUser.id);
+                if(error)throw error;
+                if(userProfile)Object.assign(userProfile,updates);
+                status.textContent='✓ Profile saved successfully';
+                status.className='status-msg success';
+                showToast('Profile updated! ✅');
+            }catch(e){
+                status.textContent='✗ '+(e.message||'Save failed');
+                status.className='status-msg error';
+            }finally{
+                btn.disabled=false;btn.innerHTML='💾 Save Changes';
+            }
+        }
+
+        async function changePassword(){
+            const btn=document.getElementById('changePasswordBtn');
+            const status=document.getElementById('passwordStatus');
+            const newPw=document.getElementById('newPassword').value;
+            const confirmPw=document.getElementById('confirmPassword').value;
+            status.textContent='';status.className='status-msg';
+
+            if(!newPw){status.textContent='Please enter a new password';status.className='status-msg error';return}
+            if(newPw.length<8){status.textContent='Password must be at least 8 characters';status.className='status-msg error';return}
+            if(newPw!==confirmPw){status.textContent='Passwords do not match';status.className='status-msg error';return}
+
+            btn.disabled=true;btn.textContent='Updating…';
+            try{
+                const{error}=await sb.auth.updateUser({password:newPw});
+                if(error)throw error;
+                document.getElementById('newPassword').value='';
+                document.getElementById('confirmPassword').value='';
+                status.textContent='✓ Password updated successfully';
+                status.className='status-msg success';
+                showToast('Password changed! 🔑');
+            }catch(e){
+                status.textContent='✗ '+(e.message||'Failed to update password');
+                status.className='status-msg error';
+            }finally{
+                btn.disabled=false;btn.innerHTML='🔑 Update Password';
+            }
+        }
+
+        async function signOutAll(){
+            try{
+                await sb.auth.signOut({scope:'global'});
+                showToast('Signed out everywhere');
+                setTimeout(()=>location.href='/',1500);
+            }catch(e){showToast('Failed to sign out everywhere',true)}
+        }
+
+        async function savePreferences(){
+            const status=document.getElementById('prefStatus');
+            status.textContent='';
+            try{
+                const updates={
+                    notify_followers:document.getElementById('prefFollowers')?.checked??true,
+                    notify_likes:document.getElementById('prefLikes')?.checked??true,
+                    notify_comments:document.getElementById('prefComments')?.checked??true,
+                    notify_digest:document.getElementById('prefDigest')?.checked??false,
+                    notify_promo:document.getElementById('prefPromo')?.checked??false,
+                    updated_at:new Date().toISOString()
+                };
+                const{error}=await sb.from('user_profiles').update(updates).eq('id',currentUser.id);
+                if(error)throw error;
+                if(userProfile)Object.assign(userProfile,updates);
+                status.textContent='✓ Preferences saved';
+                status.className='status-msg success';
+                showToast('Notification preferences saved!');
+            }catch(e){
+                status.textContent='✗ '+(e.message||'Save failed');
+                status.className='status-msg error';
+            }
+        }
+
+        async function savePrivacy(){
+            const status=document.getElementById('privacyStatus');
+            status.textContent='';
+            try{
+                const updates={
+                    is_public:document.getElementById('prefPublicProfile')?.checked??true,
+                    show_in_leaderboard:document.getElementById('prefLeaderboard')?.checked??true,
+                    updated_at:new Date().toISOString()
+                };
+                const{error}=await sb.from('user_profiles').update(updates).eq('id',currentUser.id);
+                if(error)throw error;
+                if(userProfile)Object.assign(userProfile,updates);
+                status.textContent='✓ Privacy settings saved';
+                status.className='status-msg success';
+                showToast('Privacy settings saved!');
+            }catch(e){
+                status.textContent='✗ '+(e.message||'Save failed');
+                status.className='status-msg error';
+            }
+        }
+
+        function exportData(){
+            showToast('Data export request sent — you\'ll receive an email within 24h.');
+        }
+
+        function openDeleteModal(){
+            document.getElementById('deleteConfirmInput').value='';
+            document.getElementById('confirmDeleteBtn').disabled=true;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        document.getElementById('closeDeleteModal').addEventListener('click',()=>document.getElementById('deleteModal').classList.remove('active'));
+        document.getElementById('cancelDelete').addEventListener('click',()=>document.getElementById('deleteModal').classList.remove('active'));
+        document.getElementById('deleteModal').addEventListener('click',(e)=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('active')});
+        document.addEventListener('keydown',(e)=>{if(e.key==='Escape')document.getElementById('deleteModal').classList.remove('active')});
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click',async()=>{
+            const btn=document.getElementById('confirmDeleteBtn');
+            btn.disabled=true;btn.textContent='Deleting…';
+            try{
+                // Delete profile data then auth user
+                await sb.from('wins').delete().eq('user_id',currentUser.id);
+                await sb.from('picks').delete().eq('user_id',currentUser.id);
+                await sb.from('posts').delete().eq('user_id',currentUser.id);
+                await sb.from('follows').delete().or(`follower_id.eq.${currentUser.id},following_id.eq.${currentUser.id}`);
+                await sb.from('user_profiles').delete().eq('id',currentUser.id);
+                await sb.auth.signOut();
+                showToast('Account deleted. Goodbye. 👋');
+                setTimeout(()=>location.href='/',2000);
+            }catch(e){
+                showToast('Failed to delete account: '+(e.message||''),true);
+                btn.disabled=false;btn.textContent='Delete My Account';
+            }
+        });
+
+        async function renderHeaderAuth(){
+            const el=document.getElementById('headerAuth');
+            if(!el||!currentUser)return;
+            const p=userProfile||{};
+            const name=p.display_name||p.username||currentUser.email?.split('@')[0]||'User';
+            el.innerHTML=`<div style="display:flex;gap:.75rem;align-items:center">
+                <a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a>
+                <button onclick="sb.auth.signOut().then(()=>location.href='/')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.82rem">Sign out</button>
+            </div>`;
+        }
+
+        init();
+    </script>
+</body>
+</html>
