@@ -435,24 +435,35 @@
     async function loadPicks(reset=false){
         if(reset){picks=[];offset=0;document.getElementById('picksGrid').innerHTML='<div class="skeleton"></div><div class="skeleton" style="height:110px;opacity:.65"></div>';}
 
-        let q=sb.from('picks')
-            .select('*, profiles!left(username,display_name,is_verified,profile_picture_url), likes!left(id)')
-            .range(offset,offset+PAGE-1)
-            .order('created_at',{ascending:false});
+        try{
+            let q=sb.from('picks')
+                .select('*, profiles!left(username,display_name,is_verified,profile_picture_url), likes!left(id)')
+                .range(offset,offset+PAGE-1)
+                .order('created_at',{ascending:false});
 
-        if(currentSport!=='all')q=q.eq('sport',currentSport);
-        if(currentResult==='pending')q=q.is('result',null);
-        else if(currentResult==='win')q=q.eq('result','win');
-        else if(currentResult==='loss')q=q.eq('result','loss');
+            if(currentSport!=='all')q=q.eq('sport',currentSport);
+            if(currentResult==='pending')q=q.is('result',null);
+            else if(currentResult==='win')q=q.eq('result','win');
+            else if(currentResult==='loss')q=q.eq('result','loss');
 
-        const{data,error}=await q;
-        if(error){
-            // bare fallback
-            const{data:bare}=await sb.from('picks').select('*').order('created_at',{ascending:false}).range(offset,offset+PAGE-1);
-            if(bare)appendPicks(bare,reset);
-            return;
+            const{data,error}=await q;
+            if(error){
+                // bare fallback without joins
+                let q2=sb.from('picks').select('*').order('created_at',{ascending:false}).range(offset,offset+PAGE-1);
+                if(currentSport!=='all')q2=q2.eq('sport',currentSport);
+                if(currentResult==='pending')q2=q2.is('result',null);
+                else if(currentResult==='win')q2=q2.eq('result','win');
+                else if(currentResult==='loss')q2=q2.eq('result','loss');
+                const{data:bare,error:bareErr}=await q2;
+                if(bareErr)throw bareErr;
+                appendPicks(bare||[],reset);
+                return;
+            }
+            appendPicks(data||[],reset);
+        }catch(e){
+            console.error('loadPicks error:',e);
+            appendPicks([],reset);
         }
-        appendPicks(data||[],reset);
     }
 
     function appendPicks(raw,reset){
