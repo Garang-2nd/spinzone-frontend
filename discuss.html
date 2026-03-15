@@ -6,6 +6,7 @@
     <meta name="description" content="SpinZone Community — Discuss slots, poker, strategy, and more with real players.">
     <title>SpinZone | Community Discussions</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/commentsService.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -588,7 +589,7 @@ async function loadPosts(append = false) {
 
     try {
         let q = sb.from('posts')
-            .select('*, profiles!left(username, display_name, profile_picture_url, is_verified), likes!left(id)')
+            .select('*, profiles!left(username, display_name, profile_picture_url, is_verified), likes!left(id), comments!left(id)')
             .order('created_at', { ascending: false })
             .range(state.offset, state.offset + state.PAGE_SIZE - 1);
 
@@ -604,6 +605,7 @@ async function loadPosts(append = false) {
             is_verified: p.profiles?.is_verified || false,
             profile_picture_url: p.profiles?.profile_picture_url || null,
             like_count: Array.isArray(p.likes) ? p.likes.length : 0,
+            comment_count: Array.isArray(p.comments) ? p.comments.length : 0,
         }));
 
         if (state.currentSort === 'popular') batch.sort((a, b) => b.like_count - a.like_count);
@@ -658,8 +660,6 @@ function renderPostCard(p) {
     const name = p.display_name || p.username || 'Anonymous';
     const init = name.substring(0, 2).toUpperCase();
     const grad = avatarGrad(name);
-    const replies = (p.id * 7 + 3) % 80;
-
     return `<article class="post-card" data-id="${p.id}">
         <div class="post-header">
             <div class="post-av" style="background:${grad}">
@@ -683,7 +683,7 @@ function renderPostCard(p) {
                 ❤️ <span class="like-count-${p.id}">${p.like_count}</span>
             </button>
             <button class="post-stat" onclick="openPostModal(${p.id})">
-                💬 ${replies} replies
+                💬 <span class="post-cc-${p.id}">${p.comment_count || 0}</span>
             </button>
             ${isOwner ? `<button class="post-delete" onclick="handleDelete(${p.id})" title="Delete post">🗑️</button>` : ''}
         </div>
@@ -845,90 +845,32 @@ async function openPostModal(postId) {
             </button>
             ${isOwner ? `<button class="btn btn-danger btn-sm" onclick="handleDelete(${postId});closePostModal()">🗑️ Delete</button>` : ''}
         </div>
-        <hr class="modal-divider">
-        <div class="comments-section">
-            <h4>Replies</h4>
-            <div id="modalComments"><p style="color:var(--text-dim);font-size:.85rem">Loading replies…</p></div>
-            ${state.user ? `
-            <div class="comment-form">
-                <textarea class="comment-input" id="commentInput" placeholder="Write a reply…" rows="1"></textarea>
-                <button class="comment-submit" onclick="submitComment(${postId})">Reply</button>
-            </div>` : `<p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem"><a href="/index.html" style="color:var(--primary)">Sign in</a> to reply.</p>`}
-        </div>`;
+        <div id="postCommentsMount"></div>`;
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Load comments
-    loadComments(postId);
+    // Mount comment section
+    if (window._postCommentSection) { window._postCommentSection.destroy(); window._postCommentSection = null; }
+    if (window.CommentsService) {
+        window._postCommentSection = CommentsService.mountCommentSection(
+            document.getElementById('postCommentsMount'),
+            { contentType: 'post', contentId: postId, currentUser: state.user, currentProfile: state.profile,
+              onCountChange: (n) => {
+                  const post = state.posts.find(p => p.id === postId);
+                  if (post) post.comment_count = n;
+                  document.querySelectorAll('.post-cc-' + postId).forEach(el => el.textContent = n);
+              }
+            }
+        );
+    }
 }
 
 function closePostModal() {
     document.getElementById('postModal').classList.remove('active');
     document.body.style.overflow = '';
     _openPostId = null;
-}
-
-async function loadComments(postId) {
-    const container = document.getElementById('modalComments');
-    if (!container) return;
-    try {
-        const { data, error } = await sb.from('comments')
-            .select('*, profiles!left(username, display_name, profile_picture_url)')
-            .eq('post_id', postId)
-            .order('created_at', { ascending: true })
-            .limit(50);
-
-        if (error || !data?.length) {
-            container.innerHTML = '<div class="empty-comments">No replies yet. Be the first!</div>';
-            return;
-        }
-
-        container.innerHTML = data.map(c => {
-            const n = c.profiles?.display_name || c.profiles?.username || 'User';
-            const i = n.substring(0, 2).toUpperCase();
-            return `<div class="comment-item">
-                <div class="comment-av" style="background:${avatarGrad(n)}">
-                    ${c.profiles?.profile_picture_url ? `<img src="${esc(c.profiles.profile_picture_url)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : esc(i)}
-                </div>
-                <div class="comment-body">
-                    <div class="comment-author">${esc(n)} <span style="font-weight:400;color:var(--text-dim);font-size:.75rem">&bull; ${timeAgo(c.created_at)}</span></div>
-                    <div class="comment-text">${esc(c.content)}</div>
-                </div>
-            </div>`;
-        }).join('');
-    } catch (err) {
-        container.innerHTML = '<div class="empty-comments">Failed to load replies.</div>';
-    }
-}
-
-async function submitComment(postId) {
-    const input = document.getElementById('commentInput');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-    if (!state.user) { showToast('Sign in to reply.', true); return; }
-
-    const btn = input.nextElementSibling;
-    btn.textContent = 'Posting…'; btn.disabled = true;
-    input.disabled = true;
-
-    try {
-        const { error } = await sb.from('comments').insert({
-            post_id: postId,
-            user_id: state.user.id,
-            content: text,
-            created_at: new Date().toISOString(),
-        });
-        if (error) throw error;
-        input.value = '';
-        await loadComments(postId);
-    } catch (err) {
-        showToast('Failed to post reply.', true);
-    } finally {
-        btn.textContent = 'Reply'; btn.disabled = false;
-        input.disabled = false;
-    }
+    if (window._postCommentSection) { window._postCommentSection.destroy(); window._postCommentSection = null; }
 }
 
 // ── COUNTS & TRENDING ──────────────────────────────────────────────────────
