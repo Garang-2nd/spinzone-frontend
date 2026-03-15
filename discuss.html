@@ -598,7 +598,19 @@ async function loadPosts(append = false) {
 
         if (state.currentCat !== 'all') q = q.eq('type', state.currentCat);
 
-        const { data, error } = await q;
+        let { data, error } = await q;
+
+        // Fallback: if query fails (e.g. comments table missing), retry without comments join
+        if (error) {
+            let q2 = sb.from('posts')
+                .select('*, profiles!left(username, display_name, profile_picture_url, is_verified), likes!left(id)')
+                .order('created_at', { ascending: false })
+                .range(state.offset, state.offset + state.PAGE_SIZE - 1);
+            if (state.currentCat !== 'all') q2 = q2.eq('type', state.currentCat);
+            const res = await q2;
+            data = res.data;
+            error = res.error;
+        }
         if (error) throw error;
 
         const batch = (data || []).map(p => ({
