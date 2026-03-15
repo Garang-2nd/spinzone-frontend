@@ -320,6 +320,15 @@
     </style>
 </head>
 <body>
+    <header>
+        <a href="#" onclick="showPage('home'); return false;" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+        <div style="display:flex;align-items:center;gap:.75rem">
+            <div class="user-actions" id="authButtons" aria-live="polite">
+                <button class="btn btn-outline" onclick="initiateAuthFlow(true)">Sign In</button>
+                <button class="btn btn-primary" onclick="initiateAuthFlow(false)">Join Community</button>
+            </div>
+            <button class="btn-gold" onclick="showPage('premium')">👑 Go Pro</button>
+        </div>
     </header>
     <div class="live-feed-container" id="liveFeedContainer" style="display:none">
         <div class="live-feed-label">
@@ -995,6 +1004,11 @@
                 });
             }
 
+            // Start session and load data
+            initSession();
+            loadLiveFeed();
+            setInterval(loadLiveFeed, 60000);
+
             // Bind Category Buttons
             el.catButtons.forEach(btn => btn.addEventListener('click', () => {
                 el.catButtons.forEach(b => b.classList.remove('active'));
@@ -1601,12 +1615,12 @@
                 let feedItems = [];
                 if (wins && wins.length) {
                     feedItems = [...feedItems, ...wins.map(w => ({
-                        icon: '💰', user: w.username, action: 'won', amount: `$${parseFloat(w.win_amount).toLocaleString()}`, game: w.slot_name || 'Casino', time: getTimeAgo(w.created_at)
+                        icon: '💰', user: w.username || 'Anonymous', action: 'won', amount: `$${parseFloat(w.win_amount).toLocaleString()}`, game: w.slot_name || 'Casino', time: getTimeAgo(w.created_at)
                     }))];
                 }
                 if (posts && posts.length) {
                     feedItems = [...feedItems, ...posts.map(p => ({
-                        icon: '💬', user: p.username, action: 'posted', amount: '', game: p.title.substring(0, 20) + '...', time: getTimeAgo(p.created_at)
+                        icon: '💬', user: p.username || 'Member', action: 'posted', amount: '', game: (p.title || '').substring(0, 20) + '...', time: getTimeAgo(p.created_at)
                     }))];
                 }
 
@@ -1637,14 +1651,6 @@
                 </div>
             `).join('');
         }
-
-        // Add to initialization
-        const originalInitApp = initApp;
-        initApp = async function() {
-            await originalInitApp();
-            loadLiveFeed();
-            setInterval(loadLiveFeed, 60000); // Update every minute
-        };
     </script>
 </body>
 </html>
