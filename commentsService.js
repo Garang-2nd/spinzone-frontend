@@ -485,6 +485,11 @@ function mountCommentSection(container, opts = {}) {
                 ? await unlikeComment(commentId)
                 : await likeComment(commentId);
             if (error) throw error;
+            // Notify comment author on like
+            if(!liked&&window.NotificationsService&&comment&&comment.user_id&&comment.user_id!==currentUser.id){
+                const name=currentProfile?.display_name||currentProfile?.username||currentUser.email?.split('@')[0]||'Someone';
+                NotificationsService.createNotification({userId:comment.user_id,type:'like',message:name+' liked your comment',actorId:currentUser.id,referenceId:contentId,referenceType:contentType}).catch(()=>{});
+            }
         } catch (err) {
             // Revert
             if (liked) { userLikes.add(String(commentId)); if (comment) comment.like_count = (comment.like_count || 0) + 1; }
@@ -530,6 +535,14 @@ function mountCommentSection(container, opts = {}) {
             comments.push(newC);
             openReplyId = null;
             render();
+            // Notify parent comment author
+            if(window.NotificationsService&&currentUser){
+                const parent=comments.find(c=>String(c.id)===String(parentId));
+                if(parent&&parent.user_id&&parent.user_id!==currentUser.id){
+                    const name=currentProfile?.display_name||currentProfile?.username||currentUser.email?.split('@')[0]||'Someone';
+                    NotificationsService.createNotification({userId:parent.user_id,type:'comment',message:name+' replied to your comment',actorId:currentUser.id,referenceId:contentId,referenceType:contentType}).catch(()=>{});
+                }
+            }
         } catch (err) {
             _toast('Failed to post reply.', true);
             if (postBtn) { postBtn.textContent = 'Reply'; postBtn.disabled = false; }
@@ -550,6 +563,19 @@ function mountCommentSection(container, opts = {}) {
             comments.push(newC);
             if (inp) inp.value = '';
             render();
+            // Notify content owner
+            if(window.NotificationsService&&currentUser){
+                try{
+                    const table={win:'wins',post:'posts',pick:'picks'}[contentType];
+                    if(table){
+                        const{data:owner}=await _csClient().from(table).select('user_id').eq('id',contentId).single();
+                        if(owner&&owner.user_id&&owner.user_id!==currentUser.id){
+                            const name=currentProfile?.display_name||currentProfile?.username||currentUser.email?.split('@')[0]||'Someone';
+                            NotificationsService.createNotification({userId:owner.user_id,type:'comment',message:name+' commented on your '+contentType,actorId:currentUser.id,referenceId:contentId,referenceType:contentType}).catch(()=>{});
+                        }
+                    }
+                }catch(e){}
+            }
         } catch (err) {
             _toast('Failed to post comment.', true);
             if (btn) { btn.textContent = 'Post'; btn.disabled = false; }
