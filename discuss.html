@@ -519,7 +519,7 @@ async function initAuth() {
     renderHeader();
 
     sb.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN') { state.user = session.user; await loadProfile(); await loadUserLikes(); }
+        if (session) { state.user = session.user; await loadProfile(); await loadUserLikes(); }
         else if (event === 'SIGNED_OUT') { state.user = null; state.profile = null; state.userLikes = new Set(); }
         renderHeader();
         renderFeed();
