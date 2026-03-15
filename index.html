@@ -1051,6 +1051,7 @@
             }
 
             if(el.submitWinBtn) el.submitWinBtn.addEventListener('click', handleCreateWin);
+            _initWinUploadZone();
         }
 
         function drawWheel(angle){
@@ -1293,6 +1294,124 @@
             if(!state.user){showToast("You must be logged in to post.",true);return}
             el.submitPostBtn.textContent="Posting...";el.submitPostBtn.disabled=true;
             try{const{error}=await sb.from('posts').insert({user_id:state.user.id,title,content,type});if(error)throw error;el.postTitle.value='';el.postContent.value='';showToast("Post published!");loadPosts()}catch(err){showToast("Failed to create post.",true)}finally{el.submitPostBtn.textContent="Post";el.submitPostBtn.disabled=false}
+        }
+
+        // ── WIN SUBMISSION ────────────────────────────────────────────────────
+        let _selectedWinFile=null;
+
+        async function handleCreateWin(){
+            if(!state.user){showToast("Sign in to share your win!",true);return}
+            const casino=(el.winCasino?.value||'').trim();
+            const amount=parseFloat(el.winAmount?.value||0);
+            if(!casino){showToast("Please enter the casino name.",true);el.winCasino?.focus();return}
+            if(!amount||amount<=0){showToast("Please enter a valid win amount.",true);el.winAmount?.focus();return}
+            if(_selectedWinFile&&_selectedWinFile.size>5*1024*1024){showToast("Screenshot must be under 5 MB.",true);return}
+
+            if(el.submitWinBtn){el.submitWinBtn.textContent="Posting…";el.submitWinBtn.disabled=true}
+
+            let screenshotUrl=null;
+            let screenshotPath=null;
+
+            try{
+                // 1 – Upload screenshot to 'win-screenshots' bucket
+                if(_selectedWinFile){
+                    const ext=_selectedWinFile.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+                    screenshotPath=`${state.user.id}/${Date.now()}.${ext}`;
+                    if(el.uploadProgress)el.uploadProgress.classList.add('visible');
+                    if(el.uploadProgressBar)el.uploadProgressBar.style.width='40%';
+                    const{error:upErr}=await sb.storage.from('win-screenshots').upload(screenshotPath,_selectedWinFile,{contentType:_selectedWinFile.type,upsert:false});
+                    if(upErr)throw upErr;
+                    if(el.uploadProgressBar)el.uploadProgressBar.style.width='80%';
+                    const{data:{publicUrl}}=sb.storage.from('win-screenshots').getPublicUrl(screenshotPath);
+                    screenshotUrl=publicUrl;
+                    if(el.uploadProgressBar)el.uploadProgressBar.style.width='100%';
+                }
+
+                // 2 – Insert into 'wins' table
+                const username=getUsername();
+                const{data:newWin,error:insertErr}=await sb.from('wins').insert({
+                    user_id:state.user.id,
+                    username,
+                    casino_name:casino,
+                    slot_name:(el.winSlot?.value||'').trim()||null,
+                    win_amount:amount,
+                    win_multiplier:(el.winMultiplier?.value||'').trim()||null,
+                    description:(el.winDescription?.value||'').trim()||null,
+                    screenshot_url:screenshotUrl,
+                    screenshot_path:screenshotPath,
+                    created_at:new Date().toISOString(),
+                }).select().single();
+                if(insertErr)throw insertErr;
+
+                // 3 – Reset form & refresh feed
+                if(el.winCasino)el.winCasino.value='';
+                if(el.winSlot)el.winSlot.value='';
+                if(el.winAmount)el.winAmount.value='';
+                if(el.winMultiplier)el.winMultiplier.value='';
+                if(el.winDescription)el.winDescription.value='';
+                _selectedWinFile=null;
+                if(el.uploadPreview)el.uploadPreview.classList.remove('visible');
+                if(el.uploadPreviewImg)el.uploadPreviewImg.src='';
+                if(el.uploadZone)el.uploadZone.classList.remove('has-file');
+                if(el.uploadProgress)el.uploadProgress.classList.remove('visible');
+                if(el.uploadProgressBar)el.uploadProgressBar.style.width='0';
+                toggleWinForm();
+                showToast("Win posted! 🎉 The community can see it.");
+                loadWins();
+            }catch(e){
+                console.error(e);
+                showToast("Failed to post win: "+(e.message||""),true);
+                if(screenshotPath&&!screenshotUrl)sb.storage.from('win-screenshots').remove([screenshotPath]).catch(()=>{});
+            }finally{
+                if(el.submitWinBtn){el.submitWinBtn.textContent="Post Win";el.submitWinBtn.disabled=false}
+                if(el.uploadProgress)el.uploadProgress.classList.remove('visible');
+            }
+        }
+
+        function _initWinUploadZone(){
+            const zone=el.uploadZone;
+            const fileInput=el.winScreenshotFile;
+            const removeBtn=document.getElementById('uploadPreviewRemove');
+
+            if(fileInput){
+                fileInput.addEventListener('change',e=>{
+                    const f=e.target.files[0];
+                    if(f)_setWinFile(f);
+                });
+            }
+            if(zone){
+                zone.addEventListener('click',()=>fileInput&&fileInput.click());
+                zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover')});
+                zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+                zone.addEventListener('drop',e=>{
+                    e.preventDefault();zone.classList.remove('dragover');
+                    const f=e.dataTransfer.files[0];
+                    if(f&&f.type.startsWith('image/'))_setWinFile(f);
+                });
+            }
+            if(removeBtn){
+                removeBtn.addEventListener('click',e=>{
+                    e.stopPropagation();
+                    _selectedWinFile=null;
+                    if(el.uploadPreviewImg)el.uploadPreviewImg.src='';
+                    if(el.uploadPreview)el.uploadPreview.classList.remove('visible');
+                    if(zone)zone.classList.remove('has-file');
+                    if(fileInput)fileInput.value='';
+                });
+            }
+        }
+
+        function _setWinFile(file){
+            if(!file.type.startsWith('image/')){showToast("Please select an image file.",true);return}
+            if(file.size>5*1024*1024){showToast("Image must be under 5 MB.",true);return}
+            _selectedWinFile=file;
+            const reader=new FileReader();
+            reader.onload=ev=>{
+                if(el.uploadPreviewImg)el.uploadPreviewImg.src=ev.target.result;
+                if(el.uploadPreview)el.uploadPreview.classList.add('visible');
+                if(el.uploadZone)el.uploadZone.classList.add('has-file');
+            };
+            reader.readAsDataURL(file);
         }
 
         window.handleLike=async function(postId,btn){
