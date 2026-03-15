@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="SpinZone Player Profile">
+    <title>Profile | SpinZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root{--primary:#8b5cf6;--primary-hover:#7c3aed;--accent:#10b981;--gold:#f59e0b;--danger:#ef4444;--dark-bg:#0a0e1a;--card-bg:#141b2d;--card-border:#1e293b;--surface:#0f172a;--text-main:#f1f5f9;--text-muted:#64748b;--text-dim:#475569;--header-height:64px;--nav-h:48px}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+        body{background:var(--dark-bg);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+        a{text-decoration:none;color:inherit;transition:color .2s}a:hover{color:var(--primary)}
+        header{background:rgba(10,14,26,.92);backdrop-filter:blur(20px);padding:0 1.5rem;height:var(--header-height);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:1.4rem;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem;text-decoration:none}.logo b{color:var(--primary)}.logo span{color:var(--text-main)}
+        .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-height);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
+        .sz-nav-inner{display:flex;gap:0;max-width:1200px;margin:0 auto;padding:0 1rem}
+        .sz-nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem}.sz-nav-link:hover{color:var(--text-main)}.sz-nav-link.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .badge-nav{font-size:.6rem;padding:1px 5px;border-radius:4px;font-weight:700}.badge-nav.red{background:var(--danger);color:#fff}.badge-nav.gold{background:var(--gold);color:#000}
+
+        /* PROFILE PAGE */
+        .profile-wrap{max-width:800px;margin:0 auto;padding:0 1rem}
+        .profile-cover{height:180px;background:linear-gradient(135deg,#1e1145 0%,#0f172a 50%,#0c2d1e 100%);border-radius:0 0 16px 16px;position:relative;border:1px solid var(--card-border);border-top:none}
+        .profile-header{display:flex;gap:1.5rem;align-items:flex-end;padding:0 1.5rem;margin-top:-50px;position:relative;z-index:2}
+        .profile-avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));border:4px solid var(--dark-bg);display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;position:relative}
+        .profile-avatar img{width:100%;height:100%;object-fit:cover}
+        .profile-avatar-edit{position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--primary);border:2px solid var(--dark-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.7rem;color:#fff;transition:.2s}.profile-avatar-edit:hover{background:var(--primary-hover)}
+        .profile-info{flex:1;min-width:0;padding-bottom:.5rem}
+        .profile-name{font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+        .profile-name .badge-verified{width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff}
+        .profile-name .badge-pro{font-size:.6rem;padding:2px 8px;background:var(--primary);color:#fff;border-radius:4px;font-weight:700}
+        .profile-name .badge-vip{font-size:.6rem;padding:2px 8px;background:var(--gold);color:#000;border-radius:4px;font-weight:700}
+        .profile-handle{color:var(--text-muted);font-size:.9rem;margin-top:.15rem}
+        .profile-actions{display:flex;gap:.5rem;margin-top:1.25rem;padding:0 1.5rem}
+        .btn-follow{padding:.5rem 1.5rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;border:none;transition:all .2s}
+        .btn-follow.follow{background:var(--primary);color:#fff}.btn-follow.follow:hover{background:var(--primary-hover)}
+        .btn-follow.following{background:transparent;color:var(--text-muted);border:1px solid var(--card-border)}.btn-follow.following:hover{border-color:var(--danger);color:var(--danger)}
+        .btn-edit-profile{padding:.5rem 1.5rem;background:transparent;color:var(--text-muted);border:1px solid var(--card-border);border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s}.btn-edit-profile:hover{border-color:var(--text-main);color:var(--text-main)}
+        .btn-msg{padding:.5rem .75rem;background:transparent;color:var(--text-muted);border:1px solid var(--card-border);border-radius:8px;cursor:pointer;font-size:.85rem;transition:.2s}.btn-msg:hover{border-color:var(--primary);color:var(--primary)}
+
+        .profile-bio{padding:1.25rem 1.5rem;color:var(--text-muted);font-size:.9rem;line-height:1.6}
+        .profile-meta{display:flex;gap:1.5rem;padding:0 1.5rem .75rem;flex-wrap:wrap;font-size:.82rem;color:var(--text-dim)}
+        .profile-meta span{display:flex;align-items:center;gap:.3rem}
+        .profile-stats{display:flex;gap:0;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);margin:0}
+        .profile-stat{flex:1;text-align:center;padding:.75rem;cursor:pointer;transition:.2s}.profile-stat:hover{background:rgba(139,92,246,.05)}
+        .profile-stat .num{font-size:1.1rem;font-weight:800}.profile-stat .lbl{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+
+        /* PROFILE TABS */
+        .profile-tabs{display:flex;border-bottom:1px solid var(--card-border);margin-top:0;overflow-x:auto;scrollbar-width:none}.profile-tabs::-webkit-scrollbar{display:none}
+        .profile-tab{padding:.85rem 1.5rem;font-size:.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.2s}.profile-tab:hover{color:var(--text-main)}.profile-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .profile-content{padding:1rem 0}
+        .profile-empty{text-align:center;padding:3rem;color:var(--text-dim);font-size:.9rem}
+
+        /* WIN/POST/PICK CARDS (reuse) */
+        .p-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;transition:all .2s}.p-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+        .p-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+        .p-card-type{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:4px}
+        .type-win{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+        .type-post{background:rgba(139,92,246,.15);color:#8b5cf6;border:1px solid rgba(139,92,246,.2)}
+        .type-pick{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+        .p-card-time{font-size:.75rem;color:var(--text-dim)}
+        .p-card-title{font-weight:700;font-size:1rem;margin-bottom:.25rem}
+        .p-card-body{font-size:.85rem;color:var(--text-muted);line-height:1.5}
+        .p-card-amount{font-size:1.4rem;font-weight:800;color:var(--accent);margin:.5rem 0}
+        .p-card-footer{display:flex;gap:1.25rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--card-border);font-size:.8rem;color:var(--text-dim)}
+        .p-card-footer span{display:flex;align-items:center;gap:.3rem;cursor:pointer;transition:.2s}.p-card-footer span:hover{color:var(--text-main)}
+
+        /* EDIT MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;justify-content:center;align-items:center;z-index:2000;opacity:0;visibility:hidden;transition:.3s;padding:1rem;backdrop-filter:blur(5px)}.modal-overlay.active{opacity:1;visibility:visible}
+        .modal-content{background:var(--card-bg);padding:2rem;border-radius:16px;width:100%;max-width:480px;border:1px solid #475569;max-height:90vh;overflow-y:auto}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+        .modal-header h2{font-size:1.3rem;font-weight:800}
+        .close-modal{background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer}.close-modal:hover{color:#fff}
+        .form-group{margin-bottom:1rem}.form-group label{display:block;font-size:.82rem;color:var(--text-muted);margin-bottom:.4rem;font-weight:600}
+        .form-input{width:100%;padding:.75rem;background:#0f172a;border:1px solid var(--card-border);color:#fff;border-radius:8px;font-size:.9rem;outline:none;transition:.2s;font-family:inherit}.form-input:focus{border-color:var(--primary)}
+        textarea.form-input{resize:vertical;min-height:80px}
+        .btn-save{width:100%;padding:.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:.2s}.btn-save:hover{background:var(--primary-hover)}
+        .toast{position:fixed;bottom:20px;right:20px;background:var(--card-bg);border-left:4px solid var(--accent);padding:1rem 1.5rem;border-radius:6px;box-shadow:0 10px 15px rgba(0,0,0,.5);transform:translateY(100px);transition:.3s;z-index:3000;font-weight:600;max-width:90%}.toast.error{border-left-color:var(--danger)}.toast.active{transform:translateY(0)}
+        .loading{text-align:center;padding:3rem;color:var(--text-muted)}
+
+        footer{text-align:center;padding:2rem 1rem;color:var(--text-dim);border-top:1px solid var(--card-border);margin-top:2rem;font-size:.85rem}
+
+        @media(max-width:600px){
+            .profile-cover{height:120px}
+            .profile-header{gap:1rem;padding:0 1rem;margin-top:-40px}
+            .profile-avatar{width:80px;height:80px;font-size:2rem}
+            .profile-name{font-size:1.2rem}
+            .profile-actions{padding:0 1rem;flex-wrap:wrap}
+            .profile-bio{padding:1rem}
+            .profile-meta{padding:0 1rem .75rem}
+            .profile-tab{padding:.7rem 1rem;font-size:.8rem}
+            .profile-content{padding:.75rem}
+            .modal-content{padding:1.5rem;border-radius:12px 12px 0 0;max-height:85vh}
+            header{padding:0 .75rem;height:56px}:root{--header-height:56px}
+            .logo{font-size:1.1rem}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo"><div class="logo-icon">🎲</div><div><b>Spin</b><span>Zone</span></div></a>
+        <div style="display:flex;align-items:center;gap:.75rem">
+            <div id="headerAuth"></div>
+            <a href="/premium.html" class="btn-gold" style="text-decoration:none">👑 Go Pro</a>
+        </div>
+    </header>
+    <nav class="sz-nav"><div class="sz-nav-inner">
+        <a class="sz-nav-link" href="/">🏠 Home</a>
+        <a class="sz-nav-link" href="/sportsbook.html">⚽ Sports <span class="badge-nav red">NEW</span></a>
+        <a class="sz-nav-link" href="/casinos.html">🎰 Casinos</a>
+        <a class="sz-nav-link" href="/picks.html">🎯 Picks <span class="badge-nav red">HOT</span></a>
+        <a class="sz-nav-link" href="/wins.html">🏆 Wins</a>
+        <a class="sz-nav-link" href="/insights.html">📊 Insights <span class="badge-nav gold">PRO</span></a>
+        <a class="sz-nav-link" href="/discuss.html">💬 Community</a>
+        <a class="sz-nav-link" href="/premium.html">👑 Premium</a>
+    </div></nav>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- EDIT PROFILE MODAL -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Edit Profile</h2><button class="close-modal" id="closeEdit">&times;</button></div>
+            <div class="form-group"><label>Display Name</label><input type="text" class="form-input" id="editName" placeholder="Your name"></div>
+            <div class="form-group"><label>Username</label><input type="text" class="form-input" id="editUsername" placeholder="@username"></div>
+            <div class="form-group"><label>Bio</label><textarea class="form-input" id="editBio" placeholder="Tell us about yourself..."></textarea></div>
+            <div class="form-group"><label>Location</label><input type="text" class="form-input" id="editLocation" placeholder="City, Country"></div>
+            <div class="form-group"><label>Website</label><input type="url" class="form-input" id="editWebsite" placeholder="https://yoursite.com"></div>
+            <div class="form-group"><label>Twitter / X</label><input type="text" class="form-input" id="editTwitter" placeholder="@handle"></div>
+            <button class="btn-save" id="saveProfile">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- PROFILE CONTENT -->
+    <div id="profilePage">
+        <div class="loading" id="profileLoading">Loading profile...</div>
+    </div>
+
+    <footer>
+        <p>SpinZone — Real Players. Real Wins. | 18+ Only. Please Gamble Responsibly.</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL='https://rcsntlpytbwosykkhzzg.supabase.co';
+        const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjc250bHB5dGJ3b3N5a2toenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMDg2NDEsImV4cCI6MjA4NzU4NDY0MX0.JZ8iZ6dFSQv_G5wgIJ7RGosA4WR5ZIwdvKbbKLjwXfI';
+        const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+        let currentUser=null;let viewedProfile=null;let currentTab='wins';
+
+        function showToast(m,err){const t=document.getElementById('toast');t.textContent=m;t.className=err?'toast active error':'toast active';setTimeout(()=>t.classList.remove('active'),3000)}
+        function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+        function timeAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'}
+
+        async function init(){
+            try{
+                const{data:{session}}=await sb.auth.getSession();
+                if(session)currentUser=session.user;
+            }catch(e){}
+
+            // Get profile ID from URL or show current user
+            const params=new URLSearchParams(window.location.search);
+            const profileId=params.get('id');
+
+            if(!profileId&&!currentUser){
+                document.getElementById('profilePage').innerHTML='<div class="loading"><p>Please <a href="/" style="color:var(--primary)">sign in</a> to view your profile.</p></div>';
+                return;
+            }
+
+            const targetId=profileId||currentUser.id;
+            await loadProfile(targetId);
+        }
+
+        async function loadProfile(userId){
+            try{
+                const{data:profile,error}=await sb.from('profiles').select('*').eq('id',userId).single();
+                if(error||!profile){
+                    document.getElementById('profilePage').innerHTML='<div class="loading"><p>Profile not found. <a href="/" style="color:var(--primary)">Go home</a></p></div>';
+                    return;
+                }
+                viewedProfile=profile;
+                renderProfile(profile);
+                loadTabContent('wins');
+            }catch(e){
+                document.getElementById('profilePage').innerHTML='<div class="loading"><p>Error loading profile.</p></div>';
+            }
+        }
+
+        function renderProfile(p){
+            const isOwn=currentUser&&currentUser.id===p.id;
+            const name=p.display_name||p.username||'Player';
+            const initial=name.charAt(0).toUpperCase();
+            const avatarContent=p.profile_picture_url?`<img src="${esc(p.profile_picture_url)}" alt="${esc(name)}">`:`${initial}`;
+
+            let badges='';
+            if(p.is_verified)badges+='<span class="badge-verified">✓</span>';
+            if(p.is_vip)badges+='<span class="badge-vip">VIP</span>';
+            else if(p.is_pro)badges+='<span class="badge-pro">PRO</span>';
+
+            let actionBtns='';
+            if(isOwn){
+                actionBtns=`<button class="btn-edit-profile" onclick="openEditModal()">Edit Profile</button>`;
+            }else if(currentUser){
+                actionBtns=`
+                    <button class="btn-follow follow" id="followBtn" onclick="toggleFollow('${p.id}')">Follow</button>
+                    <button class="btn-msg" onclick="showToast('Messaging coming soon!')">💬</button>
+                `;
+            }
+
+            let metaItems='';
+            if(p.location)metaItems+=`<span>📍 ${esc(p.location)}</span>`;
+            if(p.website)metaItems+=`<span><a href="${esc(p.website)}" target="_blank" style="color:var(--primary)">🔗 Website</a></span>`;
+            if(p.twitter_handle)metaItems+=`<span><a href="https://x.com/${esc(p.twitter_handle.replace('@',''))}" target="_blank" style="color:var(--primary)">𝕏 ${esc(p.twitter_handle)}</a></span>`;
+            metaItems+=`<span>📅 Joined ${new Date(p.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'})}</span>`;
+
+            document.getElementById('profilePage').innerHTML=`
+                <div class="profile-cover"></div>
+                <div class="profile-wrap">
+                    <div class="profile-header">
+                        <div class="profile-avatar">${avatarContent}</div>
+                        <div class="profile-info">
+                            <div class="profile-name">${esc(name)} ${badges}</div>
+                            <div class="profile-handle">@${esc(p.username||'player')}</div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">${actionBtns}</div>
+                    ${p.bio?`<div class="profile-bio">${esc(p.bio)}</div>`:''}
+                    <div class="profile-meta">${metaItems}</div>
+                    <div class="profile-stats">
+                        <div class="profile-stat"><div class="num">${p.followers_count||0}</div><div class="lbl">Followers</div></div>
+                        <div class="profile-stat"><div class="num">${p.following_count||0}</div><div class="lbl">Following</div></div>
+                        <div class="profile-stat"><div class="num" id="statWins">0</div><div class="lbl">Wins</div></div>
+                        <div class="profile-stat"><div class="num">${p.reputation_score||0}</div><div class="lbl">Rep</div></div>
+                    </div>
+                    <div class="profile-tabs">
+                        <div class="profile-tab active" data-tab="wins" onclick="switchTab('wins',this)">Wins</div>
+                        <div class="profile-tab" data-tab="posts" onclick="switchTab('posts',this)">Posts</div>
+                        <div class="profile-tab" data-tab="picks" onclick="switchTab('picks',this)">Picks</div>
+                    </div>
+                    <div class="profile-content" id="profileContent"><div class="loading">Loading...</div></div>
+                </div>
+            `;
+
+            // Check follow status
+            if(!isOwn&&currentUser)checkFollowStatus(p.id);
+        }
+
+        async function checkFollowStatus(targetId){
+            if(!currentUser)return;
+            try{
+                const{data}=await sb.from('follows').select('id').eq('follower_id',currentUser.id).eq('following_id',targetId).single();
+                const btn=document.getElementById('followBtn');
+                if(btn&&data){btn.className='btn-follow following';btn.textContent='Following'}
+            }catch(e){}
+        }
+
+        async function toggleFollow(targetId){
+            if(!currentUser){showToast('Sign in to follow',true);return}
+            const btn=document.getElementById('followBtn');
+            const isFollowing=btn.classList.contains('following');
+            try{
+                if(isFollowing){
+                    await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',targetId);
+                    btn.className='btn-follow follow';btn.textContent='Follow';
+                }else{
+                    await sb.from('follows').insert({follower_id:currentUser.id,following_id:targetId});
+                    btn.className='btn-follow following';btn.textContent='Following';
+                }
+            }catch(e){showToast('Failed to update follow',true)}
+        }
+
+        function switchTab(tab,el){
+            currentTab=tab;
+            document.querySelectorAll('.profile-tab').forEach(t=>t.classList.remove('active'));
+            if(el)el.classList.add('active');
+            loadTabContent(tab);
+        }
+
+        async function loadTabContent(tab){
+            const container=document.getElementById('profileContent');
+            if(!container)return;
+            container.innerHTML='<div class="loading">Loading...</div>';
+            const userId=viewedProfile.id;
+
+            try{
+                if(tab==='wins'){
+                    const{data:wins}=await sb.from('player_wins').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(20);
+                    if(wins&&wins.length){
+                        const statEl=document.getElementById('statWins');if(statEl)statEl.textContent=wins.length;
+                        container.innerHTML=wins.map(w=>`
+                            <div class="p-card">
+                                <div class="p-card-header"><span class="p-card-type type-win">Win</span><span class="p-card-time">${timeAgo(w.created_at)}</span></div>
+                                <div class="p-card-body">${esc(w.game_name||'')} · ${esc(w.casino_name||'')}</div>
+                                <div class="p-card-amount">${esc(w.win_amount)} ${w.multiplier?'<span style="font-size:.8rem;color:var(--gold)">'+esc(w.multiplier)+'</span>':''}</div>
+                                <div class="p-card-footer"><span>❤️ 0</span><span>💬 0</span></div>
+                            </div>
+                        `).join('');
+                    }else{container.innerHTML='<div class="profile-empty">No wins posted yet.</div>'}
+                }else if(tab==='posts'){
+                    const{data:posts}=await sb.from('posts').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(20);
+                    if(posts&&posts.length){
+                        container.innerHTML=posts.map(p=>`
+                            <div class="p-card">
+                                <div class="p-card-header"><span class="p-card-type type-post">${esc(p.type||'Post')}</span><span class="p-card-time">${timeAgo(p.created_at)}</span></div>
+                                <div class="p-card-title">${esc(p.title)}</div>
+                                <div class="p-card-body">${esc(p.content.substring(0,200))}${p.content.length>200?'...':''}</div>
+                                <div class="p-card-footer"><span>❤️ ${p.likes?p.likes.length:0}</span><span>💬 0</span></div>
+                            </div>
+                        `).join('');
+                    }else{container.innerHTML='<div class="profile-empty">No posts yet.</div>'}
+                }else if(tab==='picks'){
+                    container.innerHTML='<div class="profile-empty">Picks feature coming soon.</div>';
+                }
+            }catch(e){
+                console.error(e);
+                container.innerHTML='<div class="profile-empty">Failed to load content.</div>';
+            }
+        }
+
+        // EDIT PROFILE
+        function openEditModal(){
+            if(!viewedProfile)return;
+            document.getElementById('editName').value=viewedProfile.display_name||'';
+            document.getElementById('editUsername').value=viewedProfile.username||'';
+            document.getElementById('editBio').value=viewedProfile.bio||'';
+            document.getElementById('editLocation').value=viewedProfile.location||'';
+            document.getElementById('editWebsite').value=viewedProfile.website||'';
+            document.getElementById('editTwitter').value=viewedProfile.twitter_handle||'';
+            document.getElementById('editModal').classList.add('active');
+        }
+        document.getElementById('closeEdit').addEventListener('click',()=>document.getElementById('editModal').classList.remove('active'));
+        document.getElementById('editModal').addEventListener('click',(e)=>{if(e.target.id==='editModal')e.target.classList.remove('active')});
+
+        document.getElementById('saveProfile').addEventListener('click',async()=>{
+            if(!currentUser)return;
+            const btn=document.getElementById('saveProfile');
+            btn.textContent='Saving...';btn.disabled=true;
+            try{
+                const updates={
+                    display_name:document.getElementById('editName').value.trim()||null,
+                    username:document.getElementById('editUsername').value.trim()||viewedProfile.username,
+                    bio:document.getElementById('editBio').value.trim()||null,
+                    location:document.getElementById('editLocation').value.trim()||null,
+                    website:document.getElementById('editWebsite').value.trim()||null,
+                    twitter_handle:document.getElementById('editTwitter').value.trim()||null
+                };
+                const{error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+                if(error)throw error;
+                document.getElementById('editModal').classList.remove('active');
+                showToast('Profile updated!');
+                await loadProfile(currentUser.id);
+            }catch(e){
+                showToast('Failed to save: '+(e.message||''),true);
+            }finally{btn.textContent='Save Changes';btn.disabled=false}
+        });
+
+        // Header auth state
+        async function renderHeaderAuth(){
+            const el=document.getElementById('headerAuth');
+            if(currentUser){
+                const{data:p}=await sb.from('profiles').select('username').eq('id',currentUser.id).single();
+                const name=p?.username||currentUser.email?.split('@')[0]||'User';
+                el.innerHTML=`<a href="/profile.html" style="color:var(--text-main);font-weight:600;font-size:.85rem">${esc(name)}</a>`;
+            }else{
+                el.innerHTML=`<a href="/" style="color:var(--text-muted);font-size:.85rem">Sign In</a>`;
+            }
+        }
+
+        renderHeaderAuth();
+        init();
+    </script>
+</body>
+</html>
