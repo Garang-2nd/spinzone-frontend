@@ -116,7 +116,7 @@
         @media(max-width:375px){header{padding:0 .5rem}.logo{font-size:1.05rem}.btn{font-size:.75rem;padding:.4rem .6rem}.avatar{width:26px;height:26px;font-size:.7rem}.username{max-width:60px;font-size:.8rem}.hero h1{font-size:1.4rem}.hero p{font-size:.85rem}.wheel-container{width:230px}.wheel-wrapper{width:160px;height:160px}.wheel-canvas{width:160px;height:160px}.wheel-center{width:32px;height:32px;font-size:.55rem}.card-img{height:80px;font-size:1.8rem}.post-card h2{font-size:.9rem;margin-bottom:.3rem}.post-card p{font-size:.75rem;-webkit-line-clamp:2;line-clamp:2;line-height:1.3;margin-bottom:.4rem}.card-content{padding:.6rem}.badge{font-size:.6rem}.card-footer{font-size:.65rem;padding-top:.5rem}.modal-content{padding:1.25rem;padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}.modal-header h2{font-size:1.25rem}.btn-google{font-size:.85rem;padding:.7rem}}
 
         .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.3)}
-        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:var(--header-height);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
+        .sz-nav{background:var(--surface);border-bottom:1px solid var(--card-border);position:sticky;top:calc(var(--header-height) + 40px);z-index:90;overflow-x:auto;scrollbar-width:none}.sz-nav::-webkit-scrollbar{display:none}
         .sz-nav-inner{display:flex;gap:0;max-width:1200px;margin:0 auto;padding:0 1rem}
         .sz-nav-link{padding:.85rem 1.25rem;font-size:.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.4rem;text-decoration:none}.sz-nav-link:hover{color:var(--text-main)}.sz-nav-link.active{color:var(--primary);border-bottom-color:var(--primary)}
         .badge-nav{font-size:.6rem;padding:1px 5px;border-radius:4px;font-weight:700}.badge-nav.red{background:var(--danger);color:#fff}.badge-nav.gold{background:var(--gold);color:#000}
@@ -243,9 +243,14 @@
             border-bottom: 2px solid #8b5cf6;
             padding: 0.75rem 0;
             overflow: hidden;
-            position: relative;
+            position: sticky;
+            top: var(--header-height);
+            z-index: 95;
             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
             width: 100%;
+            height: 40px;
+            display: flex !important;
+            align-items: center;
         }
 
         .live-feed-label {
@@ -1005,40 +1010,47 @@
             }
 
             // Start session and load data
+            createFeed(mockFeed); // Show mock immediately
             initSession();
             loadLiveFeed();
             setInterval(loadLiveFeed, 60000);
 
             // Bind Category Buttons
-            el.catButtons.forEach(btn => btn.addEventListener('click', () => {
-                el.catButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.currentFilter = btn.dataset.filter;
-                loadPosts();
-            }));
+            if(el.catButtons) {
+                el.catButtons.forEach(btn => btn.addEventListener('click', () => {
+                    el.catButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentFilter = btn.dataset.filter;
+                    loadPosts();
+                }));
+            }
 
             // Bind Filter Buttons
-            el.filterButtons.forEach(btn => btn.addEventListener('click', () => {
-                el.filterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.currentSort = btn.dataset.sort;
-                loadPosts();
-            }));
+            if(el.filterButtons) {
+                el.filterButtons.forEach(btn => btn.addEventListener('click', () => {
+                    el.filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentSort = btn.dataset.sort;
+                    loadPosts();
+                }));
+            }
 
             // Bind View Tabs
-            el.viewTabs.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+            if(el.viewTabs) {
+                el.viewTabs.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+            }
 
             // Bind Win Sort
-            el.winSortButtons.forEach(btn => btn.addEventListener('click', () => {
-                el.winSortButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.currentWinSort = btn.dataset.winsort;
-                loadWins();
-            }));
+            if(el.winSortButtons) {
+                el.winSortButtons.forEach(btn => btn.addEventListener('click', () => {
+                    el.winSortButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentWinSort = btn.dataset.winsort;
+                    loadWins();
+                }));
+            }
 
             if(el.submitWinBtn) el.submitWinBtn.addEventListener('click', handleCreateWin);
-
-            initSession();
         }
 
         function drawWheel(angle){
@@ -1433,30 +1445,9 @@
             else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts();renderWins()}
         });
 
-        // Event Listeners Initialization
+        // Initialize application on load
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
-            
-            if(el.btnAgeConfirm) el.btnAgeConfirm.addEventListener('click',()=>handleAgeVerification(true));
-            if(el.btnAgeDeny) el.btnAgeDeny.addEventListener('click',()=>handleAgeVerification(false));
-            if(el.authForm) el.authForm.addEventListener('submit',handleAuthSubmit);
-            if(el.submitPostBtn) el.submitPostBtn.addEventListener('click',handleCreatePost);
-            
-            el.catButtons.forEach(btn=>btn.addEventListener('click',()=>{
-                el.catButtons.forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
-                state.currentFilter=btn.dataset.filter;
-                loadPosts();
-            }));
-            
-            el.filterButtons.forEach(btn=>btn.addEventListener('click',()=>{
-                el.filterButtons.forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
-                state.currentSort=btn.dataset.sort;
-                loadPosts();
-            }));
-            
-            el.viewTabs.forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
         });
 
         window.showPage = function(pageId, category) {
