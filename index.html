@@ -274,15 +274,15 @@
         <div class="hero-banner" id="heroBanner">
             <h1>Real Players. <em>Real Wins.</em></h1>
             <p>Casino reviews, daily picks, sports betting insights, and a community of real players sharing real results.</p>
-            <div class="hero-stats" id="heroStats">
+            <div class="hero-stats" id="heroStats" style="display:none">
                 <div class="hero-stat"><div class="num">2,847</div><div class="lbl">Members</div></div>
                 <div class="hero-stat"><div class="num">67%</div><div class="lbl">Pick Win Rate</div></div>
                 <div class="hero-stat"><div class="num">$48K</div><div class="lbl">Won This Month</div></div>
                 <div class="hero-stat"><div class="num">142</div><div class="lbl">Casino Reviews</div></div>
             </div>
             <div class="hero-cta" id="heroCTA" style="display:none">
-                <button class="btn btn-primary" onclick="document.getElementById('loginBtn')?.click()||initiateAuthFlow(false)">Join Discussion</button>
-                <button class="btn btn-outline" onclick="showToast('Coming soon!')">Go Premium</button>
+                <button class="btn btn-primary" onclick="initiateAuthFlow(false)">Join Discussion</button>
+                <button class="btn btn-outline" onclick="showPage('premium')">Go Premium</button>
             </div>
         </div>
     </div>
@@ -374,7 +374,7 @@
     <!-- PLAYER WINS -->
     <div class="new-section">
         <div class="section-hdr">🏆 Recent Player Wins<a href="#" onclick="showPage('wins'); return false;" class="see-all">View All →</a></div>
-        <div class="grid-2">
+        <div class="grid-2" id="homeWinsGrid">
             <div class="ns-card hw-card"><div class="hw-av" style="background:linear-gradient(135deg,var(--primary),var(--accent))">AK</div><div class="hw-body"><div class="hw-user">AceKing42 <span class="vf">✓</span></div><div class="hw-det">Sweet Bonanza · Stake Casino</div><div class="hw-amt">$5,420 <span class="mx">542x multiplier</span></div><div class="hw-time">12 minutes ago</div></div></div>
             <div class="ns-card hw-card"><div class="hw-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JP</div><div class="hw-body"><div class="hw-user">JackpotJane</div><div class="hw-det">Lightning Roulette · BC.Game</div><div class="hw-amt">$2,150 <span class="mx">430x</span></div><div class="hw-time">34 minutes ago</div></div></div>
             <div class="ns-card hw-card"><div class="hw-av" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">MR</div><div class="hw-body"><div class="hw-user">MrRoyal <span class="vf">✓</span></div><div class="hw-det">NFL Parlay · Stake Sportsbook</div><div class="hw-amt">$8,900 <span class="mx">+890% ROI</span></div><div class="hw-time">1 hour ago</div></div></div>
@@ -412,37 +412,8 @@
     <!-- COMMUNITY DISCUSSIONS -->
     <div class="new-section">
         <div class="section-hdr">💬 Community Discussions<a href="#" onclick="showPage('community'); return false;" class="see-all">View All →</a></div>
-        <div style="display:flex;flex-direction:column;gap:1rem">
-            <a href="#" onclick="showPage('community', 'strat'); return false;" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
-                <div class="dsc-header">
-                    <div class="dsc-av" style="background:linear-gradient(135deg,var(--primary),#6366f1)">RK</div>
-                    <div class="dsc-body">
-                        <div class="dsc-title">What's your go-to bankroll management strategy?</div>
-                        <div class="dsc-meta"><span>by <b>RoyalKing</b></span><span class="dsc-cat dsc-cat-strat">Strategy</span><span>2 hours ago</span></div>
-                    </div>
-                </div>
-                <div class="dsc-stats"><span>💬 34 replies</span><span>❤️ 89 likes</span><span>👁 412 views</span></div>
-            </a>
-            <a href="#" onclick="showPage('community', 'general'); return false;" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
-                <div class="dsc-header">
-                    <div class="dsc-av" style="background:linear-gradient(135deg,var(--gold),#d97706)">SQ</div>
-                    <div class="dsc-body">
-                        <div class="dsc-title">Just hit $10K on a 3-leg parlay! AMA 🎉</div>
-                        <div class="dsc-meta"><span>by <b>SlotQueen</b></span><span class="dsc-cat dsc-cat-brags">Brags & Wins</span><span>45 minutes ago</span></div>
-                    </div>
-                </div>
-                <div class="dsc-stats"><span>💬 67 replies</span><span>❤️ 234 likes</span><span>👁 1.2K views</span></div>
-            </a>
-            <a href="#" onclick="showPage('community', 'general'); return false;" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
-                <div class="dsc-header">
-                    <div class="dsc-av" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">NB</div>
-                    <div class="dsc-body">
-                        <div class="dsc-title">Best crypto casino for fast withdrawals in 2025?</div>
-                        <div class="dsc-meta"><span>by <b>NewbieBettor</b></span><span class="dsc-cat dsc-cat-help">Help</span><span>3 hours ago</span></div>
-                    </div>
-                </div>
-                <div class="dsc-stats"><span>💬 21 replies</span><span>❤️ 45 likes</span><span>👁 289 views</span></div>
-            </a>
+        <div style="display:flex;flex-direction:column;gap:1rem" id="homeDiscussions">
+            <div class="loading">Loading discussions...</div>
         </div>
     </div>
 
@@ -1053,9 +1024,9 @@
                 if(li) li.addEventListener('click',()=>initiateAuthFlow(true));
                 if(jb) jb.addEventListener('click',()=>initiateAuthFlow(false));
             }
-            if(el.createPostBar) el.createPostBar.classList.toggle('visible', !!state.user && state.currentView !== 'wins');
+            if(el.createPostBar) el.createPostBar.classList.toggle('visible', !!state.user);
             const actionContainer = document.getElementById('winActionContainer');
-            if(actionContainer) actionContainer.style.display = (!!state.user && state.currentView === 'wins') ? 'flex' : 'none';
+            if(actionContainer) actionContainer.style.display = !!state.user ? 'flex' : 'none';
             if(el.createWinBar) el.createWinBar.classList.remove('visible');
             updateHero();
         }
@@ -1140,8 +1111,34 @@
                 if(state.currentSort==='popular') state.posts.sort((a,b)=>b.like_count-a.like_count);
                 else state.posts.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
                 
-                updateCounts();renderPosts();renderTrending();
+                updateCounts();renderPosts();renderTrending();renderHomeDiscussions();
             }catch(err){console.error(err);if(el.postGrid) el.postGrid.innerHTML='<div class="empty-state">Failed to load.</div>'}
+        }
+
+        function renderHomeDiscussions() {
+            const container = document.getElementById('homeDiscussions');
+            if(!container) return;
+            const discussions = state.posts.filter(p => p.item_type === 'post').slice(0, 3);
+            if(!discussions.length) {
+                container.innerHTML = '<div class="empty-state">No discussions yet.</div>';
+                return;
+            }
+            container.innerHTML = discussions.map(p => {
+                const bc = typeBadge[p.type] || 'badge-general';
+                const lb = typeLabel[p.type] || 'General';
+                const nameLen = (p.username || 'A').length;
+                const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #3b82f6, #2563eb)');
+                const init = escapeHtml((p.username || 'A').substring(0,2).toUpperCase());
+                return `<a href="#" onclick="showPage('community'); return false;" class="ns-card dsc-card" style="display:block;text-decoration:none;color:inherit">
+                    <div class="dsc-header">
+                        <div class="dsc-av" style="background:${avaGrad}">${init}</div>
+                        <div class="dsc-body">
+                            <div class="dsc-title">${escapeHtml(p.title)}</div>
+                            <div class="dsc-meta"><span>by <b>${escapeHtml(p.username)}</b></span><span class="dsc-cat ${bc}" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1)">${lb}</span><span>${getTimeAgo(p.created_at)}</span></div>
+                        </div>
+                    </div>
+                </a>`;
+            }).join('');
         }
 
         async function updateCounts(){
@@ -1251,11 +1248,25 @@
                 if(state.currentWinSort==='biggest')state.wins.sort((a,b)=>parseFloat(b.win_amount)-parseFloat(a.win_amount));
                 updateWinStats();
                 renderWins();
+                renderHomeWins();
             }catch(e){
                 state.wins=[];
                 updateWinStats();
                 renderWins();
             }
+        }
+
+        function renderHomeWins() {
+            const container = document.getElementById('homeWinsGrid');
+            if(!container) return;
+            const wins = state.wins.slice(0, 4);
+            if(!wins.length) return; // Fallback to hardcoded if empty? Actually let's keep the hardcoded ones if empty.
+            container.innerHTML = wins.map(w => {
+                const nameLen = (w.username || 'A').length;
+                const avaGrad = nameLen % 3 === 0 ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : (nameLen % 2 === 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #f59e0b, #d97706)');
+                const init = escapeHtml((w.username || 'A').substring(0,2).toUpperCase());
+                return `<div class="ns-card hw-card"><div class="hw-av" style="background:${avaGrad}">${init}</div><div class="hw-body"><div class="hw-user">${escapeHtml(w.username)} ${w.is_verified ? '<span class="vf">✓</span>' : ''}</div><div class="hw-det">${escapeHtml(w.slot_name || 'Big Win')} · ${escapeHtml(w.casino_name)}</div><div class="hw-amt">$${parseFloat(w.win_amount).toLocaleString()} <span class="mx">${escapeHtml(w.win_multiplier || '')}</span></div><div class="hw-time">${getTimeAgo(w.created_at)}</div></div></div>`;
+            }).join('');
         }
 
         function updateWinStats(){
@@ -1320,18 +1331,17 @@
                     await loadProfile();await loadWinLikes();
                 }
             }catch(e){}
-            renderHeader();loadPosts();
+            renderHeader();loadPosts();loadWins();
         }
 
         sb.auth.onAuthStateChange(async(event,session)=>{
-            if(event==='SIGNED_IN'){state.session=session;state.user=session?.user||null;await loadProfile();await loadWinLikes();renderHeader();loadPosts()}
-            else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts()}
+            if(event==='SIGNED_IN'){state.session=session;state.user=session?.user||null;await loadProfile();await loadWinLikes();renderHeader();loadPosts();loadWins()}
+            else if(event==='SIGNED_OUT'){state.session=null;state.user=null;state.profile=null;state.userLikes=[];state.winLikes=[];renderHeader();renderPosts();renderWins()}
         });
 
         // Event Listeners Initialization
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
-            initSession();
             
             if(el.btnAgeConfirm) el.btnAgeConfirm.addEventListener('click',()=>handleAgeVerification(true));
             if(el.btnAgeDeny) el.btnAgeDeny.addEventListener('click',()=>handleAgeVerification(false));
@@ -1394,15 +1404,11 @@
             const stats = document.getElementById('heroStats');
             const cta = document.getElementById('heroCTA');
             if(!stats || !cta) return;
+            
+            // Critical fix: Ensure consistent display based on state.user
             if (state.user) {
                 stats.style.display = 'flex';
                 cta.style.display = 'none';
-                
-                // Fetch stats if needed
-                const wpCount = document.getElementById('wp-count');
-                const winCount = document.getElementById('win-count');
-                if(wpCount) wpCount.textContent = state.posts.filter(p => p.user_id === state.user.id).length;
-                if(winCount) winCount.textContent = state.wins.filter(w => w.user_id === state.user.id).length;
             } else {
                 stats.style.display = 'none';
                 cta.style.display = 'flex';
